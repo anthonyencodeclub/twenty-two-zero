@@ -5,7 +5,9 @@ import {
   readAgg, writeAgg, mergeTop, bumpStreak, upsertSub, utcDay
 } from './_shared.js';
 
-const MIN_AGE_MS = 90_000;        // shortest believable 22-match season
+const MIN_AGE_MS = 60_000;        // shortest believable 22-match season: the draw
+                                  // animation alone is ~26s, so a very fast player
+                                  // on Instant still clears this; a script does not
 const MAX_AGE_MS = 6 * 3600_000;  // token shelf life
 
 export default async function handler(req, res) {

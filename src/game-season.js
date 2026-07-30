@@ -524,7 +524,7 @@ function renderShareCard(){
       x.textAlign="center";
     });
     x.textAlign="center";x.fillStyle="#b9a8cc";x.font="600 26px -apple-system,Segoe UI,Roboto,sans-serif";
-    x.fillText("twentytwo.app",W/2,H-52);
+    x.fillText(SITE_URL.replace(/^https:\/\//,""),W/2,H-52);
     cv.toBlob(b=>res(b),"image/png");
   });
 }

@@ -238,7 +238,7 @@ const API=p=>fetch(p,{headers:{accept:"application/json"}}).then(r=>r.ok?r.json(
 const apiPost=(p,body)=>fetch(p,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})})
   .then(async r=>{let j={};try{j=await r.json();}catch(e){}return j;});
 const esc=s=>String(s).replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
-const SITE_URL="https://twentytwo.app";
+const SITE_URL="https://twenty-two-zero.vercel.app";
 
 function toast(msg){
   const t=$("toast");if(!t)return;

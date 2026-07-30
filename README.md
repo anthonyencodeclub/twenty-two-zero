@@ -6,7 +6,7 @@ A free, fan-made Women's Super League draft game. Draw club-seasons from the lea
 
 ## Play
 
-🎮 **[Play it live](https://twentytwo.app)**
+🎮 **[Play it live](https://twenty-two-zero.vercel.app)**
 
 ## What's in the game
 
@@ -44,6 +44,12 @@ Multipliers: Hard ×1.3 · Legend ×1.7 · Era Tour ×1.15 · Dynasty ×1.2 · W
 The whole 12-team league is a pure function of `(seed, pool, difficulty)`: who your eleven rivals are, the fixture list, and **every result that doesn't involve you**, generated on its own RNG stream so nothing you do at the keyboard can shift it.
 
 That means the server doesn't have to trust a claimed league position — given your 22 scorelines and the seed, `api/_shared.js` rebuilds the identical table and derives the finish itself. The league core is mirrored verbatim between [src/game-core.js](src/game-core.js) and [api/_shared.js](api/_shared.js); `scripts/simulate.mjs` plays hundreds of headless seasons and fails if the two ever disagree.
+
+### Anti-abuse
+
+Run tokens must be 60s–6h old (a plausible playtime), a season must be exactly 22 matches with sane scorelines and a believable seasonal goal total, the seed must be a real 32-bit value, points and final position are both recomputed server-side, names are sanitised and filtered, and a honeypot field quietly swallows naive bots.
+
+What the server *cannot* do is verify the match engine itself — a plausible-looking set of 22 scorelines will be taken at face value. That is a deliberate trade: it is a fan game, and determined cheaters are not the threat model.
 
 ## Architecture
 
