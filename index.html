@@ -1780,7 +1780,7 @@ function paintHome(){
     :"One free season a day — play it your way";
   $("streak-pill").innerHTML=st.streak>=2?`<span class="pill pink">🔥 ${st.streak}</span>`:"";
   const f=featuredFor(today);
-  $("daily-featured").innerHTML=`⭐ Today's featured challenge: <b>${esc(f.n)}</b> — +15% if your season matches it.`;
+  $("daily-featured").innerHTML=`⭐ Featured today: <b>${esc(f.n)}</b> — worth +15%`;
   $("btn-featured").style.display=played?"none":"";
   paintChallenge();
   paintHomeBoard();
