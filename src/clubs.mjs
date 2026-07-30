@@ -1,0 +1,937 @@
+/* WSL club-seasons — the source data.  [name, line, position, tier, nationality]
+   tier: star | key | squad  → becomes a rating band in scripts/extract.mjs
+   Squads are the notable first-team players for that exact season, researched
+   against club-season records. Positions are a descriptive reading of the role
+   they actually played that year; ratings are unofficial interpretation. */
+export const CLUB_SEASONS = [
+
+/* ===================== 2011: eight clubs, one summer ===================== */
+{c:"Arsenal",s:"2011",p:[
+  ["Emma Byrne","GK","GK","star","IRL"],
+  ["Faye White","DEF","CB","key","ENG"],["Steph Houghton","DEF","LB","star","ENG"],
+  ["Gilly Flaherty","DEF","CB","key","ENG"],["Niamh Fahey","DEF","CB","key","IRL"],
+  ["Jen Beattie","DEF","CB","key","SCO"],["Yvonne Tracy","DEF","RB","squad","IRL"],
+  ["Katie Chapman","MID","DM","star","ENG"],["Kim Little","MID","AM","star","SCO"],
+  ["Jayne Ludlow","MID","CM","key","WAL"],["Ciara Grant","MID","CM","key","IRL"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],
+  ["Rachel Yankey","FWD","LW","star","ENG"],["Ellen White","FWD","ST","star","ENG"],
+  ["Julie Fleeting","FWD","ST","key","SCO"],["Danielle Carter","FWD","ST","squad","ENG"]]},
+
+{c:"Birmingham City",s:"2011",p:[
+  ["Marie Hourihan","GK","GK","key","IRL"],
+  ["Laura Bassett","DEF","CB","star","ENG"],["Chelsea Weston","DEF","RB","key","ENG"],
+  ["Kerys Harrop","DEF","CB","key","ENG"],["Sally-Anne Stanton","DEF","CB","squad","ENG"],
+  ["Eartha Pond","DEF","LB","squad","ENG"],
+  ["Jo Potter","MID","CM","key","ENG"],["Jade Moore","MID","DM","key","ENG"],
+  ["Emily Westwood","MID","CM","key","ENG"],["Izzy Christiansen","MID","AM","squad","ENG"],
+  ["Heather Scheuber","MID","CM","squad","ENG"],
+  ["Karen Carney","FWD","RW","star","ENG"],["Rachel Williams","FWD","ST","star","ENG"],
+  ["Dunia Susi","FWD","LW","key","ENG"],["Stef Curtis","FWD","ST","squad","ENG"]]},
+
+{c:"Everton",s:"2011",p:[
+  ["Rachel Brown","GK","GK","star","ENG"],
+  ["Lucy Bronze","DEF","RB","key","ENG"],["Becky Easton","DEF","CB","key","ENG"],
+  ["Lindsay Johnson","DEF","CB","key","ENG"],["Fern Whelan","DEF","CB","key","ENG"],
+  ["Rachel Unitt","DEF","LB","key","ENG"],["Alex Greenwood","DEF","LB","squad","ENG"],
+  ["Fara Williams","MID","AM","star","ENG"],["Jill Scott","MID","CM","star","ENG"],
+  ["Michelle Hinnigan","MID","CM","key","ENG"],["Amy Kane","MID","CM","squad","ENG"],
+  ["Natasha Dowie","FWD","ST","star","ENG"],["Toni Duggan","FWD","LW","key","ENG"],
+  ["Jody Handley","FWD","RW","key","ENG"],["Gwennan Harries","FWD","ST","squad","WAL"],
+  ["Nikita Parris","FWD","RW","squad","ENG"]]},
+
+{c:"Lincoln Ladies",s:"2011",p:[
+  ["Kay Hawke","GK","GK","key","ENG"],
+  ["Casey Stoney","DEF","CB","star","ENG"],["Sophie Bradley","DEF","CB","key","ENG"],
+  ["Leandra Little","DEF","CB","key","ENG"],["Rachel Daly","DEF","RB","squad","ENG"],
+  ["Megan Harris","MID","CM","key","ENG"],["Remi Allen","MID","CM","key","ENG"],
+  ["Sue Smith","MID","LM","key","ENG"],["Lucy Staniforth","MID","AM","squad","ENG"],
+  ["Carla Ward","MID","CM","squad","ENG"],["Rachel Furness","MID","AM","squad","NIR"],
+  ["Jess Clarke","FWD","RW","star","ENG"],["Carla Cantrell","FWD","ST","key","ENG"],
+  ["Jodie Taylor","FWD","ST","key","ENG"],["Emma Kete","FWD","ST","squad","NZL"]]},
+
+/* ===================== 2012: Arsenal go unbeaten ===================== */
+{c:"Arsenal",s:"2012",p:[
+  ["Emma Byrne","GK","GK","key","IRL"],
+  ["Alex Scott","DEF","RB","key","ENG"],["Steph Houghton","DEF","LB","star","ENG"],
+  ["Gilly Flaherty","DEF","CB","key","ENG"],["Niamh Fahey","DEF","CB","key","IRL"],
+  ["Faye White","DEF","CB","squad","ENG"],["Jen Beattie","DEF","CB","key","SCO"],
+  ["Kim Little","MID","AM","star","SCO"],["Katie Chapman","MID","DM","star","ENG"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Ciara Grant","MID","CM","key","IRL"],
+  ["Jayne Ludlow","MID","CM","key","WAL"],
+  ["Rachel Yankey","FWD","LW","star","ENG"],["Gemma Davison","FWD","RW","key","ENG"],
+  ["Kelly Smith","FWD","ST","star","ENG"],["Ellen White","FWD","ST","key","ENG"]]},
+
+{c:"Birmingham City",s:"2012",p:[
+  ["Rebecca Spencer","GK","GK","key","ENG"],["Marie Hourihan","GK","GK","squad","IRL"],
+  ["Chelsea Weston","DEF","RB","key","ENG"],["Laura Bassett","DEF","CB","key","ENG"],
+  ["Emily Westwood","DEF","CB","key","ENG"],["Rachel Unitt","DEF","LB","key","ENG"],
+  ["Kerys Harrop","DEF","LB","key","ENG"],
+  ["Karen Carney","MID","RM","star","ENG"],["Jade Moore","MID","CM","key","ENG"],
+  ["Jo Potter","MID","CM","key","ENG"],["Izzy Christiansen","MID","CM","squad","ENG"],
+  ["Emily Simpkins","MID","CM","squad","ENG"],
+  ["Rachel Williams","FWD","ST","key","ENG"],["Jodie Taylor","FWD","ST","star","ENG"],
+  ["Eniola Aluko","FWD","ST","star","ENG"],["Kirsty Linnett","FWD","ST","squad","ENG"]]},
+
+{c:"Everton",s:"2012",p:[
+  ["Rachel Brown","GK","GK","star","ENG"],["Danielle Hill","GK","GK","squad","ENG"],
+  ["Lucy Bronze","DEF","RB","key","ENG"],["Lindsay Johnson","DEF","CB","key","ENG"],
+  ["Becky Easton","DEF","CB","key","ENG"],["Alex Greenwood","DEF","LB","key","ENG"],
+  ["Jill Scott","MID","CM","star","ENG"],["Fara Williams","MID","CM","star","ENG"],
+  ["Amy Kane","MID","CM","key","ENG"],["Michelle Hinnigan","MID","CM","key","ENG"],
+  ["Brooke Chaplen","MID","AM","squad","ENG"],
+  ["Toni Duggan","FWD","LW","key","ENG"],["Natasha Dowie","FWD","ST","key","ENG"],
+  ["Nikita Parris","FWD","RW","squad","ENG"],["Jody Handley","FWD","ST","squad","ENG"],
+  ["Gwennan Harries","FWD","ST","squad","WAL"]]},
+
+/* ===================== 2013: Liverpool, bottom to top ===================== */
+{c:"Liverpool",s:"2013",p:[
+  ["Sarah Quantrill","GK","GK","key","ENG"],["Rachael Laws","GK","GK","squad","ENG"],
+  ["Gemma Bonner","DEF","CB","key","ENG"],["Lucy Bronze","DEF","RB","star","ENG"],
+  ["Whitney Engen","DEF","CB","key","USA"],["Corina Schröder","DEF","LB","key","GER"],
+  ["Becky Easton","DEF","CB","squad","ENG"],["Caroline Charlton","DEF","CB","squad",""],
+  ["Michelle Evans","DEF","LB","squad",""],
+  ["Fara Williams","MID","CM","star","ENG"],["Katrín Ómarsdóttir","MID","AM","key","ISL"],
+  ["Amanda DaCosta","MID","CM","key","USA"],["Louise Fors","MID","CM","key","SWE"],
+  ["Nicole Rolser","FWD","LW","key","GER"],["Natasha Dowie","FWD","ST","star","ENG"]]},
+
+{c:"Bristol Academy",s:"2013",p:[
+  ["Siobhan Chamberlain","GK","GK","star","ENG"],["Becky Kyle","GK","GK","squad",""],
+  ["Loren Dykes","DEF","RB","key","WAL"],["Jasmine Matthews","DEF","CB","key","ENG"],
+  ["Jemma Rose","DEF","CB","key","ENG"],["Corinne Yorston","DEF","LB","key","ENG"],
+  ["Grace McCatty","DEF","CB","key","ENG"],["Ellie Curson","DEF","CB","squad",""],
+  ["Natasha Harding","MID","RM","key","WAL"],["Alex Windell","MID","CM","key","ENG"],
+  ["Lucy Staniforth","MID","CM","key","ENG"],["Ann-Marie Heatherson","MID","AM","key","ENG"],
+  ["Angharad James","MID","CM","squad","WAL"],
+  ["Nikki Watts","FWD","LW","key","ENG"],["Natalia Pablos","FWD","ST","star","ESP"],
+  ["Laura del Río","FWD","ST","key","ESP"]]},
+
+{c:"Arsenal",s:"2013",p:[
+  ["Emma Byrne","GK","GK","key","IRL"],
+  ["Alex Scott","DEF","RB","key","ENG"],["Steph Houghton","DEF","CB","star","ENG"],
+  ["Gilly Flaherty","DEF","CB","key","ENG"],["Niamh Fahey","DEF","CB","key","IRL"],
+  ["Jen Beattie","DEF","CB","key","SCO"],["Emma Mitchell","DEF","LB","squad","SCO"],
+  ["Kim Little","MID","CM","star","SCO"],["Jordan Nobbs","MID","CM","star","ENG"],
+  ["Katie Chapman","MID","DM","key","ENG"],["Ciara Grant","MID","CM","key","IRL"],
+  ["Gemma Davison","FWD","RW","key","ENG"],["Rachel Yankey","FWD","LW","star","ENG"],
+  ["Kelly Smith","FWD","ST","star","ENG"],["Ellen White","FWD","ST","star","ENG"],
+  ["Danielle Carter","FWD","ST","key","ENG"]]},
+
+{c:"Chelsea",s:"2013",p:[
+  ["Carly Telford","GK","GK","key","ENG"],["Marie Hourihan","GK","GK","squad","IRL"],
+  ["Claire Rafferty","DEF","LB","key","ENG"],["Hannah Blundell","DEF","RB","squad","ENG"],
+  ["Katie Holtham","DEF","CB","key","ENG"],["Sophie Ingle","DEF","CB","key","WAL"],
+  ["Ólína Guðbjörg Viðarsdóttir","DEF","CB","squad","ISL"],["Anne Meiwald","DEF","CB","squad","GER"],
+  ["Drew Spence","MID","CM","key","JAM"],["Danielle Buet","MID","CM","key","ENG"],
+  ["Laura Coombs","MID","CM","squad","ENG"],["Edda Garðarsdóttir","MID","CM","squad","ISL"],
+  ["Eniola Aluko","FWD","ST","star","ENG"],["Yūki Ōgimi","FWD","ST","star","JPN"],
+  ["Sofia Jakobsson","FWD","RW","key","SWE"],["Dunia Susi","FWD","LW","key","ENG"]]},
+
+{c:"Doncaster Rovers Belles",s:"2013",p:[
+  ["Nicola Hobbs","GK","GK","key",""],["Nicola Davies","GK","GK","squad","WAL"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Rhiannon Roberts","DEF","RB","key","WAL"],
+  ["Leandra Little","DEF","CB","key","ENG"],["Victoria Williams","DEF","CB","key","ENG"],
+  ["Emma Thomson","DEF","CB","squad",""],["Danielle Cox","DEF","CB","squad","ENG"],
+  ["Jemma Purfield","DEF","LB","squad","ENG"],["Lyndsey Cunningham","DEF","RB","squad",""],
+  ["Kasia Lipka","MID","CM","key","ENG"],["Sue Smith","MID","LM","star","ENG"],
+  ["Jessica Sigsworth","FWD","ST","key","ENG"],["Beth England","FWD","ST","squad","ENG"],
+  ["Cheryl Foster","FWD","ST","squad","WAL"]]},
+
+/* ===================== 2014: two tiers, Liverpool retain ===================== */
+{c:"Liverpool",s:"2014",p:[
+  ["Libby Stout","GK","GK","key","USA"],
+  ["Lucy Bronze","DEF","RB","star","ENG"],["Gemma Bonner","DEF","CB","key","ENG"],
+  ["Corina Schröder","DEF","LB","key","GER"],["Nina Frausing-Pedersen","DEF","CB","squad","DEN"],
+  ["Becky Easton","DEF","CB","squad","ENG"],["Martha Harris","DEF","LB","squad","ENG"],
+  ["Fara Williams","MID","CM","star","ENG"],["Katrín Ómarsdóttir","MID","CM","key","ISL"],
+  ["Amanda DaCosta","MID","CM","key","USA"],["Kate Longhurst","MID","CM","key","ENG"],
+  ["Katie Zelem","MID","CM","squad","ENG"],
+  ["Gemma Davison","FWD","RW","key","ENG"],["Natasha Dowie","FWD","ST","star","ENG"],
+  ["Nicole Rolser","FWD","LW","key","GER"],["Ashley Hodson","FWD","ST","squad","ENG"]]},
+
+{c:"Chelsea",s:"2014",p:[
+  ["Marie Hourihan","GK","GK","key","IRL"],["Christiane Endler","GK","GK","squad","CHI"],
+  ["Ana Borges","DEF","RB","key","POR"],["Laura Bassett","DEF","CB","key","ENG"],
+  ["Gilly Flaherty","DEF","CB","key","ENG"],["Hannah Blundell","DEF","LB","key","ENG"],
+  ["Claire Rafferty","DEF","LB","squad","ENG"],["Emma Wilhelmsson","DEF","CB","squad","SWE"],
+  ["Katie Chapman","MID","DM","key","ENG"],["Ji So-yun","MID","AM","star","KOR"],
+  ["Drew Spence","MID","CM","key","JAM"],["Laura Coombs","MID","CM","squad","ENG"],
+  ["Jackie Groenen","MID","LM","squad","NED"],
+  ["Eniola Aluko","FWD","ST","star","ENG"],["Yūki Ōgimi","FWD","ST","star","JPN"],
+  ["Rachel Williams","FWD","ST","key","ENG"]]},
+
+{c:"Birmingham City",s:"2014",p:[
+  ["Rebecca Spencer","GK","GK","key","ENG"],
+  ["Chelsea Weston","DEF","RB","key","ENG"],["Aoife Mannion","DEF","CB","key","IRL"],
+  ["Kerys Harrop","DEF","CB","key","ENG"],["Jess Carter","DEF","LB","key","ENG"],
+  ["Meaghan Sargeant","DEF","CB","squad","ENG"],
+  ["Jo Potter","MID","CM","key","ENG"],["Jade Moore","MID","DM","key","ENG"],
+  ["Remi Allen","MID","CM","key","ENG"],["Emily Westwood","MID","CM","key","ENG"],
+  ["Melissa Lawley","MID","LM","key","ENG"],["Emily Simpkins","MID","RM","squad","ENG"],
+  ["Karen Carney","MID","AM","star","ENG"],
+  ["Kirsty Linnett","FWD","ST","key","ENG"],["Hannah Keryakoplis","FWD","ST","squad","ENG"]]},
+
+{c:"Manchester City",s:"2014",p:[
+  ["Karen Bardsley","GK","GK","star","ENG"],["Alexandra Brooks","GK","GK","squad","ENG"],
+  ["Steph Houghton","DEF","CB","star","ENG"],["Emma Lipman","DEF","CB","key","ENG"],
+  ["Abbie McManus","DEF","CB","key","ENG"],["Nikki Harding","DEF","RB","key","ENG"],
+  ["Steph Marsh","DEF","LB","key","ENG"],["Chelsea Nightingale","DEF","CB","squad","ENG"],
+  ["Georgia Brougham","DEF","LB","squad","ENG"],
+  ["Jill Scott","MID","CM","star","ENG"],["Izzy Christiansen","MID","AM","key","ENG"],
+  ["Betsy Hassett","MID","RM","key","NZL"],["Keira Walsh","MID","DM","squad","ENG"],
+  ["Jess Holbrook","MID","CM","squad","ENG"],
+  ["Toni Duggan","FWD","LW","star","ENG"],["Krystle Johnston","FWD","ST","key","NZL"]]},
+
+/* ===================== 2015: Chelsea's first ===================== */
+{c:"Chelsea",s:"2015",p:[
+  ["Hedvig Lindahl","GK","GK","star","SWE"],["Marie Hourihan","GK","GK","squad","IRL"],
+  ["Hannah Blundell","DEF","RB","key","ENG"],["Gilly Flaherty","DEF","CB","key","ENG"],
+  ["Niamh Fahey","DEF","CB","key","IRL"],["Claire Rafferty","DEF","LB","key","ENG"],
+  ["Millie Bright","MID","CM","key","ENG"],["Katie Chapman","MID","DM","star","ENG"],
+  ["Drew Spence","MID","CM","key","JAM"],["Ji So-yun","MID","AM","star","KOR"],
+  ["Ana Borges","MID","RM","squad","POR"],["Laura Coombs","MID","CM","squad","ENG"],
+  ["Gemma Davison","FWD","RW","key","ENG"],["Eniola Aluko","FWD","ST","star","ENG"],
+  ["Fran Kirby","FWD","ST","key","ENG"],["Marija Banušić","FWD","ST","squad","SWE"]]},
+
+{c:"Manchester City",s:"2015",p:[
+  ["Karen Bardsley","GK","GK","star","ENG"],
+  ["Lucy Bronze","DEF","RB","star","ENG"],["Demi Stokes","DEF","LB","key","ENG"],
+  ["Steph Houghton","DEF","CB","star","ENG"],["Jen Beattie","DEF","CB","key","SCO"],
+  ["Abbie McManus","DEF","CB","squad","ENG"],["Kathleen Radtke","DEF","CB","squad","USA"],
+  ["Jill Scott","MID","CM","star","ENG"],["Izzy Christiansen","MID","AM","key","ENG"],
+  ["Keira Walsh","MID","DM","squad","ENG"],["Daphne Corboz","MID","CM","squad","USA"],
+  ["Toni Duggan","FWD","LW","star","ENG"],["Nikita Parris","FWD","RW","key","ENG"],
+  ["Krystle Johnston","FWD","ST","squad","NZL"],["Georgia Stanway","FWD","ST","squad","ENG"]]},
+
+{c:"Arsenal",s:"2015",p:[
+  ["Sari van Veenendaal","GK","GK","key","NED"],["Emma Byrne","GK","GK","key","IRL"],
+  ["Alex Scott","DEF","RB","star","ENG"],["Emma Mitchell","DEF","LB","key","SCO"],
+  ["Casey Stoney","DEF","CB","star","ENG"],["Jemma Rose","DEF","CB","key","ENG"],
+  ["Vicky Losada","MID","CM","key","ESP"],["Jordan Nobbs","MID","CM","star","ENG"],
+  ["Leah Williamson","MID","DM","key","ENG"],["Marta Corredera","MID","RM","key","ESP"],
+  ["Dominique Janssen","MID","CM","key","NED"],
+  ["Natalia Pablos","FWD","ST","star","ESP"],["Danielle Carter","FWD","ST","key","ENG"],
+  ["Kelly Smith","FWD","ST","key","ENG"],["Chioma Ubogagu","FWD","RW","squad","USA"],
+  ["Rachel Yankey","FWD","LW","squad","ENG"]]},
+
+{c:"Notts County",s:"2015",p:[
+  ["Carly Telford","GK","GK","star","ENG"],["Olivia Walker","GK","GK","squad","ENG"],
+  ["Sophie Walton","DEF","RB","key","ENG"],["Laura Bassett","DEF","CB","star","ENG"],
+  ["Amy Turner","DEF","CB","key","ENG"],["Alex Greenwood","DEF","LB","star","ENG"],
+  ["Fern Whelan","DEF","CB","squad","ENG"],
+  ["Desiree Scott","MID","DM","key","CAN"],["Danielle Buet","MID","CM","key","ENG"],
+  ["Leanne Crichton","MID","CM","key","SCO"],["Fiona O'Sullivan","MID","AM","squad","IRL"],
+  ["Jess Clarke","FWD","LW","key","ENG"],["Ellen White","FWD","ST","star","ENG"],
+  ["Rachel Williams","FWD","ST","key","ENG"],["Dunia Susi","FWD","RW","squad","ENG"],
+  ["Aileen Whelan","FWD","ST","squad","ENG"]]},
+
+{c:"Sunderland",s:"2015",p:[
+  ["Rachael Laws","GK","GK","key","ENG"],["Hilde Gunn Olsen","GK","GK","key","NOR"],
+  ["Abby Holmes","DEF","RB","key","ENG"],["Stephanie Bannon","DEF","CB","key","ENG"],
+  ["Victoria Williams","DEF","CB","key","ENG"],["Victoria Greenwell","DEF","LB","squad","ENG"],
+  ["Charlotte Potts","DEF","CB","squad","ENG"],["Sarah McFadden","DEF","CB","squad","NIR"],
+  ["Rachel Furness","MID","CM","key","NIR"],["Kelly McDougall","MID","CM","key","SCO"],
+  ["Keira Ramshaw","MID","LM","key","ENG"],["Emma Kelly","MID","RM","key","ENG"],
+  ["Brooke Chaplen","MID","AM","key","ENG"],
+  ["Abbey Joice","MID","AM","key","ENG"],["Beth Mead","FWD","ST","star","ENG"],
+  ["Stephanie Roche","FWD","ST","key","IRL"]]},
+
+/* ===================== 2016: City concede four all year ===================== */
+{c:"Manchester City",s:"2016",p:[
+  ["Karen Bardsley","GK","GK","star","ENG"],["Marie Hourihan","GK","GK","squad","IRL"],
+  ["Lucy Bronze","DEF","RB","star","ENG"],["Steph Houghton","DEF","CB","star","ENG"],
+  ["Jen Beattie","DEF","CB","key","SCO"],["Demi Stokes","DEF","LB","key","ENG"],
+  ["Abbie McManus","DEF","CB","squad","ENG"],
+  ["Keira Walsh","MID","DM","key","ENG"],["Jill Scott","MID","CM","star","ENG"],
+  ["Izzy Christiansen","MID","CM","star","ENG"],["Tessel Middag","MID","CM","squad","NED"],
+  ["Kosovare Asllani","MID","AM","key","SWE"],
+  ["Toni Duggan","FWD","LW","star","ENG"],["Nikita Parris","FWD","RW","key","ENG"],
+  ["Jane Ross","FWD","ST","key","SCO"],["Georgia Stanway","FWD","ST","squad","ENG"]]},
+
+{c:"Chelsea",s:"2016",p:[
+  ["Hedvig Lindahl","GK","GK","star","SWE"],
+  ["Hannah Blundell","DEF","RB","key","ENG"],["Millie Bright","DEF","CB","key","ENG"],
+  ["Gilly Flaherty","DEF","CB","key","ENG"],["Niamh Fahey","DEF","CB","key","IRL"],
+  ["Claire Rafferty","DEF","LB","key","ENG"],
+  ["Katie Chapman","MID","DM","star","ENG"],["Drew Spence","MID","CM","key","JAM"],
+  ["Ji So-yun","MID","AM","star","KOR"],["Ana Borges","MID","LM","key","POR"],
+  ["Gemma Davison","FWD","RW","key","ENG"],
+  ["Karen Carney","FWD","RW","star","ENG"],["Fran Kirby","FWD","ST","star","ENG"],
+  ["Eniola Aluko","FWD","ST","star","ENG"],["Beth England","FWD","ST","squad","ENG"]]},
+
+{c:"Arsenal",s:"2016",p:[
+  ["Sari van Veenendaal","GK","GK","star","NED"],["Emma Byrne","GK","GK","squad","IRL"],
+  ["Alex Scott","DEF","RB","star","ENG"],["Casey Stoney","DEF","CB","key","ENG"],
+  ["Josephine Henning","DEF","CB","key","GER"],["Emma Mitchell","DEF","LB","key","SCO"],
+  ["Dominique Janssen","DEF","CB","squad","NED"],
+  ["Jordan Nobbs","MID","CM","star","ENG"],["Fara Williams","MID","CM","star","ENG"],
+  ["Vicky Losada","MID","CM","key","ESP"],["Danielle van de Donk","MID","AM","key","NED"],
+  ["Leah Williamson","MID","CM","squad","ENG"],
+  ["Danielle Carter","FWD","RW","key","ENG"],["Kelly Smith","FWD","ST","star","ENG"],
+  ["Asisat Oshoala","FWD","ST","star","NGA"],["Jodie Taylor","FWD","ST","key","ENG"]]},
+
+{c:"Birmingham City",s:"2016",p:[
+  ["Ann-Katrin Berger","GK","GK","star","GER"],["Sophie Baggaley","GK","GK","squad","ENG"],
+  ["Emily Westwood","DEF","CB","key","ENG"],["Aoife Mannion","DEF","CB","key","IRL"],
+  ["Meaghan Sargeant","DEF","CB","key","ENG"],["Kerys Harrop","DEF","RB","key","ENG"],
+  ["Marisa Ewers","DEF","LB","key","GER"],
+  ["Jess Carter","MID","CM","key","ENG"],["Andrine Hegerberg","MID","AM","key","NOR"],
+  ["Melissa Lawley","MID","RM","key","ENG"],["Chloe Peplow","MID","CM","squad","ENG"],
+  ["Isabelle Linden","MID","CM","squad","ENG"],["Abbey-Leigh Stringer","MID","CM","squad","ENG"],
+  ["Kirsty Linnett","FWD","ST","key","ENG"],["Freda Ayisi","FWD","LW","key","ENG"],
+  ["Charlie Wellings","FWD","ST","squad","ENG"]]},
+
+/* ===================== 2017: the bridge to winter football ===================== */
+{c:"Chelsea",s:"2017 Spring Series",p:[
+  ["Hedvig Lindahl","GK","GK","key","SWE"],["Rebecca Spencer","GK","GK","squad","ENG"],
+  ["Hannah Blundell","DEF","RB","key","ENG"],["Gilly Flaherty","DEF","CB","key","ENG"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Niamh Fahey","DEF","CB","key","IRL"],
+  ["Claire Rafferty","DEF","LB","key","ENG"],
+  ["Katie Chapman","MID","DM","key","ENG"],["Ji So-yun","MID","AM","star","KOR"],
+  ["Maren Mjelde","MID","CM","key","NOR"],["Drew Spence","MID","CM","key","JAM"],
+  ["Erin Cuthbert","MID","CM","squad","SCO"],["Fran Kirby","MID","AM","star","ENG"],
+  ["Eniola Aluko","FWD","ST","key","ENG"],["Ramona Bachmann","FWD","LW","key","SUI"],
+  ["Crystal Dunn","FWD","LW","key","USA"],["Karen Carney","FWD","RW","key","ENG"]]},
+
+{c:"Manchester City",s:"2017 Spring Series",p:[
+  ["Karen Bardsley","GK","GK","key","ENG"],["Marie Hourihan","GK","GK","squad","IRL"],
+  ["Lucy Bronze","DEF","RB","star","ENG"],["Steph Houghton","DEF","CB","star","ENG"],
+  ["Jen Beattie","DEF","CB","key","SCO"],["Demi Stokes","DEF","LB","key","ENG"],
+  ["Abbie McManus","DEF","CB","squad","ENG"],
+  ["Jill Scott","MID","CM","key","ENG"],["Keira Walsh","MID","DM","key","ENG"],
+  ["Izzy Christiansen","MID","CM","key","ENG"],["Carli Lloyd","MID","AM","star","USA"],
+  ["Georgia Stanway","MID","AM","squad","ENG"],
+  ["Toni Duggan","FWD","LW","key","ENG"],["Nikita Parris","FWD","RW","key","ENG"],
+  ["Jane Ross","FWD","ST","key","SCO"],["Kosovare Asllani","FWD","ST","key","SWE"]]},
+
+/* ===================== 2017-18: the first winter season ===================== */
+{c:"Chelsea",s:"2017-18",p:[
+  ["Hedvig Lindahl","GK","GK","key","SWE"],["Carly Telford","GK","GK","squad","ENG"],
+  ["Hannah Blundell","DEF","RB","key","ENG"],["Gilly Flaherty","DEF","CB","key","ENG"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Magdalena Eriksson","DEF","CB","key","SWE"],
+  ["Claire Rafferty","DEF","LB","squad","ENG"],["Jonna Andersson","DEF","LB","squad","SWE"],
+  ["Katie Chapman","MID","DM","key","ENG"],["Ji So-yun","MID","AM","star","KOR"],
+  ["Maren Mjelde","MID","CM","key","NOR"],["Drew Spence","MID","CM","key","JAM"],
+  ["Erin Cuthbert","MID","CM","squad","SCO"],["Fran Kirby","MID","AM","star","ENG"],
+  ["Ramona Bachmann","FWD","LW","key","SUI"],["Eniola Aluko","FWD","ST","key","ENG"],
+  ["Karen Carney","FWD","RW","key","ENG"]]},
+
+{c:"Manchester City",s:"2017-18",p:[
+  ["Ellie Roebuck","GK","GK","key","ENG"],["Karen Bardsley","GK","GK","squad","ENG"],
+  ["Steph Houghton","DEF","CB","star","ENG"],["Jen Beattie","DEF","CB","key","SCO"],
+  ["Abbie McManus","DEF","CB","key","ENG"],["Demi Stokes","DEF","LB","key","ENG"],
+  ["Mie Leth Jans","DEF","RB","squad","DEN"],
+  ["Jill Scott","MID","CM","key","ENG"],["Keira Walsh","MID","DM","key","ENG"],
+  ["Izzy Christiansen","MID","CM","star","ENG"],["Georgia Stanway","MID","AM","key","ENG"],
+  ["Ella Toone","MID","AM","squad","ENG"],
+  ["Nikita Parris","FWD","RW","star","ENG"],["Claire Emslie","FWD","LW","key","SCO"],
+  ["Jane Ross","FWD","ST","key","SCO"],["Nadia Nadim","FWD","ST","key","DEN"],
+  ["Melissa Lawley","FWD","RW","squad","ENG"]]},
+
+{c:"Arsenal",s:"2017-18",p:[
+  ["Sari van Veenendaal","GK","GK","key","NED"],["Anna Moorhouse","GK","GK","squad","ENG"],
+  ["Alex Scott","DEF","RB","key","ENG"],["Emma Mitchell","DEF","LB","key","SCO"],
+  ["Leah Williamson","DEF","CB","key","ENG"],["Louise Quinn","DEF","CB","key","IRL"],
+  ["Josephine Henning","DEF","CB","squad","GER"],
+  ["Jordan Nobbs","MID","CM","star","ENG"],["Kim Little","MID","CM","key","SCO"],
+  ["Danielle van de Donk","MID","AM","star","NED"],["Dominique Janssen","MID","DM","key","NED"],
+  ["Heather O'Reilly","FWD","RW","key","USA"],["Vivianne Miedema","FWD","ST","key","NED"],
+  ["Beth Mead","FWD","RW","key","ENG"],["Lisa Evans","FWD","RW","key","SCO"],
+  ["Katie McCabe","FWD","LW","key","IRL"],["Danielle Carter","FWD","ST","key","ENG"]]},
+
+{c:"Birmingham City",s:"2017-18",p:[
+  ["Ann-Katrin Berger","GK","GK","key","GER"],["Hannah Hampton","GK","GK","squad","ENG"],
+  ["Paige Williams","DEF","LB","key","ENG"],["Meaghan Sargeant","DEF","CB","key","ENG"],
+  ["Kerys Harrop","DEF","CB","key","ENG"],["Aoife Mannion","DEF","CB","key","IRL"],
+  ["Jess Carter","DEF","LB","key","ENG"],["Sarah Mayling","DEF","RB","squad","ENG"],
+  ["Marisa Ewers","MID","DM","key","GER"],["Emily Westwood","MID","DM","key","ENG"],
+  ["Abbey-Leigh Stringer","MID","CM","key","ENG"],["Andrine Hegerberg","MID","CM","key","NOR"],
+  ["Hayley Ladd","MID","DM","key","WAL"],["Maddy Cusack","MID","CM","squad","ENG"],
+  ["Lucy Quinn","FWD","RW","key","ENG"],["Emma Follis","FWD","ST","key","ENG"],
+  ["Ellen White","FWD","ST","star","ENG"],["Rachel Williams","FWD","ST","key","ENG"]]},
+
+/* ===================== 2018-19: fully professional ===================== */
+{c:"Arsenal",s:"2018-19",p:[
+  ["Sari van Veenendaal","GK","GK","star","NED"],["Pauline Peyraud-Magnin","GK","GK","key","FRA"],
+  ["Emma Mitchell","DEF","LB","key","SCO"],["Leah Williamson","DEF","CB","key","ENG"],
+  ["Louise Quinn","DEF","CB","key","IRL"],["Viktoria Schnaderbeck","DEF","CB","squad","AUT"],
+  ["Katrine Veje","DEF","LB","squad","DEN"],
+  ["Kim Little","MID","CM","star","SCO"],["Danielle van de Donk","MID","AM","star","NED"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Lia Wälti","MID","DM","key","SUI"],
+  ["Dominique Bloodworth","MID","DM","key","NED"],
+  ["Vivianne Miedema","FWD","ST","star","NED"],["Beth Mead","FWD","RW","key","ENG"],
+  ["Katie McCabe","FWD","LW","key","IRL"],["Lisa Evans","FWD","RW","key","SCO"]]},
+
+{c:"Manchester City",s:"2018-19",p:[
+  ["Karen Bardsley","GK","GK","key","ENG"],["Ellie Roebuck","GK","GK","key","ENG"],
+  ["Steph Houghton","DEF","CB","star","ENG"],["Gemma Bonner","DEF","CB","key","ENG"],
+  ["Abbie McManus","DEF","CB","key","ENG"],["Demi Stokes","DEF","LB","key","ENG"],
+  ["Mie Leth Jans","DEF","RB","squad","DEN"],
+  ["Jill Scott","MID","CM","key","ENG"],["Keira Walsh","MID","DM","key","ENG"],
+  ["Caroline Weir","MID","CM","key","SCO"],["Georgia Stanway","MID","AM","key","ENG"],
+  ["Nikita Parris","FWD","RW","star","ENG"],["Janine Beckie","FWD","RW","key","CAN"],
+  ["Claire Emslie","FWD","LW","key","SCO"],["Tessa Wullaert","FWD","ST","key","BEL"],
+  ["Lauren Hemp","FWD","LW","squad","ENG"]]},
+
+{c:"Chelsea",s:"2018-19",p:[
+  ["Hedvig Lindahl","GK","GK","key","SWE"],["Carly Telford","GK","GK","key","ENG"],
+  ["Ann-Katrin Berger","GK","GK","squad","GER"],
+  ["Hannah Blundell","DEF","RB","key","ENG"],["Millie Bright","DEF","CB","key","ENG"],
+  ["Magdalena Eriksson","DEF","CB","key","SWE"],["Jonna Andersson","DEF","LB","key","SWE"],
+  ["Sophie Ingle","MID","DM","key","WAL"],["Ji So-yun","MID","AM","star","KOR"],
+  ["Maren Mjelde","MID","CM","key","NOR"],["Drew Spence","MID","CM","key","JAM"],
+  ["Erin Cuthbert","MID","CM","key","SCO"],["Fran Kirby","MID","AM","star","ENG"],
+  ["Karen Carney","FWD","RW","key","ENG"],["Beth England","FWD","ST","key","ENG"],
+  ["Ramona Bachmann","FWD","LW","key","SUI"]]},
+
+{c:"Birmingham City",s:"2018-19",p:[
+  ["Ann-Katrin Berger","GK","GK","key","GER"],["Hannah Hampton","GK","GK","key","ENG"],
+  ["Paige Williams","DEF","LB","key","ENG"],["Meaghan Sargeant","DEF","CB","key","ENG"],
+  ["Kerys Harrop","DEF","CB","key","ENG"],["Aoife Mannion","DEF","CB","key","IRL"],
+  ["Sarah Mayling","DEF","RB","key","ENG"],
+  ["Marisa Ewers","MID","DM","key","GER"],["Hayley Ladd","MID","DM","key","WAL"],
+  ["Chloe Arthur","MID","CM","key","SCO"],["Lucy Staniforth","MID","CM","key","ENG"],
+  ["Lucy Quinn","MID","AM","key","ENG"],
+  ["Emma Follis","FWD","ST","squad","ENG"],["Charlie Wellings","FWD","ST","squad","ENG"],
+  ["Ellen White","FWD","ST","star","ENG"],["Rachel Williams","FWD","ST","key","ENG"]]},
+
+/* ===================== 2019-20: the season COVID stopped ===================== */
+{c:"Chelsea",s:"2019-20",p:[
+  ["Ann-Katrin Berger","GK","GK","key","GER"],["Carly Telford","GK","GK","squad","ENG"],
+  ["Hannah Blundell","DEF","RB","key","ENG"],["Millie Bright","DEF","CB","key","ENG"],
+  ["Magdalena Eriksson","DEF","CB","key","SWE"],["Jonna Andersson","DEF","LB","key","SWE"],
+  ["Maria Thorisdottir","DEF","CB","squad","NOR"],["Maren Mjelde","DEF","RB","key","NOR"],
+  ["Sophie Ingle","MID","DM","key","WAL"],["Ji So-yun","MID","AM","star","KOR"],
+  ["Fran Kirby","MID","AM","key","ENG"],["Erin Cuthbert","MID","CM","key","SCO"],
+  ["Guro Reiten","FWD","LW","key","NOR"],["Ramona Bachmann","FWD","LW","key","SUI"],
+  ["Beth England","FWD","ST","star","ENG"],["Sam Kerr","FWD","ST","star","AUS"]]},
+
+{c:"Manchester City",s:"2019-20",p:[
+  ["Ellie Roebuck","GK","GK","key","ENG"],["Karen Bardsley","GK","GK","squad","ENG"],
+  ["Steph Houghton","DEF","CB","star","ENG"],["Gemma Bonner","DEF","CB","key","ENG"],
+  ["Demi Stokes","DEF","LB","key","ENG"],["Aoife Mannion","DEF","RB","squad","IRL"],
+  ["Megan Campbell","DEF","LB","squad","IRL"],
+  ["Jill Scott","MID","CM","key","ENG"],["Keira Walsh","MID","DM","key","ENG"],
+  ["Caroline Weir","MID","CM","key","SCO"],["Georgia Stanway","MID","AM","key","ENG"],
+  ["Ellen White","FWD","ST","key","ENG"],["Pauline Bremer","FWD","ST","key","GER"],
+  ["Lauren Hemp","FWD","LW","key","ENG"],["Janine Beckie","FWD","RW","key","CAN"],
+  ["Tessa Wullaert","FWD","ST","key","BEL"]]},
+
+{c:"Arsenal",s:"2019-20",p:[
+  ["Manuela Zinsberger","GK","GK","key","AUT"],["Pauline Peyraud-Magnin","GK","GK","squad","FRA"],
+  ["Jen Beattie","DEF","CB","key","SCO"],["Leah Williamson","DEF","CB","key","ENG"],
+  ["Louise Quinn","DEF","CB","key","IRL"],["Viktoria Schnaderbeck","DEF","CB","key","AUT"],
+  ["Leonie Maier","DEF","RB","key","GER"],["Emma Mitchell","DEF","LB","squad","SCO"],
+  ["Kim Little","MID","CM","star","SCO"],["Danielle van de Donk","MID","AM","star","NED"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Lia Wälti","MID","DM","key","SUI"],
+  ["Jill Roord","MID","CM","key","NED"],
+  ["Vivianne Miedema","FWD","ST","star","NED"],["Beth Mead","FWD","RW","key","ENG"],
+  ["Katie McCabe","FWD","LW","key","IRL"],["Lisa Evans","FWD","RW","key","SCO"]]},
+
+{c:"Manchester United",s:"2019-20",p:[
+  ["Mary Earps","GK","GK","key","ENG"],["Emily Ramsey","GK","GK","squad","ENG"],
+  ["Amy Turner","DEF","CB","key","ENG"],["Millie Turner","DEF","CB","key","ENG"],
+  ["Abbie McManus","DEF","CB","key","ENG"],["Kirsty Smith","DEF","RB","key","SCO"],
+  ["Martha Harris","DEF","LB","squad","ENG"],
+  ["Katie Zelem","MID","CM","key","ENG"],["Jackie Groenen","MID","CM","key","NED"],
+  ["Hayley Ladd","MID","DM","key","WAL"],["Ella Toone","MID","AM","key","ENG"],
+  ["Lauren James","FWD","RW","key","ENG"],["Leah Galton","FWD","LW","key","ENG"],
+  ["Jessica Sigsworth","FWD","ST","key","ENG"],["Jane Ross","FWD","ST","key","SCO"],
+  ["Kirsty Hanson","FWD","RW","squad","SCO"]]},
+
+/* ===================== 2020-21 ===================== */
+{c:"Chelsea",s:"2020-21",p:[
+  ["Ann-Katrin Berger","GK","GK","key","GER"],["Carly Telford","GK","GK","squad","ENG"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Magdalena Eriksson","DEF","CB","key","SWE"],
+  ["Jonna Andersson","DEF","LB","key","SWE"],["Jess Carter","DEF","RB","key","ENG"],
+  ["Maren Mjelde","DEF","RB","key","NOR"],
+  ["Sophie Ingle","MID","DM","key","WAL"],["Melanie Leupolz","MID","CM","key","GER"],
+  ["Ji So-yun","MID","AM","key","KOR"],["Jessie Fleming","MID","CM","squad","CAN"],
+  ["Erin Cuthbert","MID","CM","key","SCO"],["Fran Kirby","MID","AM","star","ENG"],
+  ["Pernille Harder","MID","AM","star","DEN"],
+  ["Guro Reiten","FWD","LW","key","NOR"],["Sam Kerr","FWD","ST","star","AUS"],
+  ["Beth England","FWD","ST","key","ENG"]]},
+
+{c:"Manchester City",s:"2020-21",p:[
+  ["Ellie Roebuck","GK","GK","key","ENG"],["Karima Benameur Taieb","GK","GK","squad","FRA"],
+  ["Lucy Bronze","DEF","RB","star","ENG"],["Steph Houghton","DEF","CB","key","ENG"],
+  ["Alex Greenwood","DEF","CB","key","ENG"],["Abby Dahlkemper","DEF","CB","key","USA"],
+  ["Demi Stokes","DEF","LB","key","ENG"],
+  ["Keira Walsh","MID","DM","key","ENG"],["Sam Mewis","MID","CM","key","USA"],
+  ["Rose Lavelle","MID","AM","key","USA"],["Caroline Weir","MID","CM","key","SCO"],
+  ["Georgia Stanway","MID","AM","key","ENG"],
+  ["Ellen White","FWD","ST","star","ENG"],["Chloe Kelly","FWD","RW","key","ENG"],
+  ["Lauren Hemp","FWD","LW","key","ENG"],["Janine Beckie","FWD","RW","key","CAN"]]},
+
+{c:"Arsenal",s:"2020-21",p:[
+  ["Manuela Zinsberger","GK","GK","key","AUT"],["Lydia Williams","GK","GK","key","AUS"],
+  ["Leah Williamson","DEF","CB","key","ENG"],["Lotte Wubben-Moy","DEF","CB","key","ENG"],
+  ["Jen Beattie","DEF","CB","key","SCO"],["Steph Catley","DEF","LB","key","AUS"],
+  ["Noelle Maritz","DEF","RB","key","SUI"],
+  ["Kim Little","MID","CM","star","SCO"],["Danielle van de Donk","MID","AM","key","NED"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Lia Wälti","MID","DM","key","SUI"],
+  ["Jill Roord","MID","CM","key","NED"],
+  ["Vivianne Miedema","FWD","ST","star","NED"],["Beth Mead","FWD","RW","key","ENG"],
+  ["Katie McCabe","FWD","LW","key","IRL"],["Caitlin Foord","FWD","LW","key","AUS"]]},
+
+{c:"Manchester United",s:"2020-21",p:[
+  ["Mary Earps","GK","GK","key","ENG"],["Emily Ramsey","GK","GK","squad","ENG"],
+  ["Ona Batlle","DEF","RB","key","ESP"],["Millie Turner","DEF","CB","key","ENG"],
+  ["Amy Turner","DEF","CB","key","ENG"],["Kirsty Smith","DEF","LB","squad","SCO"],
+  ["Katie Zelem","MID","CM","key","ENG"],["Jackie Groenen","MID","CM","key","NED"],
+  ["Hayley Ladd","MID","DM","key","WAL"],["Ella Toone","MID","AM","key","ENG"],
+  ["Leah Galton","FWD","LW","key","ENG"],["Kirsty Hanson","FWD","RW","key","SCO"],
+  ["Christen Press","FWD","ST","key","USA"],["Tobin Heath","FWD","RW","key","USA"],
+  ["Alessia Russo","FWD","ST","squad","ENG"],["Lauren James","FWD","RW","squad","ENG"]]},
+
+{c:"Everton",s:"2020-21",p:[
+  ["Sandy MacIver","GK","GK","key","ENG"],["Tinja-Riikka Korpela","GK","GK","squad","FIN"],
+  ["Ingrid Moe Wold","DEF","RB","key","NOR"],["Danielle Turner","DEF","CB","key","ENG"],
+  ["Rikke Sevecke","DEF","CB","key","DEN"],["Megan Finnigan","DEF","CB","key","ENG"],
+  ["Poppy Pattinson","DEF","LB","key","ENG"],["Gabrielle George","DEF","CB","squad","ENG"],
+  ["Izzy Christiansen","MID","CM","key","ENG"],["Lucy Graham","MID","AM","key","SCO"],
+  ["Abbey-Leigh Stringer","MID","CM","squad","ENG"],
+  ["Nicoline Sørensen","FWD","RW","key","DEN"],["Hayley Raso","FWD","RW","key","AUS"],
+  ["Claire Emslie","FWD","LW","key","SCO"],["Simone Magill","FWD","ST","key","NIR"],
+  ["Valérie Gauvin","FWD","ST","key","FRA"]]},
+
+/* ===================== 2021-22 ===================== */
+{c:"Chelsea",s:"2021-22",p:[
+  ["Ann-Katrin Berger","GK","GK","key","GER"],["Zecira Musovic","GK","GK","squad","SWE"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Magdalena Eriksson","DEF","CB","key","SWE"],
+  ["Jess Carter","DEF","RB","key","ENG"],["Niamh Charles","DEF","LB","key","ENG"],
+  ["Jonna Andersson","DEF","LB","key","SWE"],
+  ["Sophie Ingle","MID","DM","key","WAL"],["Melanie Leupolz","MID","CM","key","GER"],
+  ["Ji So-yun","MID","AM","key","KOR"],["Jessie Fleming","MID","CM","key","CAN"],
+  ["Erin Cuthbert","MID","CM","key","SCO"],["Fran Kirby","MID","AM","star","ENG"],
+  ["Pernille Harder","MID","AM","star","DEN"],
+  ["Guro Reiten","FWD","LW","key","NOR"],["Sam Kerr","FWD","ST","star","AUS"],
+  ["Beth England","FWD","ST","key","ENG"],["Lauren James","FWD","RW","squad","ENG"]]},
+
+{c:"Arsenal",s:"2021-22",p:[
+  ["Manuela Zinsberger","GK","GK","key","AUT"],["Lydia Williams","GK","GK","squad","AUS"],
+  ["Leah Williamson","DEF","CB","key","ENG"],["Lotte Wubben-Moy","DEF","CB","key","ENG"],
+  ["Rafaelle Souza","DEF","CB","key","BRA"],["Steph Catley","DEF","LB","key","AUS"],
+  ["Noelle Maritz","DEF","RB","key","SUI"],
+  ["Kim Little","MID","CM","star","SCO"],["Lia Wälti","MID","DM","key","SUI"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Frida Maanum","MID","CM","key","NOR"],
+  ["Vivianne Miedema","FWD","ST","star","NED"],["Beth Mead","FWD","RW","star","ENG"],
+  ["Katie McCabe","FWD","LW","key","IRL"],["Caitlin Foord","FWD","LW","key","AUS"],
+  ["Nikita Parris","FWD","RW","key","ENG"],["Tobin Heath","FWD","RW","squad","USA"]]},
+
+{c:"Manchester City",s:"2021-22",p:[
+  ["Ellie Roebuck","GK","GK","key","ENG"],["Karima Benameur Taieb","GK","GK","squad","FRA"],
+  ["Lucy Bronze","DEF","RB","key","ENG"],["Alex Greenwood","DEF","CB","key","ENG"],
+  ["Alanna Kennedy","DEF","CB","key","AUS"],["Demi Stokes","DEF","LB","key","ENG"],
+  ["Steph Houghton","DEF","CB","key","ENG"],
+  ["Keira Walsh","MID","DM","key","ENG"],["Caroline Weir","MID","CM","key","SCO"],
+  ["Georgia Stanway","MID","AM","key","ENG"],["Vicky Losada","MID","CM","key","ESP"],
+  ["Filippa Angeldal","MID","CM","squad","SWE"],
+  ["Ellen White","FWD","ST","key","ENG"],["Khadija Shaw","FWD","ST","key","JAM"],
+  ["Lauren Hemp","FWD","LW","star","ENG"],["Hayley Raso","FWD","RW","key","AUS"],
+  ["Chloe Kelly","FWD","RW","squad","ENG"]]},
+
+{c:"Manchester United",s:"2021-22",p:[
+  ["Mary Earps","GK","GK","key","ENG"],["Sophie Baggaley","GK","GK","squad","ENG"],
+  ["Ona Batlle","DEF","RB","key","ESP"],["Maria Thorisdottir","DEF","CB","key","NOR"],
+  ["Aoife Mannion","DEF","CB","key","IRL"],["Hannah Blundell","DEF","LB","key","ENG"],
+  ["Millie Turner","DEF","CB","squad","ENG"],
+  ["Katie Zelem","MID","CM","key","ENG"],["Jackie Groenen","MID","CM","key","NED"],
+  ["Hayley Ladd","MID","DM","key","WAL"],["Vilde Bøe Risa","MID","CM","key","NOR"],
+  ["Ella Toone","MID","AM","key","ENG"],
+  ["Leah Galton","FWD","LW","key","ENG"],["Alessia Russo","FWD","ST","key","ENG"],
+  ["Martha Thomas","FWD","ST","key","SCO"],["Kirsty Hanson","FWD","RW","squad","SCO"]]},
+
+{c:"Tottenham Hotspur",s:"2021-22",p:[
+  ["Tinja-Riikka Korpela","GK","GK","key","FIN"],["Rebecca Spencer","GK","GK","key","ENG"],
+  ["Shelina Zadorsky","DEF","CB","key","CAN"],["Molly Bartrip","DEF","CB","key","ENG"],
+  ["Kerys Harrop","DEF","CB","key","ENG"],["Ria Percival","DEF","RB","key","NZL"],
+  ["Ashleigh Neville","DEF","LB","key","ENG"],
+  ["Josie Green","MID","CM","key","WAL"],["Cho So-hyun","MID","CM","key","KOR"],
+  ["Maéva Clemaron","MID","DM","key","FRA"],["Eveliina Summanen","MID","CM","key","FIN"],
+  ["Kit Graham","FWD","LW","key","ENG"],["Rachel Williams","FWD","ST","key","ENG"],
+  ["Kyah Simon","FWD","ST","key","AUS"],["Rosella Ayane","FWD","RW","key","MAR"],
+  ["Jessica Naz","FWD","RW","squad","ENG"]]},
+
+/* ===================== 2022-23: United push Chelsea to the last day ===================== */
+{c:"Chelsea",s:"2022-23",p:[
+  ["Ann-Katrin Berger","GK","GK","key","GER"],["Zecira Musovic","GK","GK","squad","SWE"],
+  ["Millie Bright","DEF","CB","star","ENG"],["Magdalena Eriksson","DEF","CB","key","SWE"],
+  ["Kadeisha Buchanan","DEF","CB","key","CAN"],["Jess Carter","DEF","CB","key","ENG"],
+  ["Niamh Charles","DEF","LB","key","ENG"],["Eve Perisset","DEF","RB","key","FRA"],
+  ["Sophie Ingle","MID","DM","key","WAL"],["Erin Cuthbert","MID","CM","key","SCO"],
+  ["Jessie Fleming","MID","CM","key","CAN"],["Pernille Harder","MID","AM","star","DEN"],
+  ["Fran Kirby","MID","AM","key","ENG"],
+  ["Sam Kerr","FWD","ST","star","AUS"],["Guro Reiten","FWD","LW","star","NOR"],
+  ["Lauren James","FWD","RW","key","ENG"]]},
+
+{c:"Manchester United",s:"2022-23",p:[
+  ["Mary Earps","GK","GK","star","ENG"],
+  ["Ona Batlle","DEF","RB","key","ESP"],["Maya Le Tissier","DEF","CB","key","ENG"],
+  ["Millie Turner","DEF","CB","key","ENG"],["Hannah Blundell","DEF","LB","key","ENG"],
+  ["Maria Thorisdottir","DEF","CB","squad","NOR"],
+  ["Katie Zelem","MID","CM","key","ENG"],["Hayley Ladd","MID","DM","key","WAL"],
+  ["Ella Toone","MID","AM","star","ENG"],["Vilde Bøe Risa","MID","CM","squad","NOR"],
+  ["Leah Galton","FWD","LW","key","ENG"],["Nikita Parris","FWD","RW","key","ENG"],
+  ["Alessia Russo","FWD","ST","star","ENG"],["Lucía García","FWD","RW","squad","ESP"],
+  ["Martha Thomas","FWD","ST","squad","SCO"],["Rachel Williams","FWD","ST","squad","ENG"]]},
+
+{c:"Arsenal",s:"2022-23",p:[
+  ["Manuela Zinsberger","GK","GK","key","AUT"],
+  ["Noelle Maritz","DEF","RB","key","SUI"],["Laura Wienroither","DEF","RB","squad","AUT"],
+  ["Rafaelle Souza","DEF","CB","key","BRA"],["Leah Williamson","DEF","CB","key","ENG"],
+  ["Lotte Wubben-Moy","DEF","CB","key","ENG"],["Steph Catley","DEF","LB","key","AUS"],
+  ["Katie McCabe","DEF","LB","star","IRL"],
+  ["Lia Wälti","MID","DM","key","SUI"],["Kim Little","MID","CM","key","SCO"],
+  ["Frida Maanum","MID","AM","key","NOR"],["Victoria Pelova","MID","CM","squad","NED"],
+  ["Caitlin Foord","FWD","LW","key","AUS"],["Stina Blackstenius","FWD","ST","key","SWE"],
+  ["Beth Mead","FWD","RW","star","ENG"],["Vivianne Miedema","FWD","ST","star","NED"]]},
+
+{c:"Manchester City",s:"2022-23",p:[
+  ["Ellie Roebuck","GK","GK","key","ENG"],
+  ["Kerstin Casparij","DEF","RB","key","NED"],["Alex Greenwood","DEF","CB","star","ENG"],
+  ["Laia Aleixandri","DEF","CB","key","ESP"],["Steph Houghton","DEF","CB","key","ENG"],
+  ["Esme Morgan","DEF","CB","squad","ENG"],["Leila Ouahabi","DEF","LB","key","ESP"],
+  ["Demi Stokes","DEF","LB","squad","ENG"],
+  ["Yui Hasegawa","MID","DM","key","JPN"],["Laura Coombs","MID","CM","key","ENG"],
+  ["Filippa Angeldahl","MID","CM","key","SWE"],["Deyna Castellanos","MID","AM","key","VEN"],
+  ["Chloe Kelly","FWD","RW","key","ENG"],["Lauren Hemp","FWD","LW","star","ENG"],
+  ["Khadija Shaw","FWD","ST","star","JAM"],["Hayley Raso","FWD","RW","squad","AUS"]]},
+
+{c:"Aston Villa",s:"2022-23",p:[
+  ["Hannah Hampton","GK","GK","key","ENG"],["Anna Leat","GK","GK","squad","NZL"],
+  ["Sarah Mayling","DEF","RB","key","ENG"],["Rachel Corsie","DEF","CB","key","SCO"],
+  ["Danielle Turner","DEF","CB","key","ENG"],["Anna Patten","DEF","CB","key","ENG"],
+  ["Maz Pacheco","DEF","LB","key","ENG"],
+  ["Kenza Dali","MID","AM","key","FRA"],["Laura Blindkilde","MID","CM","key","ENG"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Lucy Staniforth","MID","CM","squad","ENG"],
+  ["Ruesha Littlejohn","MID","DM","squad","IRL"],
+  ["Alisha Lehmann","FWD","RW","key","SUI"],["Kirsty Hanson","FWD","LW","key","SCO"],
+  ["Rachel Daly","FWD","ST","star","ENG"],["Emily Gielnik","FWD","ST","squad","AUS"]]},
+
+/* ===================== 2023-24: separated by seven goals ===================== */
+{c:"Chelsea",s:"2023-24",p:[
+  ["Hannah Hampton","GK","GK","key","ENG"],["Zecira Musovic","GK","GK","squad","SWE"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Jess Carter","DEF","CB","key","ENG"],
+  ["Kadeisha Buchanan","DEF","CB","key","CAN"],["Niamh Charles","DEF","LB","key","ENG"],
+  ["Ashley Lawrence","DEF","RB","key","CAN"],
+  ["Erin Cuthbert","MID","CM","key","SCO"],["Sjoeke Nüsken","MID","CM","key","GER"],
+  ["Sophie Ingle","MID","DM","squad","WAL"],["Lauren James","MID","AM","star","ENG"],
+  ["Guro Reiten","FWD","LW","key","NOR"],["Johanna Rytting Kaneryd","FWD","RW","key","SWE"],
+  ["Sam Kerr","FWD","ST","star","AUS"],["Aggie Beever-Jones","FWD","ST","key","ENG"],
+  ["Mayra Ramírez","FWD","ST","key","COL"]]},
+
+{c:"Manchester City",s:"2023-24",p:[
+  ["Khiara Keating","GK","GK","key","ENG"],["Sandy MacIver","GK","GK","squad","ENG"],
+  ["Alex Greenwood","DEF","CB","key","ENG"],["Laia Aleixandri","DEF","CB","key","ESP"],
+  ["Alanna Kennedy","DEF","CB","squad","AUS"],["Leila Ouahabi","DEF","LB","key","ESP"],
+  ["Kerstin Casparij","DEF","RB","key","NED"],
+  ["Yui Hasegawa","MID","DM","key","JPN"],["Laura Coombs","MID","CM","key","ENG"],
+  ["Jill Roord","MID","CM","key","NED"],["Filippa Angeldahl","MID","CM","squad","SWE"],
+  ["Mary Fowler","MID","AM","key","AUS"],
+  ["Khadija Shaw","FWD","ST","star","JAM"],["Lauren Hemp","FWD","LW","star","ENG"],
+  ["Chloe Kelly","FWD","RW","key","ENG"],["Jess Park","FWD","RW","squad","ENG"]]},
+
+{c:"Arsenal",s:"2023-24",p:[
+  ["Manuela Zinsberger","GK","GK","key","AUT"],["Sabrina D'Angelo","GK","GK","squad","CAN"],
+  ["Leah Williamson","DEF","CB","key","ENG"],["Lotte Wubben-Moy","DEF","CB","key","ENG"],
+  ["Amanda Ilestedt","DEF","CB","key","SWE"],["Steph Catley","DEF","LB","key","AUS"],
+  ["Katie McCabe","DEF","LB","key","IRL"],["Emily Fox","DEF","RB","squad","USA"],
+  ["Kim Little","MID","CM","key","SCO"],["Lia Wälti","MID","DM","key","SUI"],
+  ["Victoria Pelova","MID","CM","key","NED"],["Frida Maanum","MID","AM","key","NOR"],
+  ["Alessia Russo","FWD","ST","star","ENG"],["Beth Mead","FWD","RW","star","ENG"],
+  ["Caitlin Foord","FWD","LW","key","AUS"],["Stina Blackstenius","FWD","ST","key","SWE"]]},
+
+{c:"Manchester United",s:"2023-24",p:[
+  ["Mary Earps","GK","GK","star","ENG"],["Phallon Tullis-Joyce","GK","GK","squad","USA"],
+  ["Maya Le Tissier","DEF","CB","key","ENG"],["Millie Turner","DEF","CB","key","ENG"],
+  ["Gemma Evans","DEF","CB","squad","WAL"],["Hannah Blundell","DEF","LB","key","ENG"],
+  ["Jayde Riviere","DEF","RB","key","CAN"],
+  ["Katie Zelem","MID","CM","key","ENG"],["Lisa Naalsund","MID","CM","key","NOR"],
+  ["Hayley Ladd","MID","DM","squad","WAL"],["Ella Toone","MID","AM","star","ENG"],
+  ["Nikita Parris","FWD","RW","key","ENG"],["Leah Galton","FWD","LW","key","ENG"],
+  ["Lucía García","FWD","ST","key","ESP"],["Melvine Malard","FWD","ST","key","FRA"],
+  ["Geyse","FWD","RW","squad","BRA"]]},
+
+{c:"Liverpool",s:"2023-24",p:[
+  ["Rachael Laws","GK","GK","key","ENG"],["Teagan Micah","GK","GK","squad","AUS"],
+  ["Grace Fisk","DEF","CB","key","ENG"],["Gemma Bonner","DEF","CB","key","ENG"],
+  ["Jenna Clark","DEF","CB","key","SCO"],["Niamh Fahey","DEF","CB","squad","IRL"],
+  ["Taylor Hinds","DEF","LB","key","ENG"],["Emma Koivisto","DEF","RB","key","FIN"],
+  ["Fuka Nagano","MID","DM","key","JPN"],["Marie Höbinger","MID","CM","key","AUT"],
+  ["Ceri Holland","MID","LM","key","WAL"],["Missy Bo Kearns","MID","AM","squad","ENG"],
+  ["Sophie Roman Haug","FWD","ST","key","NOR"],["Leanne Kiernan","FWD","ST","squad","IRL"],
+  ["Melissa Lawley","FWD","RW","squad","ENG"],["Shanice van de Sanden","FWD","RW","squad","NED"]]},
+
+{c:"Tottenham Hotspur",s:"2023-24",p:[
+  ["Rebecca Spencer","GK","GK","key","ENG"],["Barbora Votíková","GK","GK","squad","CZE"],
+  ["Molly Bartrip","DEF","CB","key","ENG"],["Luana Bühler","DEF","CB","key","SUI"],
+  ["Amy James-Turner","DEF","CB","squad","ENG"],["Ashleigh Neville","DEF","LB","key","ENG"],
+  ["Amanda Nildén","DEF","LB","squad","SWE"],["Charlotte Grant","DEF","RB","squad","AUS"],
+  ["Eveliina Summanen","MID","DM","key","FIN"],["Grace Clinton","MID","CM","key","ENG"],
+  ["Olga Ahtinen","MID","CM","squad","FIN"],["Drew Spence","MID","AM","squad","JAM"],
+  ["Beth England","FWD","ST","key","ENG"],["Martha Thomas","FWD","ST","key","SCO"],
+  ["Celin Bizet Ildhusøy","FWD","RW","key","NOR"],["Jessica Naz","FWD","LW","key","ENG"]]},
+
+/* ===================== 2024-25: the first unbeaten 22 ===================== */
+{c:"Chelsea",s:"2024-25",p:[
+  ["Hannah Hampton","GK","GK","key","ENG"],["Zecira Musovic","GK","GK","squad","SWE"],
+  ["Millie Bright","DEF","CB","star","ENG"],["Lucy Bronze","DEF","RB","key","ENG"],
+  ["Nathalie Björn","DEF","CB","key","SWE"],["Naomi Girma","DEF","CB","key","USA"],
+  ["Ashley Lawrence","DEF","LB","squad","CAN"],
+  ["Erin Cuthbert","MID","CM","star","SCO"],["Sjoeke Nüsken","MID","CM","key","GER"],
+  ["Keira Walsh","MID","DM","key","ENG"],
+  ["Guro Reiten","FWD","LW","key","NOR"],["Johanna Rytting Kaneryd","FWD","RW","key","SWE"],
+  ["Mayra Ramírez","FWD","ST","key","COL"],["Aggie Beever-Jones","FWD","ST","key","ENG"],
+  ["Sandy Baltimore","FWD","LW","star","FRA"],["Lauren James","FWD","RW","key","ENG"]]},
+
+{c:"Arsenal",s:"2024-25",p:[
+  ["Daphne van Domselaar","GK","GK","key","NED"],["Manuela Zinsberger","GK","GK","squad","AUT"],
+  ["Emily Fox","DEF","RB","key","USA"],["Leah Williamson","DEF","CB","key","ENG"],
+  ["Lotte Wubben-Moy","DEF","CB","squad","ENG"],["Steph Catley","DEF","LB","key","AUS"],
+  ["Katie McCabe","DEF","LB","key","IRL"],
+  ["Kim Little","MID","CM","key","SCO"],["Mariona Caldentey","MID","AM","star","ESP"],
+  ["Frida Maanum","MID","CM","key","NOR"],["Lia Wälti","MID","DM","key","SUI"],
+  ["Alessia Russo","FWD","ST","star","ENG"],["Beth Mead","FWD","RW","key","ENG"],
+  ["Caitlin Foord","FWD","LW","key","AUS"],["Stina Blackstenius","FWD","ST","key","SWE"],
+  ["Chloe Kelly","FWD","RW","squad","ENG"]]},
+
+{c:"Manchester United",s:"2024-25",p:[
+  ["Phallon Tullis-Joyce","GK","GK","star","USA"],["Safia Middleton-Patel","GK","GK","squad","WAL"],
+  ["Jayde Riviere","DEF","RB","key","CAN"],["Maya Le Tissier","DEF","CB","star","ENG"],
+  ["Millie Turner","DEF","CB","key","ENG"],["Dominique Janssen","DEF","CB","key","NED"],
+  ["Gabby George","DEF","LB","key","ENG"],["Anna Sandberg","DEF","RB","squad","SWE"],
+  ["Grace Clinton","MID","CM","key","ENG"],["Ella Toone","MID","AM","key","ENG"],
+  ["Hinata Miyazawa","MID","LM","key","JPN"],["Simi Awujo","MID","DM","squad","NGA"],
+  ["Elisabeth Terland","FWD","ST","key","NOR"],["Leah Galton","FWD","LW","key","ENG"],
+  ["Celin Bizet","FWD","RW","key","NOR"],["Melvine Malard","FWD","ST","key","FRA"]]},
+
+{c:"Manchester City",s:"2024-25",p:[
+  ["Khiara Keating","GK","GK","key","ENG"],["Ayaka Yamashita","GK","GK","squad","JPN"],
+  ["Kerstin Casparij","DEF","RB","key","NED"],["Alex Greenwood","DEF","CB","key","ENG"],
+  ["Laia Aleixandri","DEF","CB","key","ESP"],["Leila Ouahabi","DEF","LB","key","ESP"],
+  ["Naomi Layzell","DEF","CB","squad","ENG"],
+  ["Yui Hasegawa","MID","DM","star","JPN"],["Jill Roord","MID","CM","key","NED"],
+  ["Laura Coombs","MID","CM","squad","ENG"],["Mary Fowler","MID","AM","star","AUS"],
+  ["Khadija Shaw","FWD","ST","star","JAM"],["Vivianne Miedema","FWD","ST","key","NED"],
+  ["Lauren Hemp","FWD","LW","key","ENG"],["Jess Park","FWD","RW","key","ENG"],
+  ["Aoba Fujino","FWD","RW","key","JPN"]]},
+
+{c:"Everton",s:"2024-25",p:[
+  ["Courtney Brosnan","GK","GK","key","IRL"],["Emily Ramsey","GK","GK","squad","ENG"],
+  ["Lucy Hope","DEF","RB","key","SCO"],["Megan Finnigan","DEF","CB","key","ENG"],
+  ["Martina Fernández","DEF","CB","key","ESP"],["Elise Stenevik","DEF","CB","squad","NOR"],
+  ["Sara Holmgaard","DEF","LB","key","DEN"],
+  ["Clare Wheeler","MID","DM","key","AUS"],["Honoka Hayashi","MID","CM","key","JPN"],
+  ["Justine Vanhaevermaet","MID","CM","key","BEL"],["Karoline Olesen","MID","CM","squad","DEN"],
+  ["Heather Payne","MID","RM","squad","IRL"],
+  ["Katja Snoeijs","FWD","ST","key","NED"],["Toni Payne","FWD","LW","key","NGA"],
+  ["Melissa Lawley","FWD","RW","squad","ENG"],["Kelly Gago","FWD","ST","squad","FRA"]]},
+
+{c:"Brighton & Hove Albion",s:"2024-25",p:[
+  ["Sophie Baggaley","GK","GK","key","ENG"],["Melina Loeck","GK","GK","squad","GER"],
+  ["Rachel McLauchlan","DEF","RB","key","SCO"],["Guro Bergsvand","DEF","CB","key","NOR"],
+  ["Maria Thorisdottir","DEF","CB","squad","NOR"],["Marisa Olislagers","DEF","LB","key","NED"],
+  ["Poppy Pattinson","DEF","LB","key","ENG"],["Jorelyn Carabalí","DEF","CB","squad","COL"],
+  ["Vicky Losada","MID","CM","key","ESP"],["Jelena Čanković","MID","AM","key","SRB"],
+  ["Fran Kirby","MID","AM","key","ENG"],["Maisie Symonds","MID","CM","squad","ENG"],
+  ["Nikita Parris","FWD","ST","key","ENG"],["Kiko Seike","FWD","RW","key","JPN"],
+  ["Michelle Agyemang","FWD","ST","squad","ENG"],["Pauline Bremer","FWD","ST","squad","GER"]]},
+
+{c:"West Ham United",s:"2024-25",p:[
+  ["Kinga Szemik","GK","GK","key","POL"],["Megan Walsh","GK","GK","squad","ENG"],
+  ["Anouk Denton","DEF","RB","key","ENG"],["Amber Tysiak","DEF","CB","key","BEL"],
+  ["Shelina Zadorsky","DEF","CB","key","CAN"],["Verena Hanshaw","DEF","LB","key","AUT"],
+  ["Li Mengwen","DEF","LB","squad","CHN"],["Kirsty Smith","DEF","RB","squad","SCO"],
+  ["Katrina Gorry","MID","CM","key","AUS"],["Oona Sirén","MID","DM","key","FIN"],
+  ["Seraina Piubel","MID","AM","key","SUI"],["Dagny Brynjarsdóttir","MID","CM","squad","ISL"],
+  ["Viviane Asseyi","FWD","LW","star","FRA"],["Riko Ueki","FWD","ST","key","JPN"],
+  ["Shekiera Martinez","FWD","ST","key","GER"],["Manuela Paví","FWD","RW","squad","COL"]]},
+
+{c:"Liverpool",s:"2024-25",p:[
+  ["Rachael Laws","GK","GK","key","ENG"],["Teagan Micah","GK","GK","squad","AUS"],
+  ["Taylor Hinds","DEF","LB","key","ENG"],["Gemma Bonner","DEF","CB","key","ENG"],
+  ["Grace Fisk","DEF","CB","key","ENG"],["Jenna Clark","DEF","CB","key","SCO"],
+  ["Jasmine Matthews","DEF","CB","squad","ENG"],["Lucy Parry","DEF","RB","squad","ENG"],
+  ["Fuka Nagano","MID","DM","key","JPN"],["Ceri Holland","MID","CM","key","WAL"],
+  ["Marie Höbinger","MID","CM","key","AUT"],
+  ["Olivia Smith","FWD","RW","star","CAN"],["Sophie Roman Haug","FWD","ST","key","NOR"],
+  ["Cornelia Kapocs","FWD","LW","squad","SWE"],["Leanne Kiernan","FWD","ST","squad","IRL"]]},
+
+{c:"Aston Villa",s:"2024-25",p:[
+  ["Sabrina D'Angelo","GK","GK","key","CAN"],
+  ["Noelle Maritz","DEF","RB","key","SUI"],["Anna Patten","DEF","CB","key","ENG"],
+  ["Lucy Parker","DEF","CB","key","ENG"],["Danielle Turner","DEF","CB","squad","ENG"],
+  ["Paula Tomás","DEF","LB","squad","ESP"],["Maz Pacheco","DEF","LB","squad","ENG"],
+  ["Jordan Nobbs","MID","CM","key","ENG"],["Missy Bo Kearns","MID","CM","key","ENG"],
+  ["Lucy Staniforth","MID","CM","squad","ENG"],["Kenza Dali","MID","AM","squad","FRA"],
+  ["Kirsty Hanson","FWD","RW","key","SCO"],["Chasity Grant","FWD","LW","key","NED"],
+  ["Rachel Daly","FWD","ST","star","ENG"],["Ebony Salmon","FWD","ST","key","ENG"],
+  ["Gabi Nunes","FWD","ST","squad","BRA"]]},
+
+{c:"Tottenham Hotspur",s:"2024-25",p:[
+  ["Lize Kop","GK","GK","key","NED"],["Rebecca Spencer","GK","GK","squad","ENG"],
+  ["Ashleigh Neville","DEF","RB","key","ENG"],["Molly Bartrip","DEF","CB","key","ENG"],
+  ["Clare Hunt","DEF","CB","key","AUS"],["Amanda Nildén","DEF","LB","key","SWE"],
+  ["Ella Morris","DEF","CB","squad","ENG"],
+  ["Eveliina Summanen","MID","DM","key","FIN"],["Drew Spence","MID","CM","key","JAM"],
+  ["Maite Oroz","MID","CM","key","ESP"],["Matilda Vinberg","MID","CM","squad","SWE"],
+  ["Olga Ahtinen","MID","CM","squad","FIN"],
+  ["Jessica Naz","FWD","LW","key","ENG"],["Hayley Raso","FWD","RW","key","AUS"],
+  ["Beth England","FWD","ST","star","ENG"],["Martha Thomas","FWD","ST","key","SCO"]]},
+
+{c:"Leicester City",s:"2024-25",p:[
+  ["Janina Leitzig","GK","GK","key","GER"],
+  ["Asmita Ale","DEF","RB","key","ENG"],["Sophie Howard","DEF","CB","key","SCO"],
+  ["Sam Tierney","DEF","CB","key","ENG"],["Julie Thibaud","DEF","LB","key","FRA"],
+  ["CJ Bott","DEF","RB","key","NZL"],["Courtney Nevin","DEF","LB","squad","AUS"],
+  ["Sari Kees","DEF","CB","squad","BEL"],
+  ["Ruby Mace","MID","DM","key","ENG"],["Janice Cayman","MID","RM","key","BEL"],
+  ["Saori Takarada","MID","LM","squad","JPN"],["Shannon O'Brien","MID","CM","squad","ENG"],
+  ["Yuka Momiki","MID","AM","key","JPN"],
+  ["Missy Goodwin","FWD","ST","key","ENG"],["Hannah Cain","FWD","LW","key","WAL"],
+  ["Shana Chossenotte","FWD","RW","squad","FRA"]]},
+
+{c:"Crystal Palace",s:"2024-25",p:[
+  ["Shae Yanez","GK","GK","key","USA"],["Milla-Maj Majasaari","GK","GK","squad","FIN"],
+  ["Lily Woodham","DEF","RB","key","WAL"],["Katrine Veje","DEF","LB","key","DEN"],
+  ["Aimee Everett","DEF","CB","key","ENG"],["Hayley Nolan","DEF","CB","squad","IRL"],
+  ["Allyson Swaby","DEF","CB","squad","JAM"],
+  ["Josie Green","MID","DM","key","WAL"],["Lexi Potter","MID","CM","key","ENG"],
+  ["My Cato","MID","CM","key","SWE"],["Mille Gejl","MID","AM","key","DEN"],
+  ["Annabel Blanchard","FWD","RW","key","ENG"],["Ashleigh Weerden","FWD","LW","key","NED"],
+  ["Katie Stengel","FWD","ST","key","USA"],["Indiah-Paige Riley","FWD","RW","squad","NZL"],
+  ["Abbie Larkin","FWD","LW","squad","IRL"]]},
+
+/* ===================== 2025-26: City end the six-year run ===================== */
+{c:"Manchester City",s:"2025-26",p:[
+  ["Ayaka Yamashita","GK","GK","key","JPN"],["Khiara Keating","GK","GK","squad","ENG"],
+  ["Alex Greenwood","DEF","CB","key","ENG"],["Kerstin Casparij","DEF","RB","key","NED"],
+  ["Jade Rose","DEF","CB","key","CAN"],["Rebecca Knaak","DEF","CB","key","GER"],
+  ["Leila Ouahabi","DEF","LB","key","ESP"],
+  ["Yui Hasegawa","MID","DM","star","JPN"],["Laura Blindkilde Brown","MID","CM","key","ENG"],
+  ["Grace Clinton","MID","CM","key","ENG"],["Sydney Lohmann","MID","CM","key","GER"],
+  ["Laura Coombs","MID","CM","key","ENG"],
+  ["Khadija Shaw","FWD","ST","star","JAM"],["Vivianne Miedema","FWD","ST","star","NED"],
+  ["Lauren Hemp","FWD","LW","star","ENG"],["Kerolin","FWD","RW","key","BRA"],
+  ["Aoba Fujino","FWD","RW","key","JPN"]]},
+
+{c:"Arsenal",s:"2025-26",p:[
+  ["Daphne van Domselaar","GK","GK","key","NED"],["Anneke Borbe","GK","GK","squad","GER"],
+  ["Emily Fox","DEF","RB","key","USA"],["Lotte Wubben-Moy","DEF","CB","key","ENG"],
+  ["Leah Williamson","DEF","CB","star","ENG"],["Laia Codina","DEF","CB","key","ESP"],
+  ["Steph Catley","DEF","LB","key","AUS"],["Katie McCabe","DEF","LB","key","IRL"],
+  ["Mariona Caldentey","MID","AM","star","ESP"],["Kim Little","MID","CM","key","SCO"],
+  ["Frida Maanum","MID","AM","key","NOR"],["Victoria Pelova","MID","CM","key","NED"],
+  ["Alessia Russo","FWD","ST","star","ENG"],["Olivia Smith","FWD","LW","star","CAN"],
+  ["Beth Mead","FWD","RW","key","ENG"],["Chloe Kelly","FWD","RW","key","ENG"],
+  ["Stina Blackstenius","FWD","ST","key","SWE"]]},
+
+{c:"Chelsea",s:"2025-26",p:[
+  ["Hannah Hampton","GK","GK","star","ENG"],["Livia Peng","GK","GK","squad","SUI"],
+  ["Ellie Carpenter","DEF","RB","key","AUS"],["Lucy Bronze","DEF","RB","key","ENG"],
+  ["Millie Bright","DEF","CB","key","ENG"],["Naomi Girma","DEF","CB","key","USA"],
+  ["Veerle Buurman","DEF","CB","key","NED"],["Niamh Charles","DEF","LB","squad","ENG"],
+  ["Keira Walsh","MID","DM","star","ENG"],["Erin Cuthbert","MID","CM","key","SCO"],
+  ["Wieke Kaptein","MID","CM","key","NED"],["Sjoeke Nüsken","MID","CM","key","GER"],
+  ["Lauren James","FWD","RW","star","ENG"],["Sandy Baltimore","FWD","LW","star","FRA"],
+  ["Johanna Rytting Kaneryd","FWD","RW","key","SWE"],["Alyssa Thompson","FWD","LW","key","USA"],
+  ["Sam Kerr","FWD","ST","key","AUS"],["Aggie Beever-Jones","FWD","ST","key","ENG"]]},
+
+{c:"Manchester United",s:"2025-26",p:[
+  ["Phallon Tullis-Joyce","GK","GK","star","USA"],["Safia Middleton-Patel","GK","GK","squad","WAL"],
+  ["Maya Le Tissier","DEF","CB","star","ENG"],["Dominique Janssen","DEF","CB","key","NED"],
+  ["Hanna Lundkvist","DEF","CB","key","SWE"],["Jayde Riviere","DEF","RB","key","CAN"],
+  ["Anna Sandberg","DEF","LB","key","SWE"],
+  ["Jess Park","MID","AM","key","ENG"],["Ella Toone","MID","AM","key","ENG"],
+  ["Julia Zigiotti Olme","MID","CM","key","SWE"],["Simi Awujo","MID","DM","key","NGA"],
+  ["Hinata Miyazawa","MID","LM","key","JPN"],
+  ["Elisabeth Terland","FWD","ST","star","NOR"],["Melvine Malard","FWD","LW","key","FRA"],
+  ["Fridolina Rolfö","FWD","LW","key","SWE"],["Lea Schüller","FWD","ST","key","GER"]]},
+
+{c:"Tottenham Hotspur",s:"2025-26",p:[
+  ["Lize Kop","GK","GK","key","NED"],["Eleanor Heeps","GK","GK","squad","ENG"],
+  ["Amanda Nildén","DEF","LB","key","SWE"],["Toko Koga","DEF","CB","key","JPN"],
+  ["Clare Hunt","DEF","CB","key","AUS"],["Josefine Rybrink","DEF","CB","squad","SWE"],
+  ["Charli Grant","DEF","RB","squad","AUS"],["Molly Bartrip","DEF","CB","squad","ENG"],
+  ["Drew Spence","MID","CM","key","JAM"],["Eveliina Summanen","MID","CM","key","FIN"],
+  ["Signe Gaupset","MID","AM","key","NOR"],["Olga Ahtinen","MID","CM","squad","FIN"],
+  ["Beth England","FWD","ST","key","ENG"],["Olivia Holdt","FWD","LW","star","DEN"],
+  ["Cathinka Tandberg","FWD","ST","key","NOR"],["Matilda Vinberg","FWD","RW","key","SWE"]]},
+
+{c:"London City Lionesses",s:"2025-26",p:[
+  ["Elene Lete","GK","GK","key","ESP"],["Emily Orman","GK","GK","squad","ENG"],
+  ["Jana Fernández","DEF","RB","key","ESP"],["Elena Linari","DEF","CB","key","ITA"],
+  ["Wassa Sangare","DEF","CB","key","FRA"],["Alanna Kennedy","DEF","CB","squad","AUS"],
+  ["Poppy Pattinson","DEF","LB","squad","ENG"],
+  ["Saki Kumagai","MID","DM","star","JPN"],["Grace Geyoro","MID","CM","star","FRA"],
+  ["Danielle van de Donk","MID","CM","key","NED"],["Freya Godfrey","MID","AM","key","ENG"],
+  ["Kosovare Asllani","MID","AM","key","SWE"],["Julia Roddar","MID","CM","squad","SWE"],
+  ["Isobel Goodwin","FWD","ST","key","ENG"],["Nikita Parris","FWD","RW","key","ENG"],
+  ["Lucía Corrales","FWD","LW","squad","ESP"]]},
+
+{c:"Brighton & Hove Albion",s:"2025-26",p:[
+  ["Chiamaka Nnadozie","GK","GK","star","NGA"],["Sophie Baggaley","GK","GK","squad","ENG"],
+  ["Moeka Minami","DEF","CB","key","JPN"],["Caitlin Hayes","DEF","CB","key","IRL"],
+  ["Manuela Vanegas","DEF","CB","key","COL"],["Marisa Olislagers","DEF","LB","key","NED"],
+  ["Rachel McLauchlan","DEF","RB","key","SCO"],
+  ["Maisie Symonds","MID","CM","key","ENG"],["Jelena Čanković","MID","CM","key","SRB"],
+  ["Charlize Rule","MID","DM","key","AUS"],["Fran Kirby","MID","AM","key","ENG"],
+  ["Kiko Seike","FWD","ST","key","JPN"],["Rosa Kafaji","FWD","RW","key","SWE"],
+  ["Madison Haley","FWD","LW","key","USA"],["Carla Camacho","FWD","ST","squad","ESP"],
+  ["Michelle Agyemang","FWD","ST","squad","ENG"]]},
+
+{c:"Everton",s:"2025-26",p:[
+  ["Courtney Brosnan","GK","GK","key","IRL"],["Emily Ramsey","GK","GK","squad","ENG"],
+  ["Martina Fernández","DEF","CB","key","ESP"],["Maz Pacheco","DEF","LB","key","ENG"],
+  ["Hikaru Kitagawa","DEF","RB","key","JPN"],["Rion Ishikawa","DEF","CB","squad","JPN"],
+  ["Elise Stenevik","DEF","CB","squad","NOR"],
+  ["Ornella Vignola","MID","AM","key","URU"],["Yuka Momiki","MID","AM","key","JPN"],
+  ["Ruby Mace","MID","DM","key","ENG"],["Clare Wheeler","MID","DM","key","AUS"],
+  ["Honoka Hayashi","MID","CM","key","JPN"],["Rosa van Gool","MID","CM","squad","NED"],
+  ["Kelly Gago","FWD","ST","key","FRA"],["Toni Payne","FWD","LW","key","NGA"],
+  ["Katja Snoeijs","FWD","ST","squad","NED"]]},
+
+{c:"Aston Villa",s:"2025-26",p:[
+  ["Sabrina D'Angelo","GK","GK","key","CAN"],["Ellie Roebuck","GK","GK","squad","ENG"],
+  ["Anna Patten","DEF","CB","key","ENG"],["Lynn Wilms","DEF","RB","key","NED"],
+  ["Noelle Maritz","DEF","LB","key","SUI"],["Océane Deslandes","DEF","CB","key","FRA"],
+  ["Rachel Maltby","DEF","CB","squad","ENG"],
+  ["Lucía Kendall","MID","CM","key","ENG"],["Miri Taylor","MID","AM","key","WAL"],
+  ["Missy Bo Kearns","MID","CM","key","ENG"],["Oriane Jean-François","MID","DM","squad","FRA"],
+  ["Kirsty Hanson","FWD","RW","key","SCO"],["Rachel Daly","FWD","ST","key","ENG"],
+  ["Chasity Grant","FWD","LW","key","NED"],["Ebony Salmon","FWD","ST","squad","ENG"],
+  ["Maya Hijikata","FWD","ST","squad","JPN"]]},
+
+{c:"West Ham United",s:"2025-26",p:[
+  ["Kinga Szemik","GK","GK","key","POL"],["Megan Walsh","GK","GK","squad","ENG"],
+  ["Shelina Zadorsky","DEF","CB","key","CAN"],["Amber Tysiak","DEF","CB","key","BEL"],
+  ["Verena Hanshaw","DEF","LB","key","AUT"],["Anouk Denton","DEF","RB","key","ENG"],
+  ["Eva Nyström","DEF","CB","squad","SWE"],
+  ["Katrina Gorry","MID","DM","key","AUS"],["Oona Sirén","MID","CM","key","FIN"],
+  ["Yu Endo","MID","CM","key","JPN"],["Katie Zelem","MID","CM","squad","ENG"],
+  ["Seraina Piubel","MID","AM","squad","SUI"],
+  ["Shekiera Martinez","FWD","ST","key","GER"],["Riko Ueki","FWD","ST","key","JPN"],
+  ["Viviane Asseyi","FWD","LW","key","FRA"],["Ffion Morgan","FWD","RW","squad","WAL"]]},
+
+{c:"Liverpool",s:"2025-26",p:[
+  ["Jennifer Falk","GK","GK","key","SWE"],["Faye Kirby","GK","GK","squad","ENG"],
+  ["Grace Fisk","DEF","CB","key","ENG"],["Jenna Clark","DEF","CB","key","SCO"],
+  ["Risa Shimizu","DEF","RB","key","JPN"],["Lily Woodham","DEF","LB","squad","WAL"],
+  ["Alejandra Bernabé","DEF","LB","squad","ESP"],["Gemma Evans","DEF","CB","squad","WAL"],
+  ["Fuka Nagano","MID","DM","key","JPN"],["Ceri Holland","MID","CM","key","WAL"],
+  ["Denise O'Sullivan","MID","CM","key","IRL"],["Kirsty Maclean","MID","CM","squad","SCO"],
+  ["Beata Olsson","FWD","ST","key","SWE"],["Cornelia Kapocs","FWD","ST","key","SWE"],
+  ["Mia Enderby","FWD","RW","key","ENG"],["Martha Thomas","FWD","ST","squad","SCO"]]},
+
+{c:"Leicester City",s:"2025-26",p:[
+  ["Janina Leitzig","GK","GK","key","GER"],["Olivia Clark","GK","GK","squad","ENG"],
+  ["Asmita Ale","DEF","RB","key","ENG"],["Sari Kees","DEF","LB","key","BEL"],
+  ["Julie Thibaud","DEF","CB","key","FRA"],["Chantelle Swaby","DEF","CB","key","JAM"],
+  ["Ashleigh Neville","DEF","CB","squad","ENG"],
+  ["Sam Tierney","MID","DM","key","ENG"],["Emily van Egmond","MID","AM","key","AUS"],
+  ["Olivia McLoughlin","MID","CM","key",""],["Emma Jansson","MID","CM","squad","SWE"],
+  ["Shannon O'Brien","FWD","ST","key","ENG"],["Hannah Cain","FWD","LW","key","WAL"],
+  ["Noémie Mouchon","FWD","ST","squad","FRA"],["Alisha Lehmann","FWD","RW","squad","SUI"],
+  ["Janice Cayman","FWD","RW","squad","BEL"]]}
+
+];

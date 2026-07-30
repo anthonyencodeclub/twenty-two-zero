@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>22-0 | Build the Ultimate WSL XI</title>
+<meta name="description" content="22-0 is a free Women's Super League draft game. Draw club-seasons from the WSL's whole history, draft your XI, then play a full 22-game season — table, title race, run-in and all. Can you go unbeaten?">
+<meta name="theme-color" content="#16062b">
+<meta property="og:title" content="22-0 — Build the Ultimate WSL XI">
+<meta property="og:description" content="Draft from every WSL squad since 2011, then play a full 22-game season. Win the title. Go unbeaten. 22 games, 0 defeats.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://twentytwo.app">
+<meta property="og:image" content="https://twentytwo.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://twentytwo.app/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+<style>
+:root{
+  --night:#16062b; --pitch:#22103f; --pitch-2:#2b1450;
+  --chalk:#f6eefe; --chalk-dim:#b9a8cc;
+  --pink:#ff3d7f; --pink-deep:#c4155a; --pink-hi:#ffa8c6;
+  --mint:#52e6c4; --loss:#ff6b5a; --draw:#a99bb8;
+  --card:#1d0c36; --line:rgba(246,238,254,.14);
+  --shadow:0 10px 34px rgba(0,0,0,.45);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1100px 620px at 50% -12%,var(--pitch-2),transparent 62%),
+    linear-gradient(180deg,var(--night),#0d0318 70%);
+  min-height:100vh;color:var(--chalk);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.45;
+  padding:14px 14px calc(24px + var(--safe-b));
+  overflow-x:hidden;
+}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.wrap{max-width:520px;margin:0 auto}
+.screen{display:none;animation:fade .28s ease}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- header ---------- */
+.brand{text-align:center;margin:6px 0 16px}
+.logo{font-size:44px;font-weight:900;letter-spacing:-2.5px;line-height:1;display:inline-block}
+.logo b{color:var(--pink)}
+.tag{font-size:12.5px;color:var(--chalk-dim);letter-spacing:.5px;margin-top:5px;text-transform:uppercase}
+h2{font-size:19px;margin:0 0 10px;letter-spacing:-.3px}
+h3{font-size:14px;margin:16px 0 8px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+p{margin:0 0 12px}
+.dim{color:var(--chalk-dim)}
+.sm{font-size:13px}
+.xs{font-size:11.5px}
+
+/* ---------- buttons ---------- */
+button{font-family:inherit;font-size:15px;cursor:pointer;border:0}
+.btn{
+  display:block;width:100%;padding:15px;border-radius:12px;font-weight:800;
+  background:linear-gradient(180deg,var(--pink),var(--pink-deep));color:#2a0413;
+  box-shadow:0 5px 0 #8d0f41, var(--shadow);margin-bottom:11px;transition:transform .08s,box-shadow .08s;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #8d0f41}
+.btn.ghost{background:transparent;color:var(--chalk);border:1.5px solid var(--line);box-shadow:none;font-weight:700}
+.btn.ghost:active{transform:none;background:rgba(255,255,255,.05)}
+.btn.mint{background:linear-gradient(180deg,var(--mint),#1fae90);color:#052a22;box-shadow:0 5px 0 #127963,var(--shadow)}
+.btn.mint:active{box-shadow:0 2px 0 #127963}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.sm{padding:10px;font-size:13.5px;margin-bottom:8px}
+.row{display:flex;gap:9px}
+.row>*{flex:1}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
+.card:empty{display:none}
+.card.hero{background:linear-gradient(160deg,#2c1250,#1a0a31);border-color:rgba(255,61,127,.34)}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.kv+.kv{margin-top:9px}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.4px}
+.pill.pink{background:rgba(255,61,127,.16);color:var(--pink-hi)}
+.pill.mint{background:rgba(82,230,196,.15);color:var(--mint)}
+.pill.grey{background:rgba(246,238,254,.09);color:var(--chalk-dim)}
+
+/* ---------- the draw reel ---------- */
+#reel{position:relative;height:132px;margin:8px 0 12px;overflow:hidden;border-radius:14px;
+  background:linear-gradient(180deg,#120523,#1e0c3a);border:1px solid var(--line)}
+#reel-track{display:flex;gap:8px;padding:14px 0;position:absolute;left:0;top:0;will-change:transform}
+.rcell{width:104px;flex:0 0 104px;height:104px;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(165deg,var(--c1,#3a1b5e),var(--c2,#1d0c36));text-align:center;padding:6px}
+.rcell .cn{font-size:12px;font-weight:800;line-height:1.15;letter-spacing:-.2px}
+.rcell .cy{font-size:11px;opacity:.78;font-variant-numeric:tabular-nums}
+.rcell .cb{width:26px;height:26px;border-radius:7px;margin-bottom:2px;display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.reel-frame{position:absolute;left:50%;top:8px;bottom:8px;width:112px;transform:translateX(-50%);
+  border:2.5px solid var(--pink);border-radius:14px;pointer-events:none;box-shadow:0 0 22px rgba(255,61,127,.5)}
+.reel-ptr{position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:0;height:0;
+  border-left:8px solid transparent;border-right:8px solid transparent;border-top:11px solid var(--pink);z-index:3}
+.reel-flash{position:absolute;inset:0;background:var(--pink);opacity:0;pointer-events:none}
+.reel-flash.on{animation:flash .42s ease}
+@keyframes flash{0%{opacity:.42}100%{opacity:0}}
+#landed{text-align:center;min-height:26px;font-size:14px}
+#landed .prompt{color:var(--chalk-dim)}
+#landed .reveal{font-weight:800}
+#landed.pop{animation:pop .34s ease}
+@keyframes pop{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04)}100%{transform:none;opacity:1}}
+
+/* ---------- pitch + slots ---------- */
+#pitch{background:linear-gradient(180deg,#1c2f22,#132318);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px 8px;margin-bottom:12px;position:relative;overflow:hidden}
+#pitch::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:rgba(255,255,255,.12)}
+.prow{display:flex;justify-content:center;gap:6px;margin:7px 0;position:relative;z-index:1}
+.slot{flex:1;max-width:88px;min-height:74px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.22);
+  background:rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:4px;font-size:10.5px;text-align:center;transition:border-color .15s,background .15s}
+.slot.empty{cursor:pointer}
+.slot.empty:active{background:rgba(255,255,255,.07)}
+.slot.target{border-color:var(--pink);border-style:solid;background:rgba(255,61,127,.13);animation:pulse 1.3s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,61,127,.4)}50%{box-shadow:0 0 0 7px rgba(255,61,127,0)}}
+.slot.filled{border-style:solid;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.06)}
+.slot .sid{font-size:9.5px;color:var(--chalk-dim);letter-spacing:.5px;font-weight:700}
+.slot .pn{font-size:10.5px;font-weight:700;line-height:1.15;word-break:break-word}
+.slot .pr{font-size:11px;font-weight:900;font-variant-numeric:tabular-nums}
+.slot .oop{font-size:9px;color:var(--loss);font-weight:800}
+.slot .cap{position:absolute;margin:-30px 0 0 30px;font-size:10px}
+.shirt{width:22px;height:22px;display:block}
+
+/* ---------- player pick modal ---------- */
+#modal-bg{position:fixed;inset:0;background:rgba(6,2,14,.82);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+#modal-bg.on{display:flex}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;
+  width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:16px 15px calc(20px + var(--safe-b));
+  animation:up .26s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translateY(30px)}to{transform:none}}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:10px}
+.needlist{font-size:11.5px;color:var(--chalk-dim);margin-bottom:11px}
+.needlist b{color:var(--pink-hi)}
+.plist{display:flex;flex-direction:column;gap:7px}
+.prow2{display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;
+  background:rgba(255,255,255,.05);border:1px solid transparent;cursor:pointer}
+.prow2:active{background:rgba(255,255,255,.1)}
+.prow2.off{opacity:.34;pointer-events:none}
+.prow2 .nm{flex:1;min-width:0}
+.prow2 .nm b{display:block;font-size:14px;line-height:1.2}
+.prow2 .nm span{font-size:11px;color:var(--chalk-dim)}
+.prow2 .rt{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.icon{color:#ffd6ea}.gold{color:var(--pink-hi)}.silver{color:#dcd2e8}.bronze{color:#c9a889}
+.slotpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.slotbtn{padding:8px 11px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid var(--line);
+  font-size:12px;font-weight:700;color:var(--chalk)}
+.slotbtn.best{border-color:var(--mint);color:var(--mint)}
+.slotbtn.bad{opacity:.6}
+
+/* ---------- season screen ---------- */
+.md-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.md-n{font-size:12px;color:var(--chalk-dim);letter-spacing:1px;font-weight:800;text-transform:uppercase}
+.md-pos{font-size:12px;font-weight:800}
+#mdbar{height:5px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:12px}
+#mdbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--pink-hi));width:0;transition:width .4s}
+.fixture{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+.fx-team{flex:1;text-align:center;font-size:13.5px;font-weight:800;line-height:1.2}
+.fx-team .yr{display:block;font-size:10.5px;color:var(--chalk-dim);font-weight:600}
+.fx-score{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px;min-width:74px;text-align:center}
+.fx-ha{font-size:10px;color:var(--chalk-dim);letter-spacing:1px;text-align:center;margin-bottom:8px;text-transform:uppercase}
+#clock{text-align:center;font-size:12px;color:var(--chalk-dim);font-variant-numeric:tabular-nums;margin-bottom:8px}
+#feed{min-height:104px;max-height:216px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;
+  margin-bottom:6px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.ev{font-size:13px;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,.05);animation:evin .3s ease}
+@keyframes evin{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.ev.goal{background:rgba(82,230,196,.16);border-left:3px solid var(--mint);font-weight:700}
+.ev.conc{background:rgba(255,107,90,.13);border-left:3px solid var(--loss)}
+.ev.big{background:rgba(255,61,127,.14);font-weight:700}
+.ev .min{color:var(--chalk-dim);font-variant-numeric:tabular-nums;margin-right:6px;font-size:11.5px}
+.opplore{font-size:11.5px;color:var(--chalk-dim);font-style:italic;padding:6px 10px;border-left:2px solid var(--pink);margin-bottom:6px}
+
+/* ---------- league table ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{font-size:10px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.6px;
+  text-align:right;padding:4px 3px;font-weight:700}
+.tbl th:nth-child(2){text-align:left}
+.tbl td{padding:6px 2px;text-align:right;font-variant-numeric:tabular-nums;border-top:1px solid rgba(255,255,255,.06)}
+.tbl td:nth-child(2){text-align:left;font-weight:600}
+.tbl tr.you td{background:rgba(255,61,127,.14);font-weight:800}
+.tbl tr.ucl td:first-child{box-shadow:inset 3px 0 0 var(--mint)}
+.tbl tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
+.tbl .cn{max-width:152px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+.tbl .yr{color:var(--chalk-dim);font-weight:400;font-size:10px}
+.tbl .pts{font-weight:900;color:var(--pink-hi)}
+.mv{font-size:9px;margin-left:3px}
+.mv.up{color:var(--mint)}.mv.dn{color:var(--loss)}
+.form{display:inline-flex;gap:2px;margin-left:4px}
+.form i{width:12px;height:12px;border-radius:3px;font-size:8px;font-weight:900;display:flex;
+  align-items:center;justify-content:center;font-style:normal;color:#150a20}
+.form i.w{background:var(--mint)}.form i.d{background:var(--draw)}.form i.l{background:var(--loss)}
+.results-strip{display:flex;flex-wrap:wrap;gap:5px;font-size:11px;margin-top:8px}
+.res{padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.05);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ---------- misc ---------- */
+#toast{position:fixed;left:50%;bottom:calc(22px + var(--safe-b));transform:translate(-50%,20px);
+  background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 16px;font-size:13.5px;
+  opacity:0;pointer-events:none;transition:.28s;z-index:80;box-shadow:var(--shadow);max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.lb-row{display:flex;align-items:center;gap:9px;padding:8px 4px;border-top:1px solid rgba(255,255,255,.07);font-size:13.5px}
+.lb-row .rk{width:24px;color:var(--chalk-dim);font-weight:800;font-variant-numeric:tabular-nums}
+.lb-row .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-row .pt{font-weight:900;font-variant-numeric:tabular-nums;color:var(--pink-hi)}
+.lb-row.me{background:rgba(255,61,127,.12);border-radius:8px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;padding:9px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid transparent;
+  font-size:12.5px;font-weight:700;color:var(--chalk-dim);text-align:center}
+.tab.on{background:rgba(255,61,127,.16);border-color:rgba(255,61,127,.4);color:var(--pink-hi)}
+.opt{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.optbtn{padding:12px;border-radius:11px;background:rgba(255,255,255,.05);border:1.5px solid transparent;
+  text-align:left;color:var(--chalk);font-size:14px;font-weight:700;display:flex;justify-content:space-between;
+  align-items:center;gap:10px}
+.optbtn.on{border-color:var(--pink);background:rgba(255,61,127,.12)}
+.optbtn span{font-size:11.5px;color:var(--chalk-dim);font-weight:500;text-align:right}
+.field{width:100%;padding:12px;border-radius:11px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line);color:var(--chalk);font-size:15px;font-family:inherit;margin-bottom:9px}
+.field:focus{outline:none;border-color:var(--pink)}
+label.chk{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--chalk-dim);margin-bottom:12px}
+label.chk input{margin-top:2px;width:17px;height:17px;accent-color:var(--pink)}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;width:0}
+.chbanner{background:linear-gradient(160deg,#3a1550,#22103f);border:1px solid rgba(255,61,127,.4);
+  border-radius:13px;padding:12px;margin-bottom:12px;font-size:13px}
+.chbanner b{color:var(--pink-hi)}
+.daily-featured{font-size:11.5px;color:var(--chalk-dim);margin-top:7px}
+.daily-featured b{color:var(--pink-hi)}
+.alb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;margin-bottom:14px}
+.alb{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px;
+  font-size:10px;text-align:center;opacity:.4}
+.alb.got{opacity:1;border-color:rgba(255,61,127,.5);background:linear-gradient(165deg,#3a1b5e,#1d0c36)}
+.alb .an{font-weight:800;line-height:1.1}
+.alb .ay{font-size:9.5px;color:var(--chalk-dim)}
+.award{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.07)}
+.award .aw-t{font-size:10.5px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.award .aw-n{font-size:14px;font-weight:800}
+footer{text-align:center;font-size:11px;color:var(--chalk-dim);margin-top:22px;line-height:1.6}
+footer a{color:var(--chalk-dim)}
+@media(max-width:400px){
+  .logo{font-size:38px}
+  .rcell{width:92px;flex:0 0 92px;height:96px}
+  .reel-frame{width:100px}
+  .fx-score{font-size:26px}
+  .slot{min-height:66px;max-width:74px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ HOME ============ -->
+<div id="home" class="screen on">
+  <div class="brand">
+    <div class="logo">22<b>-</b>0</div>
+    <div class="tag">Build the ultimate WSL XI</div>
+  </div>
+
+  <div id="chbanner"></div>
+
+  <div class="card hero">
+    <div class="kv">
+      <div>
+        <div style="font-size:17px;font-weight:900">Today's season</div>
+        <div class="sm dim" id="daily-sub">One free season a day — play it your way</div>
+      </div>
+      <div id="streak-pill"></div>
+    </div>
+    <div id="daily-featured"></div>
+    <button class="btn" id="btn-daily" style="margin-top:13px">Play today's season →</button>
+    <button class="btn ghost sm" id="btn-featured" style="display:none">⭐ Play the featured challenge</button>
+  </div>
+
+  <div class="row">
+    <button class="btn ghost sm" id="btn-board">🌍 Leaderboard</button>
+    <button class="btn ghost sm" id="btn-album">📖 Album</button>
+  </div>
+  <div class="row">
+    <button class="btn ghost sm" id="btn-how">❓ How to play</button>
+    <button class="btn ghost sm" id="btn-invite">🔗 Invite a friend</button>
+  </div>
+
+  <div class="card" id="home-board"></div>
+
+  <footer>
+    22-0 is an independent, fan-made game celebrating the Women's Super League.<br>
+    Not affiliated with the WSL, WPLL, the FA or any club.<br>
+    Sister game: <a href="https://sevenzero.app">7-0 — the World Cup one</a>
+  </footer>
+</div>
+
+<!-- ============ SETUP WIZARD ============ -->
+<div id="wiz" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div></div>
+  <div class="md-n" id="wiz-step">Step 1 of 4</div>
+  <h2 id="wiz-title">Pick your formation</h2>
+  <p class="sm dim" id="wiz-blurb"></p>
+  <div class="opt" id="wiz-opts"></div>
+  <div id="wiz-mult" class="sm dim" style="text-align:center;margin-bottom:10px"></div>
+  <button class="btn ghost sm" id="wiz-back">← Back</button>
+</div>
+
+<!-- ============ SIGN-UP ============ -->
+<div id="signup" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">Manager profile</div></div>
+  <div class="card">
+    <p class="sm dim">Your name goes on the world leaderboard. Email is optional — it just saves your run and sends the daily nudge.</p>
+    <input class="field" id="in-name" maxlength="20" placeholder="Manager name" autocomplete="nickname">
+    <input class="field" id="in-country" maxlength="2" placeholder="Country code (GB, US, SE…)" autocomplete="country" style="text-transform:uppercase">
+    <input class="field" id="in-email" type="email" maxlength="80" placeholder="Email (optional)" autocomplete="email">
+    <input class="hp" id="in-web" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="chk"><input type="checkbox" id="in-optin">
+      Email me my results and a daily reminder. One email a day at most, unsubscribe in one tap.</label>
+    <button class="btn" id="btn-signup-go">Start the season →</button>
+  </div>
+  <button class="btn ghost sm" id="signup-back">← Back</button>
+</div>
+
+<!-- ============ DRAW ============ -->
+<div id="draw" class="screen">
+  <div class="md-head">
+    <div class="md-n" id="draw-mode"></div>
+    <div class="md-pos" id="picks-left"><span id="picks-n">11</span> to pick</div>
+  </div>
+  <div id="reel">
+    <div class="reel-ptr"></div>
+    <div id="reel-track"></div>
+    <div class="reel-frame"></div>
+    <div class="reel-flash" id="reel-flash"></div>
+  </div>
+  <div id="landed"><span class="prompt">Draw a squad to begin</span></div>
+  <div id="draft-meta" class="sm dim" style="text-align:center;margin:8px 0"></div>
+  <button class="btn" id="btn-spin">Draw a squad 🎰</button>
+  <button class="btn ghost sm" id="btn-respin">↻ Re-draw (<span id="respins">1</span> left)</button>
+  <div id="pitch"></div>
+  <button class="btn mint" id="btn-kickoff" disabled>Kick off the season ⚽</button>
+  <button class="btn ghost sm" id="btn-quit">Abandon run</button>
+</div>
+
+<!-- ============ SEASON ============ -->
+<div id="season" class="screen">
+  <div class="md-head">
+    <div class="md-n" id="md-label">Matchday 1 of 22</div>
+    <div class="md-pos" id="md-pos"></div>
+  </div>
+  <div id="mdbar"><i></i></div>
+
+  <div class="card">
+    <div class="fx-ha" id="fx-ha"></div>
+    <div class="fixture">
+      <div class="fx-team" id="fx-home"></div>
+      <div class="fx-score mono" id="fx-score">– –</div>
+      <div class="fx-team" id="fx-away"></div>
+    </div>
+    <div id="clock"></div>
+    <div id="feed"></div>
+  </div>
+
+  <div class="card" id="table-card">
+    <div class="kv" style="margin-bottom:8px">
+      <h3 style="margin:0">Table</h3>
+      <button class="pill grey" id="btn-table-full" style="border:0">Full table</button>
+    </div>
+    <div id="mini-table"></div>
+    <div class="results-strip" id="other-results"></div>
+  </div>
+
+  <button class="btn" id="btn-next">Next match →</button>
+  <div class="row">
+    <button class="btn ghost sm" id="btn-speed">Speed: Normal</button>
+    <button class="btn ghost sm" id="btn-squad">My XI</button>
+  </div>
+</div>
+
+<!-- ============ RESULT ============ -->
+<div id="result" class="screen">
+  <div class="brand"><div class="logo" id="r-verdict"></div><div class="tag" id="r-sub"></div></div>
+  <div class="card hero">
+    <div class="kv"><div class="dim sm">Final position</div><div style="font-size:19px;font-weight:900" id="r-pos"></div></div>
+    <div class="kv"><div class="dim sm">Record</div><div class="mono" id="r-record"></div></div>
+    <div class="kv"><div class="dim sm">League points</div><div class="mono" id="r-lpts"></div></div>
+    <div class="kv" style="border-top:1px solid var(--line);padding-top:10px">
+      <div class="dim sm">Game score</div><div style="font-size:26px;font-weight:900" class="mono" id="r-score"></div>
+    </div>
+    <div class="sm dim" id="r-mult"></div>
+  </div>
+  <div id="r-challenge"></div>
+  <div class="card"><h3 style="margin-top:0">Final table</h3><div id="r-table"></div></div>
+  <div class="card"><h3 style="margin-top:0">Awards</h3><div id="r-awards"></div></div>
+  <div class="card"><h3 style="margin-top:0">Your XI</h3><div id="r-xi"></div></div>
+  <div id="r-badges"></div>
+  <button class="btn" id="btn-share">Share result 📸</button>
+  <button class="btn ghost sm" id="btn-challenge-share">🆚 Challenge a friend to beat it</button>
+  <button class="btn ghost sm" id="btn-result-board">🌍 World leaderboard</button>
+  <button class="btn ghost sm" id="btn-home2">← Home</button>
+</div>
+
+<!-- ============ LEADERBOARD ============ -->
+<div id="board" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">World leaderboard</div></div>
+  <div class="tabs">
+    <div class="tab on" data-b="alltime">All-time</div>
+    <div class="tab" data-b="daily">Today</div>
+    <div class="tab" data-b="streaks">🔥 Regulars</div>
+  </div>
+  <div class="card" id="board-list"></div>
+  <button class="btn ghost sm" id="board-back">← Back</button>
+</div>
+
+<!-- ============ ALBUM ============ -->
+<div id="album" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">Squad album</div></div>
+  <div class="card"><div id="album-progress"></div></div>
+  <div id="album-list"></div>
+  <button class="btn ghost sm" id="album-back">← Back</button>
+</div>
+
+<!-- ============ HOW TO PLAY ============ -->
+<div id="how" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">How to play</div></div>
+  <div class="card sm">
+    <h3 style="margin-top:0">The idea</h3>
+    <p>Draw squads from the Women's Super League's whole history — Arsenal 2011 to the present day — and draft a starting XI, one player at a time.</p>
+    <p>Then you play a <b>full 22-game WSL season</b>: eleven rivals, home and away, a live table, a title race and a run-in.</p>
+    <p><b>22 wins, 0 defeats</b> is the perfect season. Nobody has done it.</p>
+    <h3>Drafting</h3>
+    <p>Every draw lands on one club-season. Pick a player, then choose the shirt they wear. Play them out of position and their rating drops — a full-back at centre-back is fine, a striker in goal is not.</p>
+    <p><b>Chemistry</b> rewards real football: players who actually played together, clubmates across eras, countrymates, and anyone in their proper position.</p>
+    <h3>Scoring</h3>
+    <p>Win 60 · Draw 25 · goals +3 / −2 · Champions +250 · Unbeaten +150 · Perfect 22-0 +400. Modes multiply it. The server recomputes every run.</p>
+  </div>
+  <button class="btn ghost sm" id="how-back">← Back</button>
+</div>
+
+</div><!-- /wrap -->
+
+<div id="modal-bg"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>

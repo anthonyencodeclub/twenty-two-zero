@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>22-0 | Build the Ultimate WSL XI</title>
+<meta name="description" content="22-0 is a free Women's Super League draft game. Draw club-seasons from the WSL's whole history, draft your XI, then play a full 22-game season — table, title race, run-in and all. Can you go unbeaten?">
+<meta name="theme-color" content="#16062b">
+<meta property="og:title" content="22-0 — Build the Ultimate WSL XI">
+<meta property="og:description" content="Draft from every WSL squad since 2011, then play a full 22-game season. Win the title. Go unbeaten. 22 games, 0 defeats.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://twentytwo.app">
+<meta property="og:image" content="https://twentytwo.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://twentytwo.app/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+<style>
+:root{
+  --night:#16062b; --pitch:#22103f; --pitch-2:#2b1450;
+  --chalk:#f6eefe; --chalk-dim:#b9a8cc;
+  --pink:#ff3d7f; --pink-deep:#c4155a; --pink-hi:#ffa8c6;
+  --mint:#52e6c4; --loss:#ff6b5a; --draw:#a99bb8;
+  --card:#1d0c36; --line:rgba(246,238,254,.14);
+  --shadow:0 10px 34px rgba(0,0,0,.45);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1100px 620px at 50% -12%,var(--pitch-2),transparent 62%),
+    linear-gradient(180deg,var(--night),#0d0318 70%);
+  min-height:100vh;color:var(--chalk);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.45;
+  padding:14px 14px calc(24px + var(--safe-b));
+  overflow-x:hidden;
+}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.wrap{max-width:520px;margin:0 auto}
+.screen{display:none;animation:fade .28s ease}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- header ---------- */
+.brand{text-align:center;margin:6px 0 16px}
+.logo{font-size:44px;font-weight:900;letter-spacing:-2.5px;line-height:1;display:inline-block}
+.logo b{color:var(--pink)}
+.tag{font-size:12.5px;color:var(--chalk-dim);letter-spacing:.5px;margin-top:5px;text-transform:uppercase}
+h2{font-size:19px;margin:0 0 10px;letter-spacing:-.3px}
+h3{font-size:14px;margin:16px 0 8px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+p{margin:0 0 12px}
+.dim{color:var(--chalk-dim)}
+.sm{font-size:13px}
+.xs{font-size:11.5px}
+
+/* ---------- buttons ---------- */
+button{font-family:inherit;font-size:15px;cursor:pointer;border:0}
+.btn{
+  display:block;width:100%;padding:15px;border-radius:12px;font-weight:800;
+  background:linear-gradient(180deg,var(--pink),var(--pink-deep));color:#2a0413;
+  box-shadow:0 5px 0 #8d0f41, var(--shadow);margin-bottom:11px;transition:transform .08s,box-shadow .08s;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #8d0f41}
+.btn.ghost{background:transparent;color:var(--chalk);border:1.5px solid var(--line);box-shadow:none;font-weight:700}
+.btn.ghost:active{transform:none;background:rgba(255,255,255,.05)}
+.btn.mint{background:linear-gradient(180deg,var(--mint),#1fae90);color:#052a22;box-shadow:0 5px 0 #127963,var(--shadow)}
+.btn.mint:active{box-shadow:0 2px 0 #127963}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.sm{padding:10px;font-size:13.5px;margin-bottom:8px}
+.row{display:flex;gap:9px}
+.row>*{flex:1}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
+.card:empty{display:none}
+.card.hero{background:linear-gradient(160deg,#2c1250,#1a0a31);border-color:rgba(255,61,127,.34)}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.kv+.kv{margin-top:9px}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.4px}
+.pill.pink{background:rgba(255,61,127,.16);color:var(--pink-hi)}
+.pill.mint{background:rgba(82,230,196,.15);color:var(--mint)}
+.pill.grey{background:rgba(246,238,254,.09);color:var(--chalk-dim)}
+
+/* ---------- the draw reel ---------- */
+#reel{position:relative;height:132px;margin:8px 0 12px;overflow:hidden;border-radius:14px;
+  background:linear-gradient(180deg,#120523,#1e0c3a);border:1px solid var(--line)}
+#reel-track{display:flex;gap:8px;padding:14px 0;position:absolute;left:0;top:0;will-change:transform}
+.rcell{width:104px;flex:0 0 104px;height:104px;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(165deg,var(--c1,#3a1b5e),var(--c2,#1d0c36));text-align:center;padding:6px}
+.rcell .cn{font-size:12px;font-weight:800;line-height:1.15;letter-spacing:-.2px}
+.rcell .cy{font-size:11px;opacity:.78;font-variant-numeric:tabular-nums}
+.rcell .cb{width:26px;height:26px;border-radius:7px;margin-bottom:2px;display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.reel-frame{position:absolute;left:50%;top:8px;bottom:8px;width:112px;transform:translateX(-50%);
+  border:2.5px solid var(--pink);border-radius:14px;pointer-events:none;box-shadow:0 0 22px rgba(255,61,127,.5)}
+.reel-ptr{position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:0;height:0;
+  border-left:8px solid transparent;border-right:8px solid transparent;border-top:11px solid var(--pink);z-index:3}
+.reel-flash{position:absolute;inset:0;background:var(--pink);opacity:0;pointer-events:none}
+.reel-flash.on{animation:flash .42s ease}
+@keyframes flash{0%{opacity:.42}100%{opacity:0}}
+#landed{text-align:center;min-height:26px;font-size:14px}
+#landed .prompt{color:var(--chalk-dim)}
+#landed .reveal{font-weight:800}
+#landed.pop{animation:pop .34s ease}
+@keyframes pop{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04)}100%{transform:none;opacity:1}}
+
+/* ---------- pitch + slots ---------- */
+#pitch{background:linear-gradient(180deg,#1c2f22,#132318);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px 8px;margin-bottom:12px;position:relative;overflow:hidden}
+#pitch::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:rgba(255,255,255,.12)}
+.prow{display:flex;justify-content:center;gap:6px;margin:7px 0;position:relative;z-index:1}
+.slot{flex:1;max-width:88px;min-height:74px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.22);
+  background:rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:4px;font-size:10.5px;text-align:center;transition:border-color .15s,background .15s}
+.slot.empty{cursor:pointer}
+.slot.empty:active{background:rgba(255,255,255,.07)}
+.slot.target{border-color:var(--pink);border-style:solid;background:rgba(255,61,127,.13);animation:pulse 1.3s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,61,127,.4)}50%{box-shadow:0 0 0 7px rgba(255,61,127,0)}}
+.slot.filled{border-style:solid;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.06)}
+.slot .sid{font-size:9.5px;color:var(--chalk-dim);letter-spacing:.5px;font-weight:700}
+.slot .pn{font-size:10.5px;font-weight:700;line-height:1.15;word-break:break-word}
+.slot .pr{font-size:11px;font-weight:900;font-variant-numeric:tabular-nums}
+.slot .oop{font-size:9px;color:var(--loss);font-weight:800}
+.slot .cap{position:absolute;margin:-30px 0 0 30px;font-size:10px}
+.shirt{width:22px;height:22px;display:block}
+
+/* ---------- player pick modal ---------- */
+#modal-bg{position:fixed;inset:0;background:rgba(6,2,14,.82);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+#modal-bg.on{display:flex}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;
+  width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:16px 15px calc(20px + var(--safe-b));
+  animation:up .26s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translateY(30px)}to{transform:none}}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:10px}
+.needlist{font-size:11.5px;color:var(--chalk-dim);margin-bottom:11px}
+.needlist b{color:var(--pink-hi)}
+.plist{display:flex;flex-direction:column;gap:7px}
+.prow2{display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;
+  background:rgba(255,255,255,.05);border:1px solid transparent;cursor:pointer}
+.prow2:active{background:rgba(255,255,255,.1)}
+.prow2.off{opacity:.34;pointer-events:none}
+.prow2 .nm{flex:1;min-width:0}
+.prow2 .nm b{display:block;font-size:14px;line-height:1.2}
+.prow2 .nm span{font-size:11px;color:var(--chalk-dim)}
+.prow2 .rt{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.icon{color:#ffd6ea}.gold{color:var(--pink-hi)}.silver{color:#dcd2e8}.bronze{color:#c9a889}
+.slotpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.slotbtn{padding:8px 11px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid var(--line);
+  font-size:12px;font-weight:700;color:var(--chalk)}
+.slotbtn.best{border-color:var(--mint);color:var(--mint)}
+.slotbtn.bad{opacity:.6}
+
+/* ---------- season screen ---------- */
+.md-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.md-n{font-size:12px;color:var(--chalk-dim);letter-spacing:1px;font-weight:800;text-transform:uppercase}
+.md-pos{font-size:12px;font-weight:800}
+#mdbar{height:5px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:12px}
+#mdbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--pink-hi));width:0;transition:width .4s}
+.fixture{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+.fx-team{flex:1;text-align:center;font-size:13.5px;font-weight:800;line-height:1.2}
+.fx-team .yr{display:block;font-size:10.5px;color:var(--chalk-dim);font-weight:600}
+.fx-score{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px;min-width:74px;text-align:center}
+.fx-ha{font-size:10px;color:var(--chalk-dim);letter-spacing:1px;text-align:center;margin-bottom:8px;text-transform:uppercase}
+#clock{text-align:center;font-size:12px;color:var(--chalk-dim);font-variant-numeric:tabular-nums;margin-bottom:8px}
+#feed{min-height:104px;max-height:216px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;
+  margin-bottom:6px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.ev{font-size:13px;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,.05);animation:evin .3s ease}
+@keyframes evin{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.ev.goal{background:rgba(82,230,196,.16);border-left:3px solid var(--mint);font-weight:700}
+.ev.conc{background:rgba(255,107,90,.13);border-left:3px solid var(--loss)}
+.ev.big{background:rgba(255,61,127,.14);font-weight:700}
+.ev .min{color:var(--chalk-dim);font-variant-numeric:tabular-nums;margin-right:6px;font-size:11.5px}
+.opplore{font-size:11.5px;color:var(--chalk-dim);font-style:italic;padding:6px 10px;border-left:2px solid var(--pink);margin-bottom:6px}
+
+/* ---------- league table ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{font-size:10px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.6px;
+  text-align:right;padding:4px 3px;font-weight:700}
+.tbl th:nth-child(2){text-align:left}
+.tbl td{padding:6px 2px;text-align:right;font-variant-numeric:tabular-nums;border-top:1px solid rgba(255,255,255,.06)}
+.tbl td:nth-child(2){text-align:left;font-weight:600}
+.tbl tr.you td{background:rgba(255,61,127,.14);font-weight:800}
+.tbl tr.ucl td:first-child{box-shadow:inset 3px 0 0 var(--mint)}
+.tbl tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
+.tbl .cn{max-width:152px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+.tbl .yr{color:var(--chalk-dim);font-weight:400;font-size:10px}
+.tbl .pts{font-weight:900;color:var(--pink-hi)}
+.mv{font-size:9px;margin-left:3px}
+.mv.up{color:var(--mint)}.mv.dn{color:var(--loss)}
+.form{display:inline-flex;gap:2px;margin-left:4px}
+.form i{width:12px;height:12px;border-radius:3px;font-size:8px;font-weight:900;display:flex;
+  align-items:center;justify-content:center;font-style:normal;color:#150a20}
+.form i.w{background:var(--mint)}.form i.d{background:var(--draw)}.form i.l{background:var(--loss)}
+.results-strip{display:flex;flex-wrap:wrap;gap:5px;font-size:11px;margin-top:8px}
+.res{padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.05);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ---------- misc ---------- */
+#toast{position:fixed;left:50%;bottom:calc(22px + var(--safe-b));transform:translate(-50%,20px);
+  background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 16px;font-size:13.5px;
+  opacity:0;pointer-events:none;transition:.28s;z-index:80;box-shadow:var(--shadow);max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.lb-row{display:flex;align-items:center;gap:9px;padding:8px 4px;border-top:1px solid rgba(255,255,255,.07);font-size:13.5px}
+.lb-row .rk{width:24px;color:var(--chalk-dim);font-weight:800;font-variant-numeric:tabular-nums}
+.lb-row .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-row .pt{font-weight:900;font-variant-numeric:tabular-nums;color:var(--pink-hi)}
+.lb-row.me{background:rgba(255,61,127,.12);border-radius:8px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;padding:9px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid transparent;
+  font-size:12.5px;font-weight:700;color:var(--chalk-dim);text-align:center}
+.tab.on{background:rgba(255,61,127,.16);border-color:rgba(255,61,127,.4);color:var(--pink-hi)}
+.opt{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.optbtn{padding:12px;border-radius:11px;background:rgba(255,255,255,.05);border:1.5px solid transparent;
+  text-align:left;color:var(--chalk);font-size:14px;font-weight:700;display:flex;justify-content:space-between;
+  align-items:center;gap:10px}
+.optbtn.on{border-color:var(--pink);background:rgba(255,61,127,.12)}
+.optbtn span{font-size:11.5px;color:var(--chalk-dim);font-weight:500;text-align:right}
+.field{width:100%;padding:12px;border-radius:11px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line);color:var(--chalk);font-size:15px;font-family:inherit;margin-bottom:9px}
+.field:focus{outline:none;border-color:var(--pink)}
+label.chk{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--chalk-dim);margin-bottom:12px}
+label.chk input{margin-top:2px;width:17px;height:17px;accent-color:var(--pink)}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;width:0}
+.chbanner{background:linear-gradient(160deg,#3a1550,#22103f);border:1px solid rgba(255,61,127,.4);
+  border-radius:13px;padding:12px;margin-bottom:12px;font-size:13px}
+.chbanner b{color:var(--pink-hi)}
+.daily-featured{font-size:11.5px;color:var(--chalk-dim);margin-top:7px}
+.daily-featured b{color:var(--pink-hi)}
+.alb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;margin-bottom:14px}
+.alb{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px;
+  font-size:10px;text-align:center;opacity:.4}
+.alb.got{opacity:1;border-color:rgba(255,61,127,.5);background:linear-gradient(165deg,#3a1b5e,#1d0c36)}
+.alb .an{font-weight:800;line-height:1.1}
+.alb .ay{font-size:9.5px;color:var(--chalk-dim)}
+.award{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.07)}
+.award .aw-t{font-size:10.5px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.award .aw-n{font-size:14px;font-weight:800}
+footer{text-align:center;font-size:11px;color:var(--chalk-dim);margin-top:22px;line-height:1.6}
+footer a{color:var(--chalk-dim)}
+@media(max-width:400px){
+  .logo{font-size:38px}
+  .rcell{width:92px;flex:0 0 92px;height:96px}
+  .reel-frame{width:100px}
+  .fx-score{font-size:26px}
+  .slot{min-height:66px;max-width:74px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ HOME ============ -->
+<div id="home" class="screen on">
+  <div class="brand">
+    <div class="logo">22<b>-</b>0</div>
+    <div class="tag">Build the ultimate WSL XI</div>
+  </div>
+
+  <div id="chbanner"></div>
+
+  <div class="card hero">
+    <div class="kv">
+      <div>
+        <div style="font-size:17px;font-weight:900">Today's season</div>
+        <div class="sm dim" id="daily-sub">One free season a day — play it your way</div>
+      </div>
+      <div id="streak-pill"></div>
+    </div>
+    <div id="daily-featured"></div>
+    <button class="btn" id="btn-daily" style="margin-top:13px">Play today's season →</button>
+    <button class="btn ghost sm" id="btn-featured" style="display:none">⭐ Play the featured challenge</button>
+  </div>
+
+  <div class="row">
+    <button class="btn ghost sm" id="btn-board">🌍 Leaderboard</button>
+    <button class="btn ghost sm" id="btn-album">📖 Album</button>
+  </div>
+  <div class="row">
+    <button class="btn ghost sm" id="btn-how">❓ How to play</button>
+    <button class="btn ghost sm" id="btn-invite">🔗 Invite a friend</button>
+  </div>
+
+  <div class="card" id="home-board"></div>
+
+  <footer>
+    22-0 is an independent, fan-made game celebrating the Women's Super League.<br>
+    Not affiliated with the WSL, WPLL, the FA or any club.<br>
+    Sister game: <a href="https://sevenzero.app">7-0 — the World Cup one</a>
+  </footer>
+</div>
+
+<!-- ============ SETUP WIZARD ============ -->
+<div id="wiz" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div></div>
+  <div class="md-n" id="wiz-step">Step 1 of 4</div>
+  <h2 id="wiz-title">Pick your formation</h2>
+  <p class="sm dim" id="wiz-blurb"></p>
+  <div class="opt" id="wiz-opts"></div>
+  <div id="wiz-mult" class="sm dim" style="text-align:center;margin-bottom:10px"></div>
+  <button class="btn ghost sm" id="wiz-back">← Back</button>
+</div>
+
+<!-- ============ SIGN-UP ============ -->
+<div id="signup" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">Manager profile</div></div>
+  <div class="card">
+    <p class="sm dim">Your name goes on the world leaderboard. Email is optional — it just saves your run and sends the daily nudge.</p>
+    <input class="field" id="in-name" maxlength="20" placeholder="Manager name" autocomplete="nickname">
+    <input class="field" id="in-country" maxlength="2" placeholder="Country code (GB, US, SE…)" autocomplete="country" style="text-transform:uppercase">
+    <input class="field" id="in-email" type="email" maxlength="80" placeholder="Email (optional)" autocomplete="email">
+    <input class="hp" id="in-web" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="chk"><input type="checkbox" id="in-optin">
+      Email me my results and a daily reminder. One email a day at most, unsubscribe in one tap.</label>
+    <button class="btn" id="btn-signup-go">Start the season →</button>
+  </div>
+  <button class="btn ghost sm" id="signup-back">← Back</button>
+</div>
+
+<!-- ============ DRAW ============ -->
+<div id="draw" class="screen">
+  <div class="md-head">
+    <div class="md-n" id="draw-mode"></div>
+    <div class="md-pos" id="picks-left"><span id="picks-n">11</span> to pick</div>
+  </div>
+  <div id="reel">
+    <div class="reel-ptr"></div>
+    <div id="reel-track"></div>
+    <div class="reel-frame"></div>
+    <div class="reel-flash" id="reel-flash"></div>
+  </div>
+  <div id="landed"><span class="prompt">Draw a squad to begin</span></div>
+  <div id="draft-meta" class="sm dim" style="text-align:center;margin:8px 0"></div>
+  <button class="btn" id="btn-spin">Draw a squad 🎰</button>
+  <button class="btn ghost sm" id="btn-respin">↻ Re-draw (<span id="respins">1</span> left)</button>
+  <div id="pitch"></div>
+  <button class="btn mint" id="btn-kickoff" disabled>Kick off the season ⚽</button>
+  <button class="btn ghost sm" id="btn-quit">Abandon run</button>
+</div>
+
+<!-- ============ SEASON ============ -->
+<div id="season" class="screen">
+  <div class="md-head">
+    <div class="md-n" id="md-label">Matchday 1 of 22</div>
+    <div class="md-pos" id="md-pos"></div>
+  </div>
+  <div id="mdbar"><i></i></div>
+
+  <div class="card">
+    <div class="fx-ha" id="fx-ha"></div>
+    <div class="fixture">
+      <div class="fx-team" id="fx-home"></div>
+      <div class="fx-score mono" id="fx-score">– –</div>
+      <div class="fx-team" id="fx-away"></div>
+    </div>
+    <div id="clock"></div>
+    <div id="feed"></div>
+  </div>
+
+  <div class="card" id="table-card">
+    <div class="kv" style="margin-bottom:8px">
+      <h3 style="margin:0">Table</h3>
+      <button class="pill grey" id="btn-table-full" style="border:0">Full table</button>
+    </div>
+    <div id="mini-table"></div>
+    <div class="results-strip" id="other-results"></div>
+  </div>
+
+  <button class="btn" id="btn-next">Next match →</button>
+  <div class="row">
+    <button class="btn ghost sm" id="btn-speed">Speed: Normal</button>
+    <button class="btn ghost sm" id="btn-squad">My XI</button>
+  </div>
+</div>
+
+<!-- ============ RESULT ============ -->
+<div id="result" class="screen">
+  <div class="brand"><div class="logo" id="r-verdict"></div><div class="tag" id="r-sub"></div></div>
+  <div class="card hero">
+    <div class="kv"><div class="dim sm">Final position</div><div style="font-size:19px;font-weight:900" id="r-pos"></div></div>
+    <div class="kv"><div class="dim sm">Record</div><div class="mono" id="r-record"></div></div>
+    <div class="kv"><div class="dim sm">League points</div><div class="mono" id="r-lpts"></div></div>
+    <div class="kv" style="border-top:1px solid var(--line);padding-top:10px">
+      <div class="dim sm">Game score</div><div style="font-size:26px;font-weight:900" class="mono" id="r-score"></div>
+    </div>
+    <div class="sm dim" id="r-mult"></div>
+  </div>
+  <div id="r-challenge"></div>
+  <div class="card"><h3 style="margin-top:0">Final table</h3><div id="r-table"></div></div>
+  <div class="card"><h3 style="margin-top:0">Awards</h3><div id="r-awards"></div></div>
+  <div class="card"><h3 style="margin-top:0">Your XI</h3><div id="r-xi"></div></div>
+  <div id="r-badges"></div>
+  <button class="btn" id="btn-share">Share result 📸</button>
+  <button class="btn ghost sm" id="btn-challenge-share">🆚 Challenge a friend to beat it</button>
+  <button class="btn ghost sm" id="btn-result-board">🌍 World leaderboard</button>
+  <button class="btn ghost sm" id="btn-home2">← Home</button>
+</div>
+
+<!-- ============ LEADERBOARD ============ -->
+<div id="board" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">World leaderboard</div></div>
+  <div class="tabs">
+    <div class="tab on" data-b="alltime">All-time</div>
+    <div class="tab" data-b="daily">Today</div>
+    <div class="tab" data-b="streaks">🔥 Regulars</div>
+  </div>
+  <div class="card" id="board-list"></div>
+  <button class="btn ghost sm" id="board-back">← Back</button>
+</div>
+
+<!-- ============ ALBUM ============ -->
+<div id="album" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">Squad album</div></div>
+  <div class="card"><div id="album-progress"></div></div>
+  <div id="album-list"></div>
+  <button class="btn ghost sm" id="album-back">← Back</button>
+</div>
+
+<!-- ============ HOW TO PLAY ============ -->
+<div id="how" class="screen">
+  <div class="brand"><div class="logo">22<b>-</b>0</div><div class="tag">How to play</div></div>
+  <div class="card sm">
+    <h3 style="margin-top:0">The idea</h3>
+    <p>Draw squads from the Women's Super League's whole history — Arsenal 2011 to the present day — and draft a starting XI, one player at a time.</p>
+    <p>Then you play a <b>full 22-game WSL season</b>: eleven rivals, home and away, a live table, a title race and a run-in.</p>
+    <p><b>22 wins, 0 defeats</b> is the perfect season. Nobody has done it.</p>
+    <h3>Drafting</h3>
+    <p>Every draw lands on one club-season. Pick a player, then choose the shirt they wear. Play them out of position and their rating drops — a full-back at centre-back is fine, a striker in goal is not.</p>
+    <p><b>Chemistry</b> rewards real football: players who actually played together, clubmates across eras, countrymates, and anyone in their proper position.</p>
+    <h3>Scoring</h3>
+    <p>Win 60 · Draw 25 · goals +3 / −2 · Champions +250 · Unbeaten +150 · Perfect 22-0 +400. Modes multiply it. The server recomputes every run.</p>
+  </div>
+  <button class="btn ghost sm" id="how-back">← Back</button>
+</div>
+
+</div><!-- /wrap -->
+
+<div id="modal-bg"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+<script>
+/* =========================================================
+   DATA — 84 WSL club-seasons, 2011–2025
+   [name, line, rating, position, nationality]
+   Ratings are unofficial and descriptive, not a record of anything.
+   (generated by scripts/extract.mjs — edit src/clubs.mjs + src/lore.mjs and re-run)
+========================================================= */
+const CLUBS=[
+{c:"Arsenal",sh:"Arsenal",s:"2011",y:2011,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"The first WSL champions — and a domestic treble in the league's opening year, because the old order simply carried on.",p:[["Emma Byrne","GK",89,"GK","IRL"],["Faye White","DEF",79,"CB","ENG"],["Steph Houghton","DEF",86,"LB","ENG"],["Gilly Flaherty","DEF",79,"CB","ENG"],["Niamh Fahey","DEF",79,"CB","IRL"],["Jen Beattie","DEF",78,"CB","SCO"],["Yvonne Tracy","DEF",77,"RB","IRL"],["Katie Chapman","MID",88,"DM","ENG"],["Kim Little","MID",89,"AM","SCO"],["Jayne Ludlow","MID",83,"CM","WAL"],["Ciara Grant","MID",81,"CM","IRL"],["Jordan Nobbs","MID",83,"CM","ENG"],["Rachel Yankey","FWD",87,"LW","ENG"],["Ellen White","FWD",85,"ST","ENG"],["Julie Fleeting","FWD",80,"ST","SCO"],["Danielle Carter","FWD",74,"ST","ENG"]]},
+{c:"Birmingham City",sh:"Birmingham",s:"2011",y:2011,k:"#0000C8",k2:"#FFFFFF",ab:"BIR",l:"Runners-up in the inaugural season, with Rachel Williams scoring 14 in 14 to win the very first Golden Boot.",p:[["Marie Hourihan","GK",83,"GK","IRL"],["Laura Bassett","DEF",87,"CB","ENG"],["Chelsea Weston","DEF",80,"RB","ENG"],["Kerys Harrop","DEF",81,"CB","ENG"],["Sally-Anne Stanton","DEF",76,"CB","ENG"],["Eartha Pond","DEF",73,"LB","ENG"],["Jo Potter","MID",78,"CM","ENG"],["Jade Moore","MID",83,"DM","ENG"],["Emily Westwood","MID",81,"CM","ENG"],["Izzy Christiansen","MID",76,"AM","ENG"],["Heather Scheuber","MID",75,"CM","ENG"],["Karen Carney","FWD",86,"RW","ENG"],["Rachel Williams","FWD",88,"ST","ENG"],["Dunia Susi","FWD",82,"LW","ENG"],["Stef Curtis","FWD",77,"ST","ENG"]]},
+{c:"Everton",sh:"Everton",s:"2011",y:2011,k:"#003399",k2:"#FFFFFF",ab:"EVE",l:"Third in the first WSL season, back when 2,510 through the gate was a record crowd.",p:[["Rachel Brown","GK",86,"GK","ENG"],["Lucy Bronze","DEF",82,"RB","ENG"],["Becky Easton","DEF",79,"CB","ENG"],["Lindsay Johnson","DEF",82,"CB","ENG"],["Fern Whelan","DEF",79,"CB","ENG"],["Rachel Unitt","DEF",82,"LB","ENG"],["Alex Greenwood","DEF",75,"LB","ENG"],["Fara Williams","MID",88,"AM","ENG"],["Jill Scott","MID",88,"CM","ENG"],["Michelle Hinnigan","MID",82,"CM","ENG"],["Amy Kane","MID",73,"CM","ENG"],["Natasha Dowie","FWD",86,"ST","ENG"],["Toni Duggan","FWD",83,"LW","ENG"],["Jody Handley","FWD",78,"RW","ENG"],["Gwennan Harries","FWD",73,"ST","WAL"],["Nikita Parris","FWD",76,"RW","ENG"]]},
+{c:"Lincoln Ladies",sh:"Lincoln",s:"2011",y:2011,k:"#DA291C",k2:"#FFFFFF",ab:"LIN",l:"A surprise choice over bigger names when the FA handed out the first eight licences — and they took their place anyway.",p:[["Kay Hawke","GK",82,"GK","ENG"],["Casey Stoney","DEF",86,"CB","ENG"],["Sophie Bradley","DEF",82,"CB","ENG"],["Leandra Little","DEF",82,"CB","ENG"],["Rachel Daly","DEF",74,"RB","ENG"],["Megan Harris","MID",82,"CM","ENG"],["Remi Allen","MID",78,"CM","ENG"],["Sue Smith","MID",83,"LM","ENG"],["Lucy Staniforth","MID",74,"AM","ENG"],["Carla Ward","MID",72,"CM","ENG"],["Rachel Furness","MID",72,"AM","NIR"],["Jess Clarke","FWD",89,"RW","ENG"],["Carla Cantrell","FWD",81,"ST","ENG"],["Jodie Taylor","FWD",81,"ST","ENG"],["Emma Kete","FWD",76,"ST","NZL"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2012",y:2012,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Unbeaten. Ten wins, four draws, no defeats — the first side to go a whole WSL season without losing, and a ninth straight English title.",p:[["Emma Byrne","GK",82,"GK","IRL"],["Alex Scott","DEF",81,"RB","ENG"],["Steph Houghton","DEF",85,"LB","ENG"],["Gilly Flaherty","DEF",78,"CB","ENG"],["Niamh Fahey","DEF",78,"CB","IRL"],["Faye White","DEF",72,"CB","ENG"],["Jen Beattie","DEF",81,"CB","SCO"],["Kim Little","MID",86,"AM","SCO"],["Katie Chapman","MID",87,"DM","ENG"],["Jordan Nobbs","MID",82,"CM","ENG"],["Ciara Grant","MID",80,"CM","IRL"],["Jayne Ludlow","MID",82,"CM","WAL"],["Rachel Yankey","FWD",85,"LW","ENG"],["Gemma Davison","FWD",79,"RW","ENG"],["Kelly Smith","FWD",87,"ST","ENG"],["Ellen White","FWD",79,"ST","ENG"]]},
+{c:"Birmingham City",sh:"Birmingham",s:"2012",y:2012,k:"#0000C8",k2:"#FFFFFF",ab:"BIR",l:"Runners-up again, in the season 5,052 turned up for Arsenal at home — the biggest crowd the young league had seen.",p:[["Rebecca Spencer","GK",79,"GK","ENG"],["Marie Hourihan","GK",76,"GK","IRL"],["Chelsea Weston","DEF",83,"RB","ENG"],["Laura Bassett","DEF",83,"CB","ENG"],["Emily Westwood","DEF",78,"CB","ENG"],["Rachel Unitt","DEF",79,"LB","ENG"],["Kerys Harrop","DEF",80,"LB","ENG"],["Karen Carney","MID",88,"RM","ENG"],["Jade Moore","MID",82,"CM","ENG"],["Jo Potter","MID",81,"CM","ENG"],["Izzy Christiansen","MID",77,"CM","ENG"],["Emily Simpkins","MID",76,"CM","ENG"],["Rachel Williams","FWD",81,"ST","ENG"],["Jodie Taylor","FWD",87,"ST","ENG"],["Eniola Aluko","FWD",89,"ST","ENG"],["Kirsty Linnett","FWD",72,"ST","ENG"]]},
+{c:"Everton",sh:"Everton",s:"2012",y:2012,k:"#003399",k2:"#FFFFFF",ab:"EVE",l:"Third once more, in a summer that stopped halfway through for a London Olympics.",p:[["Rachel Brown","GK",87,"GK","ENG"],["Danielle Hill","GK",73,"GK","ENG"],["Lucy Bronze","DEF",83,"RB","ENG"],["Lindsay Johnson","DEF",79,"CB","ENG"],["Becky Easton","DEF",78,"CB","ENG"],["Alex Greenwood","DEF",80,"LB","ENG"],["Jill Scott","MID",87,"CM","ENG"],["Fara Williams","MID",86,"CM","ENG"],["Amy Kane","MID",78,"CM","ENG"],["Michelle Hinnigan","MID",83,"CM","ENG"],["Brooke Chaplen","MID",77,"AM","ENG"],["Toni Duggan","FWD",80,"LW","ENG"],["Natasha Dowie","FWD",80,"ST","ENG"],["Nikita Parris","FWD",77,"RW","ENG"],["Jody Handley","FWD",75,"ST","ENG"],["Gwennan Harries","FWD",72,"ST","WAL"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2013",y:2013,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Third, after a three-point deduction for fielding an unregistered player knocked them out of second.",p:[["Emma Byrne","GK",81,"GK","IRL"],["Alex Scott","DEF",82,"RB","ENG"],["Steph Houghton","DEF",89,"CB","ENG"],["Gilly Flaherty","DEF",83,"CB","ENG"],["Niamh Fahey","DEF",83,"CB","IRL"],["Jen Beattie","DEF",82,"CB","SCO"],["Emma Mitchell","DEF",73,"LB","SCO"],["Kim Little","MID",87,"CM","SCO"],["Jordan Nobbs","MID",85,"CM","ENG"],["Katie Chapman","MID",83,"DM","ENG"],["Ciara Grant","MID",79,"CM","IRL"],["Gemma Davison","FWD",80,"RW","ENG"],["Rachel Yankey","FWD",89,"LW","ENG"],["Kelly Smith","FWD",86,"ST","ENG"],["Ellen White","FWD",87,"ST","ENG"],["Danielle Carter","FWD",82,"ST","ENG"]]},
+{c:"Bristol Academy",sh:"Bristol Acad",s:"2013",y:2013,k:"#E21C38",k2:"#FFFFFF",ab:"BRI",l:"Runners-up, and ninety minutes from the title — they arrived at the last day needing to win it and lost it.",p:[["Siobhan Chamberlain","GK",86,"GK","ENG"],["Becky Kyle","GK",76,"GK",""],["Loren Dykes","DEF",83,"RB","WAL"],["Jasmine Matthews","DEF",79,"CB","ENG"],["Jemma Rose","DEF",82,"CB","ENG"],["Corinne Yorston","DEF",83,"LB","ENG"],["Grace McCatty","DEF",80,"CB","ENG"],["Ellie Curson","DEF",74,"CB",""],["Natasha Harding","MID",82,"RM","WAL"],["Alex Windell","MID",80,"CM","ENG"],["Lucy Staniforth","MID",78,"CM","ENG"],["Ann-Marie Heatherson","MID",82,"AM","ENG"],["Angharad James","MID",77,"CM","WAL"],["Nikki Watts","FWD",80,"LW","ENG"],["Natalia Pablos","FWD",87,"ST","ESP"],["Laura del Río","FWD",81,"ST","ESP"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2013",y:2013,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Emma Hayes' first full season in charge. They won nothing — and everything that came later was built here.",p:[["Carly Telford","GK",78,"GK","ENG"],["Marie Hourihan","GK",75,"GK","IRL"],["Claire Rafferty","DEF",82,"LB","ENG"],["Hannah Blundell","DEF",77,"RB","ENG"],["Katie Holtham","DEF",78,"CB","ENG"],["Sophie Ingle","DEF",80,"CB","WAL"],["Ólína Guðbjörg Viðarsdóttir","DEF",72,"CB","ISL"],["Anne Meiwald","DEF",74,"CB","GER"],["Drew Spence","MID",79,"CM","JAM"],["Danielle Buet","MID",83,"CM","ENG"],["Laura Coombs","MID",77,"CM","ENG"],["Edda Garðarsdóttir","MID",73,"CM","ISL"],["Eniola Aluko","FWD",88,"ST","ENG"],["Yūki Ōgimi","FWD",88,"ST","JPN"],["Sofia Jakobsson","FWD",83,"RW","SWE"],["Dunia Susi","FWD",78,"LW","ENG"]]},
+{c:"Doncaster Rovers Belles",sh:"Doncaster",s:"2013",y:2013,k:"#E4002B",k2:"#FFFFFF",ab:"DON",l:"A founder club demoted on non-sporting grounds before the season had even finished. The appeal failed; the licence went to a brand-new Manchester City.",p:[["Nicola Hobbs","GK",81,"GK",""],["Nicola Davies","GK",75,"GK","WAL"],["Millie Bright","DEF",79,"CB","ENG"],["Rhiannon Roberts","DEF",83,"RB","WAL"],["Leandra Little","DEF",78,"CB","ENG"],["Victoria Williams","DEF",78,"CB","ENG"],["Emma Thomson","DEF",75,"CB",""],["Danielle Cox","DEF",75,"CB","ENG"],["Jemma Purfield","DEF",74,"LB","ENG"],["Lyndsey Cunningham","DEF",77,"RB",""],["Kasia Lipka","MID",81,"CM","ENG"],["Sue Smith","MID",89,"LM","ENG"],["Jess Sigsworth","FWD",78,"ST","ENG"],["Beth England","FWD",77,"ST","ENG"],["Cheryl Foster","FWD",77,"ST","WAL"]]},
+{c:"Liverpool",sh:"Liverpool",s:"2013",y:2013,k:"#C8102E",k2:"#F6EB61",ab:"LIV",l:"Bottom of the league with five points in 2012. Champions a year later, sealed 2-0 in a winner-takes-all final day.",p:[["Sarah Quantrill","GK",80,"GK","ENG"],["Rachael Laws","GK",74,"GK","ENG"],["Gemma Bonner","DEF",82,"CB","ENG"],["Lucy Bronze","DEF",85,"RB","ENG"],["Whitney Engen","DEF",82,"CB","USA"],["Corina Schröder","DEF",82,"LB","GER"],["Becky Easton","DEF",77,"CB","ENG"],["Caroline Charlton","DEF",73,"CB",""],["Michelle Evans","DEF",77,"LB",""],["Fara Williams","MID",85,"CM","ENG"],["Katrín Ómarsdóttir","MID",78,"AM","ISL"],["Amanda DaCosta","MID",82,"CM","USA"],["Louise Fors","MID",78,"CM","SWE"],["Nicole Rolser","FWD",80,"LW","GER"],["Natasha Dowie","FWD",89,"ST","ENG"]]},
+{c:"Birmingham City",sh:"Birmingham",s:"2014",y:2014,k:"#0000C8",k2:"#FFFFFF",ab:"BIR",l:"Third, with Karen Carney's eight goals still the lowest tally ever to win a WSL Golden Boot.",p:[["Rebecca Spencer","GK",85,"GK","ENG"],["Chelsea Weston","DEF",85,"RB","ENG"],["Aoife Mannion","DEF",80,"CB","IRL"],["Kerys Harrop","DEF",82,"CB","ENG"],["Jess Carter","DEF",80,"LB","ENG"],["Meaghan Sargeant","DEF",76,"CB","ENG"],["Jo Potter","MID",81,"CM","ENG"],["Jade Moore","MID",82,"DM","ENG"],["Remi Allen","MID",81,"CM","ENG"],["Emily Westwood","MID",82,"CM","ENG"],["Melissa Lawley","MID",82,"LM","ENG"],["Emily Simpkins","MID",74,"RM","ENG"],["Karen Carney","MID",88,"AM","ENG"],["Kirsty Linnett","FWD",84,"ST","ENG"],["Hannah Keryakoplis","FWD",74,"ST","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2014",y:2014,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Second by two goals. The title was in their hands on the final day and it slipped straight through them.",p:[["Marie Hourihan","GK",82,"GK","IRL"],["Christiane Endler","GK",76,"GK","CHI"],["Ana Borges","DEF",80,"RB","POR"],["Laura Bassett","DEF",85,"CB","ENG"],["Gilly Flaherty","DEF",84,"CB","ENG"],["Hannah Blundell","DEF",80,"LB","ENG"],["Claire Rafferty","DEF",79,"LB","ENG"],["Emma Wilhelmsson","DEF",75,"CB","SWE"],["Katie Chapman","MID",80,"DM","ENG"],["Ji So-yun","MID",87,"AM","KOR"],["Drew Spence","MID",82,"CM","JAM"],["Laura Coombs","MID",74,"CM","ENG"],["Jackie Groenen","MID",79,"LM","NED"],["Eniola Aluko","FWD",89,"ST","ENG"],["Yūki Ōgimi","FWD",89,"ST","JPN"],["Rachel Williams","FWD",83,"ST","ENG"]]},
+{c:"Liverpool",sh:"Liverpool",s:"2014",y:2014,k:"#C8102E",k2:"#F6EB61",ab:"LIV",l:"Champions on goal difference having begun the final day third — 3-0 at Bristol while Chelsea lost and Birmingham drew.",p:[["Libby Stout","GK",81,"GK","USA"],["Lucy Bronze","DEF",88,"RB","ENG"],["Gemma Bonner","DEF",85,"CB","ENG"],["Corina Schröder","DEF",81,"LB","GER"],["Nina Frausing-Pedersen","DEF",76,"CB","DEN"],["Becky Easton","DEF",78,"CB","ENG"],["Martha Harris","DEF",74,"LB","ENG"],["Fara Williams","MID",90,"CM","ENG"],["Katrín Ómarsdóttir","MID",81,"CM","ISL"],["Amanda DaCosta","MID",83,"CM","USA"],["Kate Longhurst","MID",85,"CM","ENG"],["Katie Zelem","MID",75,"CM","ENG"],["Gemma Davison","FWD",85,"RW","ENG"],["Natasha Dowie","FWD",88,"ST","ENG"],["Nicole Rolser","FWD",83,"LW","GER"],["Ashley Hodson","FWD",79,"ST","ENG"]]},
+{c:"Manchester City",sh:"Man City",s:"2014",y:2014,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Into the top flight as a brand-new team, on a licence taken from someone else — and they would go on to define the modern league.",p:[["Karen Bardsley","GK",89,"GK","ENG"],["Alexandra Brooks","GK",78,"GK","ENG"],["Steph Houghton","DEF",88,"CB","ENG"],["Emma Lipman","DEF",85,"CB","ENG"],["Abbie McManus","DEF",81,"CB","ENG"],["Nikki Harding","DEF",81,"RB","ENG"],["Steph Marsh","DEF",83,"LB","ENG"],["Chelsea Nightingale","DEF",75,"CB","ENG"],["Georgia Brougham","DEF",75,"LB","ENG"],["Jill Scott","MID",90,"CM","ENG"],["Izzy Christiansen","MID",85,"AM","ENG"],["Betsy Hassett","MID",85,"RM","NZL"],["Keira Walsh","MID",75,"DM","ENG"],["Jess Holbrook","MID",79,"CM","ENG"],["Toni Duggan","FWD",91,"LW","ENG"],["Krystle Johnston","FWD",81,"ST","NZL"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2015",y:2015,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Third — the first season in which the league's founding champions looked like one of the chasing pack.",p:[["Sari van Veenendaal","GK",80,"GK","NED"],["Emma Byrne","GK",83,"GK","IRL"],["Alex Scott","DEF",87,"RB","ENG"],["Emma Mitchell","DEF",81,"LB","SCO"],["Casey Stoney","DEF",87,"CB","ENG"],["Jemma Rose","DEF",84,"CB","ENG"],["Vicky Losada","MID",85,"CM","ESP"],["Jordan Nobbs","MID",88,"CM","ENG"],["Leah Williamson","MID",80,"DM","ENG"],["Marta Corredera","MID",83,"RM","ESP"],["Dominique Janssen","MID",82,"CM","NED"],["Natalia Pablos","FWD",88,"ST","ESP"],["Danielle Carter","FWD",84,"ST","ENG"],["Kelly Smith","FWD",83,"ST","ENG"],["Chioma Ubogagu","FWD",78,"RW","USA"],["Rachel Yankey","FWD",75,"LW","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2015",y:2015,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"A first league title, won 4-0 at home on the final day, and the first domestic double of the Emma Hayes era.",p:[["Hedvig Lindahl","GK",88,"GK","SWE"],["Marie Hourihan","GK",75,"GK","IRL"],["Hannah Blundell","DEF",85,"RB","ENG"],["Gilly Flaherty","DEF",83,"CB","ENG"],["Niamh Fahey","DEF",83,"CB","IRL"],["Claire Rafferty","DEF",80,"LB","ENG"],["Millie Bright","MID",81,"CM","ENG"],["Katie Chapman","MID",89,"DM","ENG"],["Drew Spence","MID",81,"CM","JAM"],["Ji So-yun","MID",91,"AM","KOR"],["Ana Borges","MID",79,"RM","POR"],["Laura Coombs","MID",79,"CM","ENG"],["Gemma Davison","FWD",80,"RW","ENG"],["Eniola Aluko","FWD",88,"ST","ENG"],["Fran Kirby","FWD",85,"ST","ENG"],["Marija Banušić","FWD",74,"ST","SWE"]]},
+{c:"Manchester City",sh:"Man City",s:"2015",y:2015,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Runners-up in only their second season of existence, laying the foundations for the year that followed.",p:[["Karen Bardsley","GK",90,"GK","ENG"],["Lucy Bronze","DEF",89,"RB","ENG"],["Demi Stokes","DEF",83,"LB","ENG"],["Steph Houghton","DEF",87,"CB","ENG"],["Jen Beattie","DEF",82,"CB","SCO"],["Abbie McManus","DEF",76,"CB","ENG"],["Kathleen Radtke","DEF",74,"CB","USA"],["Jill Scott","MID",89,"CM","ENG"],["Izzy Christiansen","MID",80,"AM","ENG"],["Keira Walsh","MID",76,"DM","ENG"],["Daphne Corboz","MID",76,"CM","USA"],["Toni Duggan","FWD",90,"LW","ENG"],["Nikita Parris","FWD",80,"RW","ENG"],["Krystle Johnston","FWD",76,"ST","NZL"],["Georgia Stanway","FWD",76,"ST","ENG"]]},
+{c:"Notts County",sh:"Notts County",s:"2015",y:2015,k:"#1A1A1A",k2:"#FFFFFF",ab:"NOT",l:"The old Lincoln licence, relocated and rebranded — and two years from folding two days before a season started.",p:[["Carly Telford","GK",88,"GK","ENG"],["Olivia Walker","GK",75,"GK","ENG"],["Sophie Walton","DEF",80,"RB","ENG"],["Laura Bassett","DEF",90,"CB","ENG"],["Amy Turner","DEF",84,"CB","ENG"],["Alex Greenwood","DEF",87,"LB","ENG"],["Fern Whelan","DEF",77,"CB","ENG"],["Desiree Scott","MID",83,"DM","CAN"],["Danielle Buet","MID",83,"CM","ENG"],["Leanne Crichton","MID",82,"CM","SCO"],["Fiona O'Sullivan","MID",76,"AM","IRL"],["Jess Clarke","FWD",80,"LW","ENG"],["Ellen White","FWD",88,"ST","ENG"],["Rachel Williams","FWD",84,"ST","ENG"],["Dunia Susi","FWD",74,"RW","ENG"],["Aileen Whelan","FWD",78,"ST","ENG"]]},
+{c:"Sunderland",sh:"Sunderland",s:"2015",y:2015,k:"#EB172B",k2:"#FFFFFF",ab:"SUN",l:"Newly promoted and fourth, with a twenty-year-old Beth Mead scoring twelve of them to win the Golden Boot.",p:[["Rachael Laws","GK",82,"GK","ENG"],["Hilde Gunn Olsen","GK",82,"GK","NOR"],["Abby Holmes","DEF",85,"RB","ENG"],["Stephanie Bannon","DEF",82,"CB","ENG"],["Victoria Williams","DEF",82,"CB","ENG"],["Victoria Greenwell","DEF",75,"LB","ENG"],["Charlotte Potts","DEF",77,"CB","ENG"],["Sarah McFadden","DEF",78,"CB","NIR"],["Rachel Furness","MID",84,"CM","NIR"],["Kelly McDougall","MID",82,"CM","SCO"],["Keira Ramshaw","MID",82,"LM","ENG"],["Emma Kelly","MID",80,"RM","ENG"],["Brooke Chaplen","MID",82,"AM","ENG"],["Abbey Joice","MID",80,"AM","ENG"],["Beth Mead","FWD",90,"ST","ENG"],["Stephanie Roche","FWD",81,"ST","IRL"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2016",y:2016,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Third, in the last full summer season the league would ever play.",p:[["Sari van Veenendaal","GK",90,"GK","NED"],["Emma Byrne","GK",74,"GK","IRL"],["Alex Scott","DEF",88,"RB","ENG"],["Casey Stoney","DEF",83,"CB","ENG"],["Josephine Henning","DEF",84,"CB","GER"],["Emma Mitchell","DEF",80,"LB","SCO"],["Dominique Janssen","DEF",79,"CB","NED"],["Jordan Nobbs","MID",87,"CM","ENG"],["Fara Williams","MID",87,"CM","ENG"],["Vicky Losada","MID",82,"CM","ESP"],["Danielle van de Donk","MID",80,"AM","NED"],["Leah Williamson","MID",75,"CM","ENG"],["Danielle Carter","FWD",85,"RW","ENG"],["Kelly Smith","FWD",88,"ST","ENG"],["Asisat Oshoala","FWD",91,"ST","NGA"],["Jodie Taylor","FWD",80,"ST","ENG"]]},
+{c:"Birmingham City",sh:"Birmingham",s:"2016",y:2016,k:"#0000C8",k2:"#FFFFFF",ab:"BIR",l:"Still there, still competitive, in the final year of the old calendar.",p:[["Ann-Katrin Berger","GK",89,"GK","GER"],["Sophie Baggaley","GK",76,"GK","ENG"],["Emily Westwood","DEF",84,"CB","ENG"],["Aoife Mannion","DEF",82,"CB","IRL"],["Meaghan Sargeant","DEF",84,"CB","ENG"],["Kerys Harrop","DEF",80,"RB","ENG"],["Marisa Ewers","DEF",85,"LB","GER"],["Jess Carter","MID",84,"CM","ENG"],["Andrine Hegerberg","MID",84,"AM","NOR"],["Melissa Lawley","MID",84,"RM","ENG"],["Chloe Peplow","MID",74,"CM","ENG"],["Isabelle Linden","MID",77,"CM","ENG"],["Abbey-Leigh Stringer","MID",77,"CM","ENG"],["Kirsty Linnett","FWD",82,"ST","ENG"],["Freda Ayisi","FWD",81,"LW","ENG"],["Charlie Wellings","FWD",77,"ST","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2016",y:2016,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Second, undone by the meanest defence the WSL has ever had to play against.",p:[["Hedvig Lindahl","GK",90,"GK","SWE"],["Hannah Blundell","DEF",84,"RB","ENG"],["Millie Bright","DEF",80,"CB","ENG"],["Gilly Flaherty","DEF",82,"CB","ENG"],["Niamh Fahey","DEF",82,"CB","IRL"],["Claire Rafferty","DEF",81,"LB","ENG"],["Katie Chapman","MID",88,"DM","ENG"],["Drew Spence","MID",84,"CM","JAM"],["Ji So-yun","MID",90,"AM","KOR"],["Ana Borges","MID",84,"LM","POR"],["Gemma Davison","FWD",83,"RW","ENG"],["Karen Carney","FWD",91,"RW","ENG"],["Fran Kirby","FWD",90,"ST","ENG"],["Eniola Aluko","FWD",87,"ST","ENG"],["Beth England","FWD",76,"ST","ENG"]]},
+{c:"Manchester City",sh:"Man City",s:"2016",y:2016,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Unbeaten champions who conceded four goals in sixteen games, and clinched it by beating the holders.",p:[["Karen Bardsley","GK",87,"GK","ENG"],["Marie Hourihan","GK",74,"GK","IRL"],["Lucy Bronze","DEF",90,"RB","ENG"],["Steph Houghton","DEF",91,"CB","ENG"],["Jen Beattie","DEF",85,"CB","SCO"],["Demi Stokes","DEF",80,"LB","ENG"],["Abbie McManus","DEF",77,"CB","ENG"],["Keira Walsh","MID",83,"DM","ENG"],["Jill Scott","MID",88,"CM","ENG"],["Izzy Christiansen","MID",87,"CM","ENG"],["Tessel Middag","MID",74,"CM","NED"],["Kosovare Asllani","MID",80,"AM","SWE"],["Toni Duggan","FWD",88,"LW","ENG"],["Nikita Parris","FWD",81,"RW","ENG"],["Jane Ross","FWD",85,"ST","SCO"],["Georgia Stanway","FWD",79,"ST","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2017-18",y:2017,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Third, and rebuilding — the title would come back the following year.",p:[["Sari van Veenendaal","GK",85,"GK","NED"],["Anna Moorhouse","GK",75,"GK","ENG"],["Alex Scott","DEF",85,"RB","ENG"],["Emma Mitchell","DEF",86,"LB","SCO"],["Leah Williamson","DEF",83,"CB","ENG"],["Louise Quinn","DEF",84,"CB","IRL"],["Josephine Henning","DEF",76,"CB","GER"],["Jordan Nobbs","MID",88,"CM","ENG"],["Kim Little","MID",85,"CM","SCO"],["Danielle van de Donk","MID",89,"AM","NED"],["Dominique Janssen","MID",85,"DM","NED"],["Heather O'Reilly","FWD",84,"RW","USA"],["Vivianne Miedema","FWD",84,"ST","NED"],["Beth Mead","FWD",84,"RW","ENG"],["Lisa Evans","FWD",82,"RW","SCO"],["Katie McCabe","FWD",81,"LW","IRL"],["Danielle Carter","FWD",83,"ST","ENG"]]},
+{c:"Birmingham City",sh:"Birmingham",s:"2017-18",y:2017,k:"#0000C8",k2:"#FFFFFF",ab:"BIR",l:"Ellen White scored fifteen and won the Golden Boot from a side nowhere near the title race.",p:[["Ann-Katrin Berger","GK",86,"GK","GER"],["Hannah Hampton","GK",79,"GK","ENG"],["Paige Williams","DEF",86,"LB","ENG"],["Meaghan Sargeant","DEF",84,"CB","ENG"],["Kerys Harrop","DEF",82,"CB","ENG"],["Aoife Mannion","DEF",84,"CB","IRL"],["Jess Carter","DEF",86,"LB","ENG"],["Sarah Mayling","DEF",80,"RB","ENG"],["Marisa Ewers","MID",83,"DM","GER"],["Emily Westwood","MID",82,"DM","ENG"],["Abbey-Leigh Stringer","MID",83,"CM","ENG"],["Andrine Hegerberg","MID",82,"CM","NOR"],["Hayley Ladd","MID",83,"DM","WAL"],["Maddy Cusack","MID",75,"CM","ENG"],["Lucy Quinn","FWD",84,"RW","ENG"],["Emma Follis","FWD",85,"ST","ENG"],["Ellen White","FWD",89,"ST","ENG"],["Rachel Williams","FWD",85,"ST","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2017 Spring Series",y:2017,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Eight games to drag the league from summer to winter. Level on points with City, ahead on goal difference — and it has never counted as a title.",p:[["Hedvig Lindahl","GK",81,"GK","SWE"],["Rebecca Spencer","GK",79,"GK","ENG"],["Hannah Blundell","DEF",84,"RB","ENG"],["Gilly Flaherty","DEF",82,"CB","ENG"],["Millie Bright","DEF",86,"CB","ENG"],["Niamh Fahey","DEF",86,"CB","IRL"],["Claire Rafferty","DEF",81,"LB","ENG"],["Katie Chapman","MID",86,"DM","ENG"],["Ji So-yun","MID",91,"AM","KOR"],["Maren Mjelde","MID",82,"CM","NOR"],["Drew Spence","MID",86,"CM","JAM"],["Erin Cuthbert","MID",79,"CM","SCO"],["Fran Kirby","MID",92,"AM","ENG"],["Eniola Aluko","FWD",82,"ST","ENG"],["Ramona Bachmann","FWD",86,"LW","SUI"],["Crystal Dunn","FWD",83,"LW","USA"],["Karen Carney","FWD",83,"RW","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2017-18",y:2017,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"The first proper winter season, and Chelsea walked through it unbeaten, winning the thing by six points.",p:[["Hedvig Lindahl","GK",85,"GK","SWE"],["Carly Telford","GK",77,"GK","ENG"],["Hannah Blundell","DEF",82,"RB","ENG"],["Gilly Flaherty","DEF",82,"CB","ENG"],["Millie Bright","DEF",82,"CB","ENG"],["Magdalena Eriksson","DEF",86,"CB","SWE"],["Claire Rafferty","DEF",75,"LB","ENG"],["Jonna Andersson","DEF",75,"LB","SWE"],["Katie Chapman","MID",84,"DM","ENG"],["Ji So-yun","MID",92,"AM","KOR"],["Maren Mjelde","MID",84,"CM","NOR"],["Drew Spence","MID",86,"CM","JAM"],["Erin Cuthbert","MID",79,"CM","SCO"],["Fran Kirby","MID",90,"AM","ENG"],["Ramona Bachmann","FWD",82,"LW","SUI"],["Eniola Aluko","FWD",84,"ST","ENG"],["Karen Carney","FWD",85,"RW","ENG"]]},
+{c:"Manchester City",sh:"Man City",s:"2017 Spring Series",y:2017,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Nineteen points, the same as Chelsea, and second on goal difference in a half-season that goes in no record book.",p:[["Karen Bardsley","GK",83,"GK","ENG"],["Marie Hourihan","GK",80,"GK","IRL"],["Lucy Bronze","DEF",90,"RB","ENG"],["Steph Houghton","DEF",89,"CB","ENG"],["Jen Beattie","DEF",81,"CB","SCO"],["Demi Stokes","DEF",86,"LB","ENG"],["Abbie McManus","DEF",75,"CB","ENG"],["Jill Scott","MID",86,"CM","ENG"],["Keira Walsh","MID",83,"DM","ENG"],["Izzy Christiansen","MID",83,"CM","ENG"],["Carli Lloyd","MID",89,"AM","USA"],["Georgia Stanway","MID",79,"AM","ENG"],["Toni Duggan","FWD",86,"LW","ENG"],["Nikita Parris","FWD",85,"RW","ENG"],["Jane Ross","FWD",83,"ST","SCO"],["Kosovare Asllani","FWD",82,"ST","SWE"]]},
+{c:"Manchester City",sh:"Man City",s:"2017-18",y:2017,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Second again, in the last season before the league turned fully professional.",p:[["Ellie Roebuck","GK",82,"GK","ENG"],["Karen Bardsley","GK",79,"GK","ENG"],["Steph Houghton","DEF",91,"CB","ENG"],["Jen Beattie","DEF",81,"CB","SCO"],["Abbie McManus","DEF",83,"CB","ENG"],["Demi Stokes","DEF",84,"LB","ENG"],["Mie Leth Jans","DEF",76,"RB","DEN"],["Jill Scott","MID",86,"CM","ENG"],["Keira Walsh","MID",85,"DM","ENG"],["Izzy Christiansen","MID",92,"CM","ENG"],["Georgia Stanway","MID",81,"AM","ENG"],["Ella Toone","MID",77,"AM","ENG"],["Nikita Parris","FWD",89,"RW","ENG"],["Claire Emslie","FWD",83,"LW","SCO"],["Jane Ross","FWD",85,"ST","SCO"],["Nadia Nadim","FWD",84,"ST","DEN"],["Melissa Lawley","FWD",78,"RW","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2018-19",y:2018,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Eighteen wins, seventy goals, a first title in six years — and Vivianne Miedema's 22, still the WSL single-season record.",p:[["Sari van Veenendaal","GK",91,"GK","NED"],["Pauline Peyraud-Magnin","GK",83,"GK","FRA"],["Emma Mitchell","DEF",86,"LB","SCO"],["Leah Williamson","DEF",83,"CB","ENG"],["Louise Quinn","DEF",84,"CB","IRL"],["Viktoria Schnaderbeck","DEF",76,"CB","AUT"],["Katrine Veje","DEF",78,"LB","DEN"],["Kim Little","MID",89,"CM","SCO"],["Danielle van de Donk","MID",90,"AM","NED"],["Jordan Nobbs","MID",82,"CM","ENG"],["Lia Wälti","MID",82,"DM","SUI"],["Dominique Bloodworth","MID",85,"DM","NED"],["Vivianne Miedema","FWD",92,"ST","NED"],["Beth Mead","FWD",86,"RW","ENG"],["Katie McCabe","FWD",83,"LW","IRL"],["Lisa Evans","FWD",84,"RW","SCO"]]},
+{c:"Birmingham City",sh:"Birmingham",s:"2018-19",y:2018,k:"#0000C8",k2:"#FFFFFF",ab:"BIR",l:"Survivors of the licensing reset that cost Sunderland their place and sent Yeovil down on minus three.",p:[["Ann-Katrin Berger","GK",82,"GK","GER"],["Hannah Hampton","GK",83,"GK","ENG"],["Paige Williams","DEF",84,"LB","ENG"],["Meaghan Sargeant","DEF",86,"CB","ENG"],["Kerys Harrop","DEF",82,"CB","ENG"],["Aoife Mannion","DEF",84,"CB","IRL"],["Sarah Mayling","DEF",84,"RB","ENG"],["Marisa Ewers","MID",81,"DM","GER"],["Hayley Ladd","MID",83,"DM","WAL"],["Chloe Arthur","MID",85,"CM","SCO"],["Lucy Staniforth","MID",81,"CM","ENG"],["Lucy Quinn","MID",82,"AM","ENG"],["Emma Follis","FWD",79,"ST","ENG"],["Charlie Wellings","FWD",79,"ST","ENG"],["Ellen White","FWD",90,"ST","ENG"],["Rachel Williams","FWD",83,"ST","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2018-19",y:2018,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Third, in the only season between 2015 and 2025 that Chelsea finished outside the top two.",p:[["Hedvig Lindahl","GK",83,"GK","SWE"],["Carly Telford","GK",81,"GK","ENG"],["Ann-Katrin Berger","GK",76,"GK","GER"],["Hannah Blundell","DEF",84,"RB","ENG"],["Millie Bright","DEF",82,"CB","ENG"],["Magdalena Eriksson","DEF",86,"CB","SWE"],["Jonna Andersson","DEF",81,"LB","SWE"],["Sophie Ingle","MID",85,"DM","WAL"],["Ji So-yun","MID",88,"AM","KOR"],["Maren Mjelde","MID",84,"CM","NOR"],["Drew Spence","MID",82,"CM","JAM"],["Erin Cuthbert","MID",83,"CM","SCO"],["Fran Kirby","MID",92,"AM","ENG"],["Karen Carney","FWD",81,"RW","ENG"],["Beth England","FWD",84,"ST","ENG"],["Ramona Bachmann","FWD",84,"LW","SUI"]]},
+{c:"Manchester City",sh:"Man City",s:"2018-19",y:2018,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Runners-up in the restructure season, the year the top flight became fully professional.",p:[["Karen Bardsley","GK",83,"GK","ENG"],["Ellie Roebuck","GK",84,"GK","ENG"],["Steph Houghton","DEF",90,"CB","ENG"],["Gemma Bonner","DEF",81,"CB","ENG"],["Abbie McManus","DEF",83,"CB","ENG"],["Demi Stokes","DEF",82,"LB","ENG"],["Mie Leth Jans","DEF",78,"RB","DEN"],["Jill Scott","MID",86,"CM","ENG"],["Keira Walsh","MID",85,"DM","ENG"],["Caroline Weir","MID",84,"CM","SCO"],["Georgia Stanway","MID",85,"AM","ENG"],["Nikita Parris","FWD",90,"RW","ENG"],["Janine Beckie","FWD",84,"RW","CAN"],["Claire Emslie","FWD",83,"LW","SCO"],["Tessa Wullaert","FWD",82,"ST","BEL"],["Lauren Hemp","FWD",79,"LW","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2019-20",y:2019,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"The season of Arsenal 11-1 Bristol City, still the record WSL scoreline, six of them Miedema's.",p:[["Manuela Zinsberger","GK",85,"GK","AUT"],["Pauline Peyraud-Magnin","GK",78,"GK","FRA"],["Jen Beattie","DEF",84,"CB","SCO"],["Leah Williamson","DEF",84,"CB","ENG"],["Louise Quinn","DEF",81,"CB","IRL"],["Viktoria Schnaderbeck","DEF",85,"CB","AUT"],["Leonie Maier","DEF",83,"RB","GER"],["Emma Mitchell","DEF",75,"LB","SCO"],["Kim Little","MID",92,"CM","SCO"],["Danielle van de Donk","MID",88,"AM","NED"],["Jordan Nobbs","MID",83,"CM","ENG"],["Lia Wälti","MID",85,"DM","SUI"],["Jill Roord","MID",84,"CM","NED"],["Vivianne Miedema","FWD",90,"ST","NED"],["Beth Mead","FWD",85,"RW","ENG"],["Katie McCabe","FWD",82,"LW","IRL"],["Lisa Evans","FWD",83,"RW","SCO"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2019-20",y:2019,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Champions of a season that stopped in March. City had more points; Chelsea had the better points-per-game, and the trophy.",p:[["Ann-Katrin Berger","GK",81,"GK","GER"],["Carly Telford","GK",76,"GK","ENG"],["Hannah Blundell","DEF",83,"RB","ENG"],["Millie Bright","DEF",85,"CB","ENG"],["Magdalena Eriksson","DEF",81,"CB","SWE"],["Jonna Andersson","DEF",84,"LB","SWE"],["Maria Thorisdottir","DEF",78,"CB","NOR"],["Maren Mjelde","DEF",81,"RB","NOR"],["Sophie Ingle","MID",84,"DM","WAL"],["Ji So-yun","MID",91,"AM","KOR"],["Fran Kirby","MID",85,"AM","ENG"],["Erin Cuthbert","MID",86,"CM","SCO"],["Guro Reiten","FWD",83,"LW","NOR"],["Ramona Bachmann","FWD",83,"LW","SUI"],["Beth England","FWD",91,"ST","ENG"],["Sam Kerr","FWD",92,"ST","AUS"]]},
+{c:"Manchester City",sh:"Man City",s:"2019-20",y:2019,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Forty points to Chelsea's thirty-nine — and second, decided on a decimal after COVID ended the season early.",p:[["Ellie Roebuck","GK",83,"GK","ENG"],["Karen Bardsley","GK",78,"GK","ENG"],["Steph Houghton","DEF",91,"CB","ENG"],["Gemma Bonner","DEF",86,"CB","ENG"],["Demi Stokes","DEF",85,"LB","ENG"],["Aoife Mannion","DEF",79,"RB","IRL"],["Megan Campbell","DEF",79,"LB","IRL"],["Jill Scott","MID",81,"CM","ENG"],["Keira Walsh","MID",82,"DM","ENG"],["Caroline Weir","MID",83,"CM","SCO"],["Georgia Stanway","MID",86,"AM","ENG"],["Ellen White","FWD",86,"ST","ENG"],["Pauline Bremer","FWD",86,"ST","GER"],["Lauren Hemp","FWD",84,"LW","ENG"],["Janine Beckie","FWD",83,"RW","CAN"],["Tessa Wullaert","FWD",81,"ST","BEL"]]},
+{c:"Manchester United",sh:"Man United",s:"2019-20",y:2019,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"A first season in the top flight, fourth place, and the beginning of a proper club.",p:[["Mary Earps","GK",85,"GK","ENG"],["Emily Ramsey","GK",76,"GK","ENG"],["Amy Turner","DEF",84,"CB","ENG"],["Millie Turner","DEF",85,"CB","ENG"],["Abbie McManus","DEF",86,"CB","ENG"],["Kirsty Smith","DEF",86,"RB","SCO"],["Martha Harris","DEF",75,"LB","ENG"],["Katie Zelem","MID",86,"CM","ENG"],["Jackie Groenen","MID",86,"CM","NED"],["Hayley Ladd","MID",86,"DM","WAL"],["Ella Toone","MID",82,"AM","ENG"],["Lauren James","FWD",82,"RW","ENG"],["Leah Galton","FWD",86,"LW","ENG"],["Jess Sigsworth","FWD",84,"ST","ENG"],["Jane Ross","FWD",86,"ST","SCO"],["Kirsty Hanson","FWD",78,"RW","SCO"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2020-21",y:2020,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Third in a season played almost entirely behind closed doors.",p:[["Manuela Zinsberger","GK",85,"GK","AUT"],["Lydia Williams","GK",82,"GK","AUS"],["Leah Williamson","DEF",86,"CB","ENG"],["Lotte Wubben-Moy","DEF",82,"CB","ENG"],["Jen Beattie","DEF",86,"CB","SCO"],["Steph Catley","DEF",85,"LB","AUS"],["Noelle Maritz","DEF",87,"RB","SUI"],["Kim Little","MID",90,"CM","SCO"],["Danielle van de Donk","MID",85,"AM","NED"],["Jordan Nobbs","MID",83,"CM","ENG"],["Lia Wälti","MID",87,"DM","SUI"],["Jill Roord","MID",82,"CM","NED"],["Vivianne Miedema","FWD",91,"ST","NED"],["Beth Mead","FWD",85,"RW","ENG"],["Katie McCabe","FWD",84,"LW","IRL"],["Caitlin Foord","FWD",83,"LW","AUS"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2020-21",y:2020,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"A fourth title, sealed 5-0 on the final day, with Sam Kerr's 21 goals leading the line.",p:[["Ann-Katrin Berger","GK",87,"GK","GER"],["Carly Telford","GK",76,"GK","ENG"],["Millie Bright","DEF",87,"CB","ENG"],["Magdalena Eriksson","DEF",87,"CB","SWE"],["Jonna Andersson","DEF",86,"LB","SWE"],["Jess Carter","DEF",87,"RB","ENG"],["Maren Mjelde","DEF",85,"RB","NOR"],["Sophie Ingle","MID",86,"DM","WAL"],["Melanie Leupolz","MID",85,"CM","GER"],["Ji So-yun","MID",85,"AM","KOR"],["Jessie Fleming","MID",80,"CM","CAN"],["Erin Cuthbert","MID",86,"CM","SCO"],["Fran Kirby","MID",93,"AM","ENG"],["Pernille Harder","MID",91,"AM","DEN"],["Guro Reiten","FWD",83,"LW","NOR"],["Sam Kerr","FWD",90,"ST","AUS"],["Beth England","FWD",85,"ST","ENG"]]},
+{c:"Everton",sh:"Everton",s:"2020-21",y:2020,k:"#003399",k2:"#FFFFFF",ab:"EVE",l:"The strongest Everton side of the modern era, in the last season before the top four pulled away for good.",p:[["Sandy MacIver","GK",87,"GK","ENG"],["Tinja-Riikka Korpela","GK",81,"GK","FIN"],["Ingrid Moe Wold","DEF",87,"RB","NOR"],["Danielle Turner","DEF",87,"CB","ENG"],["Rikke Sevecke","DEF",85,"CB","DEN"],["Megan Finnigan","DEF",87,"CB","ENG"],["Poppy Pattinson","DEF",83,"LB","ENG"],["Gabrielle George","DEF",77,"CB","ENG"],["Izzy Christiansen","MID",84,"CM","ENG"],["Lucy Graham","MID",84,"AM","SCO"],["Abbey-Leigh Stringer","MID",76,"CM","ENG"],["Nicoline Sørensen","FWD",84,"RW","DEN"],["Hayley Raso","FWD",82,"RW","AUS"],["Claire Emslie","FWD",82,"LW","SCO"],["Simone Magill","FWD",86,"ST","NIR"],["Valérie Gauvin","FWD",83,"ST","FRA"]]},
+{c:"Manchester City",sh:"Man City",s:"2020-21",y:2020,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Two points short. Again.",p:[["Ellie Roebuck","GK",85,"GK","ENG"],["Karima Benameur Taieb","GK",80,"GK","FRA"],["Lucy Bronze","DEF",92,"RB","ENG"],["Steph Houghton","DEF",85,"CB","ENG"],["Alex Greenwood","DEF",87,"CB","ENG"],["Abby Dahlkemper","DEF",86,"CB","USA"],["Demi Stokes","DEF",85,"LB","ENG"],["Keira Walsh","MID",86,"DM","ENG"],["Sam Mewis","MID",87,"CM","USA"],["Rose Lavelle","MID",85,"AM","USA"],["Caroline Weir","MID",83,"CM","SCO"],["Georgia Stanway","MID",84,"AM","ENG"],["Ellen White","FWD",93,"ST","ENG"],["Chloe Kelly","FWD",83,"RW","ENG"],["Lauren Hemp","FWD",86,"LW","ENG"],["Janine Beckie","FWD",85,"RW","CAN"]]},
+{c:"Manchester United",sh:"Man United",s:"2020-21",y:2020,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"Fourth, and closing — the gap to the top three shrinking every year.",p:[["Mary Earps","GK",85,"GK","ENG"],["Emily Ramsey","GK",78,"GK","ENG"],["Ona Batlle","DEF",83,"RB","ESP"],["Millie Turner","DEF",85,"CB","ENG"],["Amy Turner","DEF",86,"CB","ENG"],["Kirsty Smith","DEF",78,"LB","SCO"],["Katie Zelem","MID",86,"CM","ENG"],["Jackie Groenen","MID",86,"CM","NED"],["Hayley Ladd","MID",82,"DM","WAL"],["Ella Toone","MID",84,"AM","ENG"],["Leah Galton","FWD",86,"LW","ENG"],["Kirsty Hanson","FWD",82,"RW","SCO"],["Christen Press","FWD",82,"ST","USA"],["Tobin Heath","FWD",87,"RW","USA"],["Alessia Russo","FWD",79,"ST","ENG"],["Lauren James","FWD",76,"RW","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2021-22",y:2021,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Lost one league game all season. Still finished second.",p:[["Manuela Zinsberger","GK",87,"GK","AUT"],["Lydia Williams","GK",78,"GK","AUS"],["Leah Williamson","DEF",82,"CB","ENG"],["Lotte Wubben-Moy","DEF",86,"CB","ENG"],["Rafaelle Souza","DEF",83,"CB","BRA"],["Steph Catley","DEF",87,"LB","AUS"],["Noelle Maritz","DEF",83,"RB","SUI"],["Kim Little","MID",93,"CM","SCO"],["Lia Wälti","MID",83,"DM","SUI"],["Jordan Nobbs","MID",85,"CM","ENG"],["Frida Maanum","MID",86,"CM","NOR"],["Vivianne Miedema","FWD",92,"ST","NED"],["Beth Mead","FWD",93,"RW","ENG"],["Katie McCabe","FWD",82,"LW","IRL"],["Caitlin Foord","FWD",83,"LW","AUS"],["Nikita Parris","FWD",84,"RW","ENG"],["Tobin Heath","FWD",77,"RW","USA"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2021-22",y:2021,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Won by a single point on the last day: 2-1 down at Manchester United, 4-2 up by the end, Kerr scoring twice.",p:[["Ann-Katrin Berger","GK",87,"GK","GER"],["Zecira Musovic","GK",77,"GK","SWE"],["Millie Bright","DEF",85,"CB","ENG"],["Magdalena Eriksson","DEF",87,"CB","SWE"],["Jess Carter","DEF",83,"RB","ENG"],["Niamh Charles","DEF",84,"LB","ENG"],["Jonna Andersson","DEF",82,"LB","SWE"],["Sophie Ingle","MID",86,"DM","WAL"],["Melanie Leupolz","MID",85,"CM","GER"],["Ji So-yun","MID",83,"AM","KOR"],["Jessie Fleming","MID",82,"CM","CAN"],["Erin Cuthbert","MID",84,"CM","SCO"],["Fran Kirby","MID",91,"AM","ENG"],["Pernille Harder","MID",91,"AM","DEN"],["Guro Reiten","FWD",87,"LW","NOR"],["Sam Kerr","FWD",91,"ST","AUS"],["Beth England","FWD",87,"ST","ENG"],["Lauren James","FWD",80,"RW","ENG"]]},
+{c:"Manchester City",sh:"Man City",s:"2021-22",y:2021,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Third, in a season that started badly and never quite recovered.",p:[["Ellie Roebuck","GK",83,"GK","ENG"],["Karima Benameur Taieb","GK",76,"GK","FRA"],["Lucy Bronze","DEF",82,"RB","ENG"],["Alex Greenwood","DEF",83,"CB","ENG"],["Alanna Kennedy","DEF",84,"CB","AUS"],["Demi Stokes","DEF",83,"LB","ENG"],["Steph Houghton","DEF",87,"CB","ENG"],["Keira Walsh","MID",86,"DM","ENG"],["Caroline Weir","MID",85,"CM","SCO"],["Georgia Stanway","MID",82,"AM","ENG"],["Vicky Losada","MID",87,"CM","ESP"],["Filippa Angeldal","MID",76,"CM","SWE"],["Ellen White","FWD",84,"ST","ENG"],["Khadija Shaw","FWD",84,"ST","JAM"],["Lauren Hemp","FWD",93,"LW","ENG"],["Hayley Raso","FWD",86,"RW","AUS"],["Chloe Kelly","FWD",79,"RW","ENG"]]},
+{c:"Manchester United",sh:"Man United",s:"2021-22",y:2021,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"20,241 at Old Trafford for their first game in front of supporters — and a defeat that handed Chelsea the title.",p:[["Mary Earps","GK",85,"GK","ENG"],["Sophie Baggaley","GK",79,"GK","ENG"],["Ona Batlle","DEF",83,"RB","ESP"],["Maria Thorisdottir","DEF",82,"CB","NOR"],["Aoife Mannion","DEF",85,"CB","IRL"],["Hannah Blundell","DEF",85,"LB","ENG"],["Millie Turner","DEF",81,"CB","ENG"],["Katie Zelem","MID",84,"CM","ENG"],["Jackie Groenen","MID",82,"CM","NED"],["Hayley Ladd","MID",82,"DM","WAL"],["Vilde Bøe Risa","MID",85,"CM","NOR"],["Ella Toone","MID",82,"AM","ENG"],["Leah Galton","FWD",84,"LW","ENG"],["Alessia Russo","FWD",87,"ST","ENG"],["Martha Thomas","FWD",84,"ST","SCO"],["Kirsty Hanson","FWD",80,"RW","SCO"]]},
+{c:"Tottenham Hotspur",sh:"Spurs",s:"2021-22",y:2021,k:"#132257",k2:"#FFFFFF",ab:"TOT",l:"Establishing themselves in the top half, in a division that was no longer only about three clubs.",p:[["Tinja-Riikka Korpela","GK",83,"GK","FIN"],["Rebecca Spencer","GK",82,"GK","ENG"],["Shelina Zadorsky","DEF",82,"CB","CAN"],["Molly Bartrip","DEF",84,"CB","ENG"],["Kerys Harrop","DEF",85,"CB","ENG"],["Ria Percival","DEF",83,"RB","NZL"],["Ashleigh Neville","DEF",83,"LB","ENG"],["Josie Green","MID",86,"CM","WAL"],["Cho So-hyun","MID",82,"CM","KOR"],["Maéva Clemaron","MID",82,"DM","FRA"],["Eveliina Summanen","MID",86,"CM","FIN"],["Kit Graham","FWD",87,"LW","ENG"],["Rachel Williams","FWD",84,"ST","ENG"],["Kyah Simon","FWD",86,"ST","AUS"],["Rosella Ayane","FWD",85,"RW","MAR"],["Jessica Naz","FWD",76,"RW","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2022-23",y:2022,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"The season 47,367 came to the Emirates for a north London derby and changed what the league thought was possible.",p:[["Manuela Zinsberger","GK",87,"GK","AUT"],["Noelle Maritz","DEF",85,"RB","SUI"],["Laura Wienroither","DEF",80,"RB","AUT"],["Rafaelle Souza","DEF",87,"CB","BRA"],["Leah Williamson","DEF",84,"CB","ENG"],["Lotte Wubben-Moy","DEF",82,"CB","ENG"],["Steph Catley","DEF",85,"LB","AUS"],["Katie McCabe","DEF",91,"LB","IRL"],["Lia Wälti","MID",87,"DM","SUI"],["Kim Little","MID",86,"CM","SCO"],["Frida Maanum","MID",86,"AM","NOR"],["Victoria Pelova","MID",81,"CM","NED"],["Caitlin Foord","FWD",85,"LW","AUS"],["Stina Blackstenius","FWD",86,"ST","SWE"],["Beth Mead","FWD",90,"RW","ENG"],["Vivianne Miedema","FWD",93,"ST","NED"]]},
+{c:"Aston Villa",sh:"Aston Villa",s:"2022-23",y:2022,k:"#95BFE5",k2:"#670E36",ab:"AVL",l:"Fifth — and Rachel Daly scored 22 from there, equalling the WSL single-season record.",p:[["Hannah Hampton","GK",84,"GK","ENG"],["Anna Leat","GK",79,"GK","NZL"],["Sarah Mayling","DEF",87,"RB","ENG"],["Rachel Corsie","DEF",87,"CB","SCO"],["Danielle Turner","DEF",87,"CB","ENG"],["Anna Patten","DEF",83,"CB","ENG"],["Maz Pacheco","DEF",84,"LB","ENG"],["Kenza Dali","MID",82,"AM","FRA"],["Laura Blindkilde","MID",86,"CM","ENG"],["Jordan Nobbs","MID",87,"CM","ENG"],["Lucy Staniforth","MID",80,"CM","ENG"],["Ruesha Littlejohn","MID",80,"DM","IRL"],["Alisha Lehmann","FWD",84,"RW","SUI"],["Kirsty Hanson","FWD",82,"LW","SCO"],["Rachel Daly","FWD",93,"ST","ENG"],["Emily Gielnik","FWD",80,"ST","AUS"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2022-23",y:2022,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"A fourth straight title, sealed 3-0 on the final day, two points clear of a challenger nobody had expected.",p:[["Ann-Katrin Berger","GK",83,"GK","GER"],["Zecira Musovic","GK",81,"GK","SWE"],["Millie Bright","DEF",91,"CB","ENG"],["Magdalena Eriksson","DEF",83,"CB","SWE"],["Kadeisha Buchanan","DEF",85,"CB","CAN"],["Jess Carter","DEF",85,"CB","ENG"],["Niamh Charles","DEF",84,"LB","ENG"],["Eve Perisset","DEF",84,"RB","FRA"],["Sophie Ingle","MID",86,"DM","WAL"],["Erin Cuthbert","MID",84,"CM","SCO"],["Jessie Fleming","MID",82,"CM","CAN"],["Pernille Harder","MID",92,"AM","DEN"],["Fran Kirby","MID",83,"AM","ENG"],["Sam Kerr","FWD",89,"ST","AUS"],["Guro Reiten","FWD",91,"LW","NOR"],["Lauren James","FWD",84,"RW","ENG"]]},
+{c:"Manchester City",sh:"Man City",s:"2022-23",y:2022,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Fourth, in the first season the top of the table was genuinely four clubs deep.",p:[["Ellie Roebuck","GK",87,"GK","ENG"],["Kerstin Casparij","DEF",84,"RB","NED"],["Alex Greenwood","DEF",90,"CB","ENG"],["Laia Aleixandri","DEF",85,"CB","ESP"],["Steph Houghton","DEF",85,"CB","ENG"],["Esme Morgan","DEF",77,"CB","ENG"],["Leila Ouahabi","DEF",85,"LB","ESP"],["Demi Stokes","DEF",81,"LB","ENG"],["Yui Hasegawa","MID",85,"DM","JPN"],["Laura Coombs","MID",87,"CM","ENG"],["Filippa Angeldahl","MID",82,"CM","SWE"],["Deyna Castellanos","MID",87,"AM","VEN"],["Chloe Kelly","FWD",87,"RW","ENG"],["Lauren Hemp","FWD",92,"LW","ENG"],["Khadija Shaw","FWD",92,"ST","JAM"],["Hayley Raso","FWD",76,"RW","AUS"]]},
+{c:"Manchester United",sh:"Man United",s:"2022-23",y:2022,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"Two points from the title in their fourth season in the division. Nobody was laughing at them any more.",p:[["Mary Earps","GK",89,"GK","ENG"],["Ona Batlle","DEF",87,"RB","ESP"],["Maya Le Tissier","DEF",85,"CB","ENG"],["Millie Turner","DEF",85,"CB","ENG"],["Hannah Blundell","DEF",83,"LB","ENG"],["Maria Thorisdottir","DEF",76,"CB","NOR"],["Katie Zelem","MID",86,"CM","ENG"],["Hayley Ladd","MID",82,"DM","WAL"],["Ella Toone","MID",92,"AM","ENG"],["Vilde Bøe Risa","MID",79,"CM","NOR"],["Leah Galton","FWD",84,"LW","ENG"],["Nikita Parris","FWD",86,"RW","ENG"],["Alessia Russo","FWD",90,"ST","ENG"],["Lucía García","FWD",78,"RW","ESP"],["Martha Thomas","FWD",80,"ST","SCO"],["Rachel Williams","FWD",78,"ST","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2023-24",y:2023,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"60,160 at the Emirates for Manchester United: the first sell-out in WSL history, and still the record crowd.",p:[["Manuela Zinsberger","GK",84,"GK","AUT"],["Sabrina D'Angelo","GK",79,"GK","CAN"],["Leah Williamson","DEF",83,"CB","ENG"],["Lotte Wubben-Moy","DEF",85,"CB","ENG"],["Amanda Ilestedt","DEF",86,"CB","SWE"],["Steph Catley","DEF",88,"LB","AUS"],["Katie McCabe","DEF",87,"LB","IRL"],["Emily Fox","DEF",79,"RB","USA"],["Kim Little","MID",85,"CM","SCO"],["Lia Wälti","MID",86,"DM","SUI"],["Victoria Pelova","MID",86,"CM","NED"],["Frida Maanum","MID",83,"AM","NOR"],["Alessia Russo","FWD",90,"ST","ENG"],["Beth Mead","FWD",90,"RW","ENG"],["Caitlin Foord","FWD",86,"LW","AUS"],["Stina Blackstenius","FWD",87,"ST","SWE"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2023-24",y:2023,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Identical records, identical points. Chelsea took it from City by seven goals, in Emma Hayes' final match after twelve years.",p:[["Hannah Hampton","GK",85,"GK","ENG"],["Zecira Musovic","GK",82,"GK","SWE"],["Millie Bright","DEF",86,"CB","ENG"],["Jess Carter","DEF",86,"CB","ENG"],["Kadeisha Buchanan","DEF",84,"CB","CAN"],["Niamh Charles","DEF",83,"LB","ENG"],["Ashley Lawrence","DEF",83,"RB","CAN"],["Erin Cuthbert","MID",87,"CM","SCO"],["Sjoeke Nüsken","MID",88,"CM","GER"],["Sophie Ingle","MID",77,"DM","WAL"],["Lauren James","MID",93,"AM","ENG"],["Guro Reiten","FWD",88,"LW","NOR"],["Johanna Rytting Kaneryd","FWD",86,"RW","SWE"],["Sam Kerr","FWD",91,"ST","AUS"],["Aggie Beever-Jones","FWD",86,"ST","ENG"],["Mayra Ramírez","FWD",88,"ST","COL"]]},
+{c:"Liverpool",sh:"Liverpool",s:"2023-24",y:2023,k:"#C8102E",k2:"#F6EB61",ab:"LIV",l:"Back in the top flight and staying there, after two seasons away following relegation by points-per-game.",p:[["Rachael Laws","GK",83,"GK","ENG"],["Teagan Micah","GK",82,"GK","AUS"],["Grace Fisk","DEF",85,"CB","ENG"],["Gemma Bonner","DEF",85,"CB","ENG"],["Jenna Clark","DEF",83,"CB","SCO"],["Niamh Fahey","DEF",78,"CB","IRL"],["Taylor Hinds","DEF",83,"LB","ENG"],["Emma Koivisto","DEF",84,"RB","FIN"],["Fuka Nagano","MID",87,"DM","JPN"],["Marie Höbinger","MID",83,"CM","AUT"],["Ceri Holland","MID",83,"LM","WAL"],["Missy Bo Kearns","MID",80,"AM","ENG"],["Sophie Roman Haug","FWD",84,"ST","NOR"],["Leanne Kiernan","FWD",77,"ST","IRL"],["Melissa Lawley","FWD",78,"RW","ENG"],["Shanice van de Sanden","FWD",78,"RW","NED"]]},
+{c:"Manchester City",sh:"Man City",s:"2023-24",y:2023,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Eighteen wins, one draw, three defeats, fifty-five points — and second, because of goal difference. Nothing else separated them.",p:[["Khiara Keating","GK",85,"GK","ENG"],["Sandy MacIver","GK",82,"GK","ENG"],["Alex Greenwood","DEF",86,"CB","ENG"],["Laia Aleixandri","DEF",86,"CB","ESP"],["Alanna Kennedy","DEF",77,"CB","AUS"],["Leila Ouahabi","DEF",86,"LB","ESP"],["Kerstin Casparij","DEF",83,"RB","NED"],["Yui Hasegawa","MID",88,"DM","JPN"],["Laura Coombs","MID",86,"CM","ENG"],["Jill Roord","MID",85,"CM","NED"],["Filippa Angeldahl","MID",79,"CM","SWE"],["Mary Fowler","MID",84,"AM","AUS"],["Khadija Shaw","FWD",93,"ST","JAM"],["Lauren Hemp","FWD",94,"LW","ENG"],["Chloe Kelly","FWD",84,"RW","ENG"],["Jess Park","FWD",79,"RW","ENG"]]},
+{c:"Manchester United",sh:"Man United",s:"2023-24",y:2023,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"Fourth, a year after nearly winning it, in a division that had stopped being predictable.",p:[["Mary Earps","GK",92,"GK","ENG"],["Phallon Tullis-Joyce","GK",78,"GK","USA"],["Maya Le Tissier","DEF",86,"CB","ENG"],["Millie Turner","DEF",84,"CB","ENG"],["Gemma Evans","DEF",82,"CB","WAL"],["Hannah Blundell","DEF",88,"LB","ENG"],["Jayde Riviere","DEF",85,"RB","CAN"],["Katie Zelem","MID",87,"CM","ENG"],["Lisa Naalsund","MID",85,"CM","NOR"],["Hayley Ladd","MID",77,"DM","WAL"],["Ella Toone","MID",94,"AM","ENG"],["Nikita Parris","FWD",83,"RW","ENG"],["Leah Galton","FWD",87,"LW","ENG"],["Lucía García","FWD",87,"ST","ESP"],["Melvine Malard","FWD",85,"ST","FRA"],["Geyse","FWD",79,"RW","BRA"]]},
+{c:"Tottenham Hotspur",sh:"Spurs",s:"2023-24",y:2023,k:"#132257",k2:"#FFFFFF",ab:"TOT",l:"A mid-table season that ended with an FA Cup final at Wembley.",p:[["Rebecca Spencer","GK",83,"GK","ENG"],["Barbora Votíková","GK",78,"GK","CZE"],["Molly Bartrip","DEF",85,"CB","ENG"],["Luana Bühler","DEF",88,"CB","SUI"],["Amy James-Turner","DEF",78,"CB","ENG"],["Ashleigh Neville","DEF",86,"LB","ENG"],["Amanda Nildén","DEF",82,"LB","SWE"],["Charlotte Grant","DEF",82,"RB","AUS"],["Eveliina Summanen","MID",85,"DM","FIN"],["Grace Clinton","MID",85,"CM","ENG"],["Olga Ahtinen","MID",80,"CM","FIN"],["Drew Spence","MID",78,"AM","JAM"],["Beth England","FWD",84,"ST","ENG"],["Martha Thomas","FWD",83,"ST","SCO"],["Celin Bizet Ildhusøy","FWD",85,"RW","NOR"],["Jessica Naz","FWD",83,"LW","ENG"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2024-25",y:2024,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Second to an unbeaten side, with Alessia Russo sharing a Golden Boot on twelve — the joint-lowest of the professional era.",p:[["Daphne van Domselaar","GK",87,"GK","NED"],["Manuela Zinsberger","GK",82,"GK","AUT"],["Emily Fox","DEF",85,"RB","USA"],["Leah Williamson","DEF",87,"CB","ENG"],["Lotte Wubben-Moy","DEF",81,"CB","ENG"],["Steph Catley","DEF",84,"LB","AUS"],["Katie McCabe","DEF",87,"LB","IRL"],["Kim Little","MID",83,"CM","SCO"],["Mariona Caldentey","MID",94,"AM","ESP"],["Frida Maanum","MID",87,"CM","NOR"],["Lia Wälti","MID",88,"DM","SUI"],["Alessia Russo","FWD",94,"ST","ENG"],["Beth Mead","FWD",86,"RW","ENG"],["Caitlin Foord","FWD",86,"LW","AUS"],["Stina Blackstenius","FWD",87,"ST","SWE"],["Chloe Kelly","FWD",82,"RW","ENG"]]},
+{c:"Aston Villa",sh:"Aston Villa",s:"2024-25",y:2024,k:"#95BFE5",k2:"#670E36",ab:"AVL",l:"Life after Rachel Daly, and finding out how much of the previous three years had been her.",p:[["Sabrina D'Angelo","GK",87,"GK","CAN"],["Noelle Maritz","DEF",86,"RB","SUI"],["Anna Patten","DEF",86,"CB","ENG"],["Lucy Parker","DEF",84,"CB","ENG"],["Danielle Turner","DEF",78,"CB","ENG"],["Paula Tomás","DEF",77,"LB","ESP"],["Maz Pacheco","DEF",77,"LB","ENG"],["Jordan Nobbs","MID",86,"CM","ENG"],["Missy Bo Kearns","MID",88,"CM","ENG"],["Lucy Staniforth","MID",79,"CM","ENG"],["Kenza Dali","MID",79,"AM","FRA"],["Kirsty Hanson","FWD",85,"RW","SCO"],["Chasity Grant","FWD",83,"LW","NED"],["Rachel Daly","FWD",90,"ST","ENG"],["Ebony Salmon","FWD",85,"ST","ENG"],["Gabi Nunes","FWD",80,"ST","BRA"]]},
+{c:"Brighton & Hove Albion",sh:"Brighton",s:"2024-25",y:2024,k:"#0057B8",k2:"#FFFFFF",ab:"BHA",l:"Seven seasons in the top flight and still there, quietly.",p:[["Sophie Baggaley","GK",86,"GK","ENG"],["Melina Loeck","GK",80,"GK","GER"],["Rachel McLauchlan","DEF",87,"RB","SCO"],["Guro Bergsvand","DEF",85,"CB","NOR"],["Maria Thorisdottir","DEF",81,"CB","NOR"],["Marisa Olislagers","DEF",88,"LB","NED"],["Poppy Pattinson","DEF",86,"LB","ENG"],["Jorelyn Carabalí","DEF",80,"CB","COL"],["Vicky Losada","MID",84,"CM","ESP"],["Jelena Čanković","MID",88,"AM","SRB"],["Fran Kirby","MID",84,"AM","ENG"],["Maisie Symonds","MID",79,"CM","ENG"],["Nikita Parris","FWD",83,"ST","ENG"],["Kiko Seike","FWD",87,"RW","JPN"],["Michelle Agyemang","FWD",78,"ST","ENG"],["Pauline Bremer","FWD",79,"ST","GER"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2024-25",y:2024,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"The first team ever to go a full 22-game WSL season unbeaten, on a record sixty points — and a treble in Sonia Bompastor's first year.",p:[["Hannah Hampton","GK",83,"GK","ENG"],["Zecira Musovic","GK",82,"GK","SWE"],["Millie Bright","DEF",94,"CB","ENG"],["Lucy Bronze","DEF",87,"RB","ENG"],["Nathalie Björn","DEF",88,"CB","SWE"],["Naomi Girma","DEF",84,"CB","USA"],["Ashley Lawrence","DEF",77,"LB","CAN"],["Erin Cuthbert","MID",92,"CM","SCO"],["Sjoeke Nüsken","MID",88,"CM","GER"],["Keira Walsh","MID",83,"DM","ENG"],["Guro Reiten","FWD",88,"LW","NOR"],["Johanna Rytting Kaneryd","FWD",84,"RW","SWE"],["Mayra Ramírez","FWD",84,"ST","COL"],["Aggie Beever-Jones","FWD",88,"ST","ENG"],["Sandy Baltimore","FWD",90,"LW","FRA"],["Lauren James","FWD",83,"RW","ENG"]]},
+{c:"Crystal Palace",sh:"Crystal Palace",s:"2024-25",y:2024,k:"#1B458F",k2:"#C4122E",ab:"CRY",l:"One season in the WSL, ended by a 1-7 defeat at home to West Ham.",p:[["Shae Yanez","GK",88,"GK","USA"],["Milla-Maj Majasaari","GK",79,"GK","FIN"],["Lily Woodham","DEF",83,"RB","WAL"],["Katrine Veje","DEF",88,"LB","DEN"],["Aimee Everett","DEF",86,"CB","ENG"],["Hayley Nolan","DEF",82,"CB","IRL"],["Allyson Swaby","DEF",82,"CB","JAM"],["Josie Green","MID",83,"DM","WAL"],["Lexi Potter","MID",88,"CM","ENG"],["My Cato","MID",83,"CM","SWE"],["Mille Gejl","MID",83,"AM","DEN"],["Annabel Blanchard","FWD",84,"RW","ENG"],["Ashleigh Weerden","FWD",83,"LW","NED"],["Katie Stengel","FWD",84,"ST","USA"],["Indiah-Paige Riley","FWD",77,"RW","NZL"],["Abbie Larkin","FWD",82,"LW","IRL"]]},
+{c:"Everton",sh:"Everton",s:"2024-25",y:2024,k:"#003399",k2:"#FFFFFF",ab:"EVE",l:"Mid-table, in the WSL's first season under Women's Professional Leagues Ltd.",p:[["Courtney Brosnan","GK",86,"GK","IRL"],["Emily Ramsey","GK",79,"GK","ENG"],["Lucy Hope","DEF",83,"RB","SCO"],["Megan Finnigan","DEF",86,"CB","ENG"],["Martina Fernández","DEF",87,"CB","ESP"],["Elise Stenevik","DEF",77,"CB","NOR"],["Sara Holmgaard","DEF",88,"LB","DEN"],["Clare Wheeler","MID",87,"DM","AUS"],["Honoka Hayashi","MID",83,"CM","JPN"],["Justine Vanhaevermaet","MID",85,"CM","BEL"],["Karoline Olesen","MID",81,"CM","DEN"],["Heather Payne","MID",82,"RM","IRL"],["Katja Snoeijs","FWD",84,"ST","NED"],["Toni Payne","FWD",85,"LW","NGA"],["Melissa Lawley","FWD",80,"RW","ENG"],["Kelly Gago","FWD",79,"ST","FRA"]]},
+{c:"Leicester City",sh:"Leicester",s:"2024-25",y:2024,k:"#003090",k2:"#FDBE11",ab:"LEI",l:"Four seasons up and surviving each one.",p:[["Janina Leitzig","GK",83,"GK","GER"],["Asmita Ale","DEF",83,"RB","ENG"],["Sophie Howard","DEF",83,"CB","SCO"],["Sam Tierney","DEF",85,"CB","ENG"],["Julie Thibaud","DEF",84,"LB","FRA"],["CJ Bott","DEF",88,"RB","NZL"],["Courtney Nevin","DEF",77,"LB","AUS"],["Sari Kees","DEF",81,"CB","BEL"],["Ruby Mace","MID",84,"DM","ENG"],["Janice Cayman","MID",83,"RM","BEL"],["Saori Takarada","MID",77,"LM","JPN"],["Shannon O'Brien","MID",81,"CM","ENG"],["Yuka Momiki","MID",86,"AM","JPN"],["Missy Goodwin","FWD",88,"ST","ENG"],["Hannah Cain","FWD",83,"LW","WAL"],["Shana Chossenotte","FWD",78,"RW","FRA"]]},
+{c:"Liverpool",sh:"Liverpool",s:"2024-25",y:2024,k:"#C8102E",k2:"#F6EB61",ab:"LIV",l:"Solid, established, a long way from the club that won it in 2013 and 2014.",p:[["Rachael Laws","GK",83,"GK","ENG"],["Teagan Micah","GK",82,"GK","AUS"],["Taylor Hinds","DEF",83,"LB","ENG"],["Gemma Bonner","DEF",85,"CB","ENG"],["Grace Fisk","DEF",83,"CB","ENG"],["Jenna Clark","DEF",83,"CB","SCO"],["Jasmine Matthews","DEF",78,"CB","ENG"],["Lucy Parry","DEF",81,"RB","ENG"],["Fuka Nagano","MID",87,"DM","JPN"],["Ceri Holland","MID",83,"CM","WAL"],["Marie Höbinger","MID",83,"CM","AUT"],["Olivia Smith","FWD",93,"RW","CAN"],["Sophie Roman Haug","FWD",86,"ST","NOR"],["Cornelia Kapocs","FWD",80,"LW","SWE"],["Leanne Kiernan","FWD",81,"ST","IRL"]]},
+{c:"Manchester City",sh:"Man City",s:"2024-25",y:2024,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"Fourth, and rebuilding for a title tilt that arrived the very next year.",p:[["Khiara Keating","GK",85,"GK","ENG"],["Ayaka Yamashita","GK",78,"GK","JPN"],["Kerstin Casparij","DEF",85,"RB","NED"],["Alex Greenwood","DEF",88,"CB","ENG"],["Laia Aleixandri","DEF",84,"CB","ESP"],["Leila Ouahabi","DEF",84,"LB","ESP"],["Naomi Layzell","DEF",77,"CB","ENG"],["Yui Hasegawa","MID",93,"DM","JPN"],["Jill Roord","MID",85,"CM","NED"],["Laura Coombs","MID",82,"CM","ENG"],["Mary Fowler","MID",91,"AM","AUS"],["Khadija Shaw","FWD",90,"ST","JAM"],["Vivianne Miedema","FWD",88,"ST","NED"],["Lauren Hemp","FWD",87,"LW","ENG"],["Jess Park","FWD",83,"RW","ENG"],["Aoba Fujino","FWD",84,"RW","JPN"]]},
+{c:"Manchester United",sh:"Man United",s:"2024-25",y:2024,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"Third, in the first season run by the clubs themselves rather than the FA.",p:[["Phallon Tullis-Joyce","GK",93,"GK","USA"],["Safia Middleton-Patel","GK",79,"GK","WAL"],["Jayde Riviere","DEF",83,"RB","CAN"],["Maya Le Tissier","DEF",90,"CB","ENG"],["Millie Turner","DEF",84,"CB","ENG"],["Dominique Janssen","DEF",83,"CB","NED"],["Gabby George","DEF",84,"LB","ENG"],["Anna Sandberg","DEF",80,"RB","SWE"],["Grace Clinton","MID",85,"CM","ENG"],["Ella Toone","MID",85,"AM","ENG"],["Hinata Miyazawa","MID",88,"LM","JPN"],["Simi Awujo","MID",80,"DM","NGA"],["Elisabeth Terland","FWD",83,"ST","NOR"],["Leah Galton","FWD",83,"LW","ENG"],["Celin Bizet","FWD",83,"RW","NOR"],["Melvine Malard","FWD",87,"ST","FRA"]]},
+{c:"Tottenham Hotspur",sh:"Spurs",s:"2024-25",y:2024,k:"#132257",k2:"#FFFFFF",ab:"TOT",l:"Another year in the middle of a division stretching away at the top.",p:[["Lize Kop","GK",88,"GK","NED"],["Rebecca Spencer","GK",79,"GK","ENG"],["Ashleigh Neville","DEF",88,"RB","ENG"],["Molly Bartrip","DEF",85,"CB","ENG"],["Clare Hunt","DEF",86,"CB","AUS"],["Amanda Nildén","DEF",88,"LB","SWE"],["Ella Morris","DEF",78,"CB","ENG"],["Eveliina Summanen","MID",85,"DM","FIN"],["Drew Spence","MID",86,"CM","JAM"],["Maite Oroz","MID",84,"CM","ESP"],["Matilda Vinberg","MID",79,"CM","SWE"],["Olga Ahtinen","MID",82,"CM","FIN"],["Jessica Naz","FWD",85,"LW","ENG"],["Hayley Raso","FWD",87,"RW","AUS"],["Beth England","FWD",90,"ST","ENG"],["Martha Thomas","FWD",83,"ST","SCO"]]},
+{c:"West Ham United",sh:"West Ham",s:"2024-25",y:2024,k:"#7A263A",k2:"#1BB1E7",ab:"WHU",l:"The side that sent Crystal Palace down with a 7-1 win at Selhurst Park.",p:[["Kinga Szemik","GK",83,"GK","POL"],["Megan Walsh","GK",77,"GK","ENG"],["Anouk Denton","DEF",88,"RB","ENG"],["Amber Tysiak","DEF",84,"CB","BEL"],["Shelina Zadorsky","DEF",85,"CB","CAN"],["Verena Hanshaw","DEF",85,"LB","AUT"],["Li Mengwen","DEF",78,"LB","CHN"],["Kirsty Smith","DEF",81,"RB","SCO"],["Katrina Gorry","MID",87,"CM","AUS"],["Oona Sirén","MID",84,"DM","FIN"],["Seraina Piubel","MID",88,"AM","SUI"],["Dagny Brynjarsdóttir","MID",80,"CM","ISL"],["Viviane Asseyi","FWD",93,"LW","FRA"],["Riko Ueki","FWD",87,"ST","JPN"],["Shekiera Martinez","FWD",88,"ST","GER"],["Manuela Paví","FWD",79,"RW","COL"]]},
+{c:"Arsenal",sh:"Arsenal",s:"2025-26",y:2025,k:"#EF0107",k2:"#FFFFFF",ab:"ARS",l:"Runners-up, undone by a 1-1 draw at Brighton that handed City the trophy.",p:[["Daphne van Domselaar","GK",85,"GK","NED"],["Anneke Borbe","GK",80,"GK","GER"],["Emily Fox","DEF",85,"RB","USA"],["Lotte Wubben-Moy","DEF",85,"CB","ENG"],["Leah Williamson","DEF",93,"CB","ENG"],["Laia Codina","DEF",85,"CB","ESP"],["Steph Catley","DEF",84,"LB","AUS"],["Katie McCabe","DEF",85,"LB","IRL"],["Mariona Caldentey","MID",94,"AM","ESP"],["Kim Little","MID",85,"CM","SCO"],["Frida Maanum","MID",87,"AM","NOR"],["Victoria Pelova","MID",86,"CM","NED"],["Alessia Russo","FWD",91,"ST","ENG"],["Olivia Smith","FWD",93,"LW","CAN"],["Beth Mead","FWD",88,"RW","ENG"],["Chloe Kelly","FWD",84,"RW","ENG"],["Stina Blackstenius","FWD",87,"ST","SWE"]]},
+{c:"Aston Villa",sh:"Aston Villa",s:"2025-26",y:2025,k:"#95BFE5",k2:"#670E36",ab:"AVL",l:"Six straight seasons in the WSL since coming up when COVID ended a season early.",p:[["Sabrina D'Angelo","GK",87,"GK","CAN"],["Ellie Roebuck","GK",82,"GK","ENG"],["Anna Patten","DEF",88,"CB","ENG"],["Lynn Wilms","DEF",83,"RB","NED"],["Noelle Maritz","DEF",84,"LB","SUI"],["Océane Deslandes","DEF",86,"CB","FRA"],["Rachel Maltby","DEF",82,"CB","ENG"],["Lucía Kendall","MID",87,"CM","ENG"],["Miri Taylor","MID",84,"AM","WAL"],["Missy Bo Kearns","MID",84,"CM","ENG"],["Oriane Jean-François","MID",82,"DM","FRA"],["Kirsty Hanson","FWD",87,"RW","SCO"],["Rachel Daly","FWD",83,"ST","ENG"],["Chasity Grant","FWD",83,"LW","NED"],["Ebony Salmon","FWD",81,"ST","ENG"],["Maya Hijikata","FWD",81,"ST","JPN"]]},
+{c:"Brighton & Hove Albion",sh:"Brighton",s:"2025-26",y:2025,k:"#0057B8",k2:"#FFFFFF",ab:"BHA",l:"Held Arsenal 1-1 in May and decided the title — for somebody else.",p:[["Chiamaka Nnadozie","GK",91,"GK","NGA"],["Sophie Baggaley","GK",80,"GK","ENG"],["Moeka Minami","DEF",88,"CB","JPN"],["Caitlin Hayes","DEF",88,"CB","IRL"],["Manuela Vanegas","DEF",86,"CB","COL"],["Marisa Olislagers","DEF",84,"LB","NED"],["Rachel McLauchlan","DEF",87,"RB","SCO"],["Maisie Symonds","MID",83,"CM","ENG"],["Jelena Čanković","MID",84,"CM","SRB"],["Charlize Rule","MID",88,"DM","AUS"],["Fran Kirby","MID",86,"AM","ENG"],["Kiko Seike","FWD",85,"ST","JPN"],["Rosa Kafaji","FWD",85,"RW","SWE"],["Madison Haley","FWD",86,"LW","USA"],["Carla Camacho","FWD",79,"ST","ESP"],["Michelle Agyemang","FWD",78,"ST","ENG"]]},
+{c:"Chelsea",sh:"Chelsea",s:"2025-26",y:2025,k:"#034694",k2:"#FFFFFF",ab:"CHE",l:"Third: the first season since 2018-19 that ended with the trophy somewhere else.",p:[["Hannah Hampton","GK",92,"GK","ENG"],["Livia Peng","GK",77,"GK","SUI"],["Ellie Carpenter","DEF",83,"RB","AUS"],["Lucy Bronze","DEF",85,"RB","ENG"],["Millie Bright","DEF",86,"CB","ENG"],["Naomi Girma","DEF",86,"CB","USA"],["Veerle Buurman","DEF",87,"CB","NED"],["Niamh Charles","DEF",81,"LB","ENG"],["Keira Walsh","MID",91,"DM","ENG"],["Erin Cuthbert","MID",87,"CM","SCO"],["Wieke Kaptein","MID",85,"CM","NED"],["Sjoeke Nüsken","MID",84,"CM","GER"],["Lauren James","FWD",91,"RW","ENG"],["Sandy Baltimore","FWD",91,"LW","FRA"],["Johanna Rytting Kaneryd","FWD",88,"RW","SWE"],["Alyssa Thompson","FWD",85,"LW","USA"],["Sam Kerr","FWD",87,"ST","AUS"],["Aggie Beever-Jones","FWD",84,"ST","ENG"]]},
+{c:"Everton",sh:"Everton",s:"2025-26",y:2025,k:"#003399",k2:"#FFFFFF",ab:"EVE",l:"Thirteen seasons of top-flight football across two spells, and counting.",p:[["Courtney Brosnan","GK",84,"GK","IRL"],["Emily Ramsey","GK",79,"GK","ENG"],["Martina Fernández","DEF",85,"CB","ESP"],["Maz Pacheco","DEF",85,"LB","ENG"],["Hikaru Kitagawa","DEF",87,"RB","JPN"],["Rion Ishikawa","DEF",79,"CB","JPN"],["Elise Stenevik","DEF",81,"CB","NOR"],["Ornella Vignola","MID",83,"AM","URU"],["Yuka Momiki","MID",84,"AM","JPN"],["Ruby Mace","MID",88,"DM","ENG"],["Clare Wheeler","MID",83,"DM","AUS"],["Honoka Hayashi","MID",83,"CM","JPN"],["Rosa van Gool","MID",81,"CM","NED"],["Kelly Gago","FWD",87,"ST","FRA"],["Toni Payne","FWD",83,"LW","NGA"],["Katja Snoeijs","FWD",82,"ST","NED"]]},
+{c:"Leicester City",sh:"Leicester",s:"2025-26",y:2025,k:"#003090",k2:"#FDBE11",ab:"LEI",l:"Relegated on penalties in a play-off, after five years in the division.",p:[["Janina Leitzig","GK",85,"GK","GER"],["Olivia Clark","GK",79,"GK","ENG"],["Asmita Ale","DEF",83,"RB","ENG"],["Sari Kees","DEF",87,"LB","BEL"],["Julie Thibaud","DEF",88,"CB","FRA"],["Chantelle Swaby","DEF",84,"CB","JAM"],["Ashleigh Neville","DEF",78,"CB","ENG"],["Sam Tierney","MID",87,"DM","ENG"],["Emily van Egmond","MID",83,"AM","AUS"],["Olivia McLoughlin","MID",88,"CM",""],["Emma Jansson","MID",78,"CM","SWE"],["Shannon O'Brien","FWD",87,"ST","ENG"],["Hannah Cain","FWD",87,"LW","WAL"],["Noémie Mouchon","FWD",78,"ST","FRA"],["Alisha Lehmann","FWD",81,"RW","SUI"],["Janice Cayman","FWD",77,"RW","BEL"]]},
+{c:"Liverpool",sh:"Liverpool",s:"2025-26",y:2025,k:"#C8102E",k2:"#F6EB61",ab:"LIV",l:"Two-time champions, now a club that measures success in staying up comfortably.",p:[["Jennifer Falk","GK",83,"GK","SWE"],["Faye Kirby","GK",80,"GK","ENG"],["Grace Fisk","DEF",85,"CB","ENG"],["Jenna Clark","DEF",87,"CB","SCO"],["Risa Shimizu","DEF",88,"RB","JPN"],["Lily Woodham","DEF",81,"LB","WAL"],["Alejandra Bernabé","DEF",81,"LB","ESP"],["Gemma Evans","DEF",82,"CB","WAL"],["Fuka Nagano","MID",85,"DM","JPN"],["Ceri Holland","MID",85,"CM","WAL"],["Denise O'Sullivan","MID",84,"CM","IRL"],["Kirsty Maclean","MID",81,"CM","SCO"],["Beata Olsson","FWD",87,"ST","SWE"],["Cornelia Kapocs","FWD",86,"ST","SWE"],["Mia Enderby","FWD",84,"RW","ENG"],["Martha Thomas","FWD",77,"ST","SCO"]]},
+{c:"London City Lionesses",sh:"London City",s:"2025-26",y:2025,k:"#6A2C91",k2:"#FFFFFF",ab:"LCL",l:"The first club with no men's team ever to play in the WSL — sixth on debut, with the world transfer record in midfield.",p:[["Elene Lete","GK",87,"GK","ESP"],["Emily Orman","GK",79,"GK","ENG"],["Jana Fernández","DEF",85,"RB","ESP"],["Elena Linari","DEF",86,"CB","ITA"],["Wassa Sangare","DEF",84,"CB","FRA"],["Alanna Kennedy","DEF",79,"CB","AUS"],["Poppy Pattinson","DEF",82,"LB","ENG"],["Saki Kumagai","MID",93,"DM","JPN"],["Grace Geyoro","MID",91,"CM","FRA"],["Danielle van de Donk","MID",86,"CM","NED"],["Freya Godfrey","MID",85,"AM","ENG"],["Kosovare Asllani","MID",84,"AM","SWE"],["Julia Roddar","MID",77,"CM","SWE"],["Isobel Goodwin","FWD",83,"ST","ENG"],["Nikita Parris","FWD",87,"RW","ENG"],["Lucía Corrales","FWD",77,"LW","ESP"]]},
+{c:"Manchester City",sh:"Man City",s:"2025-26",y:2025,k:"#6CABDD",k2:"#1C2C5B",ab:"MCI",l:"A first title in a decade, clinched with a game to spare — and the end of six straight Chelsea championships.",p:[["Ayaka Yamashita","GK",86,"GK","JPN"],["Khiara Keating","GK",77,"GK","ENG"],["Alex Greenwood","DEF",84,"CB","ENG"],["Kerstin Casparij","DEF",87,"RB","NED"],["Jade Rose","DEF",85,"CB","CAN"],["Rebecca Knaak","DEF",85,"CB","GER"],["Leila Ouahabi","DEF",86,"LB","ESP"],["Yui Hasegawa","MID",93,"DM","JPN"],["Laura Blindkilde Brown","MID",83,"CM","ENG"],["Grace Clinton","MID",87,"CM","ENG"],["Sydney Lohmann","MID",85,"CM","GER"],["Laura Coombs","MID",86,"CM","ENG"],["Khadija Shaw","FWD",90,"ST","JAM"],["Vivianne Miedema","FWD",92,"ST","NED"],["Lauren Hemp","FWD",94,"LW","ENG"],["Kerolin","FWD",86,"RW","BRA"],["Aoba Fujino","FWD",88,"RW","JPN"]]},
+{c:"Manchester United",sh:"Man United",s:"2025-26",y:2025,k:"#DA291C",k2:"#FBE122",ab:"MUN",l:"Still in the conversation at the top, six seasons after arriving in the division.",p:[["Phallon Tullis-Joyce","GK",91,"GK","USA"],["Safia Middleton-Patel","GK",77,"GK","WAL"],["Maya Le Tissier","DEF",90,"CB","ENG"],["Dominique Janssen","DEF",87,"CB","NED"],["Hanna Lundkvist","DEF",86,"CB","SWE"],["Jayde Riviere","DEF",87,"RB","CAN"],["Anna Sandberg","DEF",86,"LB","SWE"],["Jess Park","MID",85,"AM","ENG"],["Ella Toone","MID",83,"AM","ENG"],["Julia Zigiotti Olme","MID",87,"CM","SWE"],["Simi Awujo","MID",86,"DM","NGA"],["Hinata Miyazawa","MID",86,"LM","JPN"],["Elisabeth Terland","FWD",94,"ST","NOR"],["Melvine Malard","FWD",85,"LW","FRA"],["Fridolina Rolfö","FWD",83,"LW","SWE"],["Lea Schüller","FWD",83,"ST","GER"]]},
+{c:"Tottenham Hotspur",sh:"Spurs",s:"2025-26",y:2025,k:"#132257",k2:"#FFFFFF",ab:"TOT",l:"Seven seasons in the top flight since promotion, still looking for a first trophy.",p:[["Lize Kop","GK",84,"GK","NED"],["Eleanor Heeps","GK",77,"GK","ENG"],["Amanda Nildén","DEF",86,"LB","SWE"],["Toko Koga","DEF",83,"CB","JPN"],["Clare Hunt","DEF",86,"CB","AUS"],["Josefine Rybrink","DEF",80,"CB","SWE"],["Charli Grant","DEF",77,"RB","AUS"],["Molly Bartrip","DEF",77,"CB","ENG"],["Drew Spence","MID",84,"CM","JAM"],["Eveliina Summanen","MID",87,"CM","FIN"],["Signe Gaupset","MID",83,"AM","NOR"],["Olga Ahtinen","MID",80,"CM","FIN"],["Beth England","FWD",86,"ST","ENG"],["Olivia Holdt","FWD",93,"LW","DEN"],["Cathinka Tandberg","FWD",86,"ST","NOR"],["Matilda Vinberg","FWD",85,"RW","SWE"]]},
+{c:"West Ham United",sh:"West Ham",s:"2025-26",y:2025,k:"#7A263A",k2:"#1BB1E7",ab:"WHU",l:"Eight seasons up, from a licence granted straight out of the third tier.",p:[["Kinga Szemik","GK",83,"GK","POL"],["Megan Walsh","GK",77,"GK","ENG"],["Shelina Zadorsky","DEF",85,"CB","CAN"],["Amber Tysiak","DEF",84,"CB","BEL"],["Verena Hanshaw","DEF",83,"LB","AUT"],["Anouk Denton","DEF",86,"RB","ENG"],["Eva Nyström","DEF",81,"CB","SWE"],["Katrina Gorry","MID",85,"DM","AUS"],["Oona Sirén","MID",86,"CM","FIN"],["Yu Endo","MID",86,"CM","JPN"],["Katie Zelem","MID",81,"CM","ENG"],["Seraina Piubel","MID",80,"AM","SUI"],["Shekiera Martinez","FWD",88,"ST","GER"],["Riko Ueki","FWD",83,"ST","JPN"],["Viviane Asseyi","FWD",88,"LW","FRA"],["Ffion Morgan","FWD",82,"RW","WAL"]]}
+];
+
+/* [strength, year, clubId] — the only club data the league sim needs.
+   Mirrored byte-for-byte in api/_data.js so the server can rebuild the table. */
+const CS=[[85,2011,0],[80.9,2011,1],[82.8,2011,2],[80.2,2011,3],[83,2012,0],[81.9,2012,1],[80,2012,2],[86.1,2013,0],[80.9,2013,4],[78.8,2013,5],[76.1,2013,6],[80.4,2013,7],[81.9,2014,1],[83.5,2014,5],[85,2014,7],[86.6,2014,8],[85.7,2015,0],[85.7,2015,5],[83.7,2015,8],[84.9,2015,9],[82.3,2015,10],[87.6,2016,0],[83.1,2016,1],[89,2016,5],[87.6,2016,8],[86.6,2017,0],[85.9,2017,1],[87.6,2017,5],[86.8,2017,5],[87.3,2017,8],[87.5,2017,8],[89,2018,0],[84.3,2018,1],[85.9,2018,5],[86.2,2018,8],[87.6,2019,0],[88,2019,5],[85.9,2019,8],[86.8,2019,11],[88.7,2020,0],[91.1,2020,5],[86.2,2020,2],[89.7,2020,8],[85.4,2020,11],[90,2021,0],[90.4,2021,5],[87.1,2021,8],[84.3,2021,11],[85.4,2021,12],[90.7,2022,0],[87.5,2022,13],[89.4,2022,5],[90.6,2022,8],[88.3,2022,11],[89.5,2023,0],[90.9,2023,5],[83.7,2023,7],[89.7,2023,8],[90.2,2023,11],[84.9,2023,12],[91.6,2024,0],[86.8,2024,13],[86.6,2024,14],[91.4,2024,5],[85.6,2024,15],[86.1,2024,2],[85,2024,16],[85.2,2024,7],[90.2,2024,8],[87.6,2024,11],[88.8,2024,12],[88.8,2024,17],[92.6,2025,0],[86.1,2025,13],[89.2,2025,14],[92.1,2025,5],[85.4,2025,2],[86.8,2025,16],[86.1,2025,7],[88.7,2025,18],[92.8,2025,8],[91.1,2025,11],[87.3,2025,12],[86.2,2025,17]];
+
+/* =========================================================
+   FORMATIONS
+========================================================= */
+const FORMATIONS={
+ "4-3-3":{rows:[["LW","ST","RW"],["LCM","CM","RCM"],["LB","LCB","RCB","RB"],["GK"]],
+   cats:{LW:"FWD",ST:"FWD",RW:"FWD",LCM:"MID",CM:"MID",RCM:"MID",LB:"DEF",LCB:"DEF",RCB:"DEF",RB:"DEF",GK:"GK"},
+   mod:{att:0.6,def:0},blurb:"front-foot"},
+ "4-4-2":{rows:[["ST1","ST2"],["LM","LCM","RCM","RM"],["LB","LCB","RCB","RB"],["GK"]],
+   cats:{ST1:"FWD",ST2:"FWD",LM:"MID",LCM:"MID",RCM:"MID",RM:"MID",LB:"DEF",LCB:"DEF",RCB:"DEF",RB:"DEF",GK:"GK"},
+   mod:{att:0,def:0.6},blurb:"two banks"},
+ "4-2-3-1":{rows:[["ST"],["LAM","CAM","RAM"],["LDM","RDM"],["LB","LCB","RCB","RB"],["GK"]],
+   cats:{ST:"FWD",LAM:"MID",CAM:"MID",RAM:"MID",LDM:"MID",RDM:"MID",LB:"DEF",LCB:"DEF",RCB:"DEF",RB:"DEF",GK:"GK"},
+   mod:{att:-0.2,def:0.9},blurb:"double pivot"},
+ "3-5-2":{rows:[["ST1","ST2"],["LCM","CM","RCM"],["LWB","LCB","CB","RCB","RWB"],["GK"]],
+   cats:{ST1:"FWD",ST2:"FWD",LCM:"MID",CM:"MID",RCM:"MID",LWB:"DEF",LCB:"DEF",CB:"DEF",RCB:"DEF",RWB:"DEF",GK:"GK"},
+   mod:{att:1.0,def:-0.7},blurb:"wing-backs fly"},
+ "4-1-4-1":{rows:[["ST"],["LM","LCM","RCM","RM"],["CDM"],["LB","LCB","RCB","RB"],["GK"]],
+   cats:{ST:"FWD",LM:"MID",LCM:"MID",RCM:"MID",RM:"MID",CDM:"MID",LB:"DEF",LCB:"DEF",RCB:"DEF",RB:"DEF",GK:"GK"},
+   mod:{att:-0.3,def:1.0},blurb:"single pivot"},
+ "3-4-3":{rows:[["LW","ST","RW"],["LWB","LCM","RCM","RWB"],["LCB","CB","RCB"],["GK"]],
+   cats:{LW:"FWD",ST:"FWD",RW:"FWD",LWB:"MID",LCM:"MID",RCM:"MID",RWB:"MID",LCB:"DEF",CB:"DEF",RCB:"DEF",GK:"GK"},
+   mod:{att:1.2,def:-0.9},blurb:"all-out attack"}
+};
+
+/* =========================================================
+   MODES + SCORING  (the LEAGUE CORE block below is mirrored
+   verbatim in api/_shared.js — keep the two in sync)
+========================================================= */
+const DIFF_MULT={classic:1,hard:1.3,legend:1.7};
+const DRAFT_MULT={classic:1,era:1.15,dynasty:1.2,cap:1.3};
+const POOL_MULT={all:1,ft:0.9,mod:0.8};
+const POOLS={all:{n:"All-time",y:0,d:"every WSL season since 2011"},
+             ft:{n:"Full-time era",y:2018,d:"2018-19 onwards"},
+             mod:{n:"Modern",y:2022,d:"2022-23 onwards"}};
+const DRAFT_MODES={
+  classic:{n:"Classic",d:"all "+CLUBS.length+" club-seasons"},
+  era:{n:"Era Tour",d:"a new WSL era each draw"},
+  dynasty:{n:"Dynasty",d:"one club, every season"},
+  cap:{n:"Wage Cap",d:"budget 930 — spend wisely"}
+};
+/* WSL eras — the league's own history, not decades */
+const ERAS=[[2011,2013,"The founding years"],[2014,2016,"Two tiers"],
+            [2017,2019,"Going full-time"],[2020,2022,"The boom"],[2023,2030,"The modern game"]];
+const CAP_BUDGET=930, CAP_FLOOR=74;
+
+/* featured challenge of the day — deterministic rotation, ×1.15 bonus when your
+   daily season matches it (mirrored in api/_shared.js — keep in sync) */
+const FEATURED=[
+  {n:"Invincible Day",draft:"classic",diff:"legend",pool:"all",form:"4-3-3"},
+  {n:"Modern Masters",draft:"classic",diff:"hard",pool:"mod",form:"4-2-3-1"},
+  {n:"Gunners Dynasty",draft:"dynasty",dyn:"Arsenal",diff:"classic",pool:"all",form:"4-3-3"},
+  {n:"Time Traveller",draft:"era",diff:"classic",pool:"all",form:"4-4-2"},
+  {n:"Moneyball",draft:"cap",diff:"classic",pool:"all",form:"4-4-2"},
+  {n:"Blues Dynasty",draft:"dynasty",dyn:"Chelsea",diff:"classic",pool:"all",form:"4-2-3-1"},
+  {n:"Low Block Night",draft:"classic",diff:"hard",pool:"all",form:"4-1-4-1"},
+  {n:"Full-Time Only",draft:"classic",diff:"classic",pool:"ft",form:"4-2-3-1"},
+  {n:"Era Tour: Hard Mode",draft:"era",diff:"hard",pool:"all",form:"4-3-3"},
+  {n:"Wing-back Wednesday-ish",draft:"classic",diff:"classic",pool:"all",form:"3-4-3"}
+];
+function featuredFor(day){
+  let h=0;for(let i=0;i<day.length;i++){h=(h*31+day.charCodeAt(i))>>>0;}
+  return FEATURED[h%FEATURED.length];
+}
+const FEAT_MULT=1.15;
+function matchesFeatured(flags,day){
+  const f=featuredFor(day||utcDay());
+  return !!flags.daily&&flags.draft===f.draft&&flags.diff===f.diff&&flags.pool===f.pool
+    &&flags.form===f.form&&(f.dyn?flags.dyn===f.dyn:true);
+}
+const DYNASTIES=(()=>{const m={};CLUBS.forEach((s,i)=>{(m[s.c]=m[s.c]||[]).push(i);});
+  return Object.entries(m).filter(([,v])=>v.length>=4).sort((a,b)=>b[1].length-a[1].length);})();
+
+/* ---------------------------------------------------------
+   LEAGUE CORE — pure, deterministic, mirrored in api/_shared.js.
+   Given only (seed, pool, difficulty) the whole 12-team league
+   is reproducible: who your rivals are, the fixture list, and
+   every result that does NOT involve you. That is what lets the
+   server recompute your final league position from your 22
+   scorelines instead of trusting the client.
+--------------------------------------------------------- */
+const RIVAL_N=11, MATCHDAYS=22;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+// eleven rivals: distinct clubs, drawn harder as difficulty rises
+function pickRivals(seed,poolMode,diff){
+  const rng=mulberry32((seed^0x5bf03635)>>>0);
+  const minY=(POOLS[poolMode]||POOLS.all).y;
+  const el=[];for(let i=0;i<CS.length;i++)if(CS[i][1]>=minY)el.push(i);
+  el.sort((a,b)=>CS[b][0]-CS[a][0]||a-b);
+  const frac=diff==="legend"?0.4:diff==="hard"?0.66:1;
+  const cut=el.slice(0,Math.max(RIVAL_N+4,Math.round(el.length*frac)));
+  const seen=new Set(),out=[];
+  const draw=arr=>{const p=arr.slice();
+    while(out.length<RIVAL_N&&p.length){
+      const c=p.splice(Math.floor(rng()*p.length),1)[0];
+      if(seen.has(CS[c][2]))continue;          // one entry per club, ever
+      seen.add(CS[c][2]);out.push(c);
+    }};
+  draw(cut); if(out.length<RIVAL_N) draw(el);  // widen if the pool is thin
+  return out;
+}
+
+// circle-method round robin for 12 teams (0 = you), doubled and seed-shuffled
+function fixtures(seed){
+  const n=RIVAL_N+1,ids=[...Array(n).keys()],first=[];
+  for(let r=0;r<n-1;r++){
+    const pairs=[];
+    for(let i=0;i<n/2;i++){const a=ids[i],b=ids[n-1-i];pairs.push(r%2?[b,a]:[a,b]);}
+    first.push(pairs);
+    ids.splice(1,0,ids.pop());
+  }
+  const second=first.map(rd=>rd.map(([a,b])=>[b,a]));
+  const rng=mulberry32((seed^0x2545f491)>>>0);
+  const sh=a=>{const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;};
+  return sh(first).concat(sh(second));
+}
+
+function poisson(rng,l){let x=0,p=Math.exp(-l),s=p,u=rng();while(u>s&&x<9){x++;p*=l/x;s+=p;}return x;}
+function simAI(rng,sa,sb){                    // sa is at home
+  // tuned against the real league: champions land ~50 pts, the bottom club ~10,
+  // and the whole division averages just under three goals a game
+  const e=(sa+2.2-sb)/5;
+  return [poisson(rng,cl(1.48+e*0.62,0.15,5)),poisson(rng,cl(1.48-e*0.62,0.15,5))];
+}
+
+/* every rival-vs-rival result for the whole season, in one deterministic pass on
+   its own RNG stream so nothing you do at the keyboard can shift it */
+function simRivalLeague(seed,rivals){
+  const rng=mulberry32((seed^0x9e3779b9)>>>0),fx=fixtures(seed),out=[];
+  for(const round of fx){
+    const day=[];
+    for(const[a,b]of round){
+      if(a===0||b===0)continue;               // your match is played, not simulated
+      const[ga,gb]=simAI(rng,CS[rivals[a-1]][0],CS[rivals[b-1]][0]);
+      day.push({a,b,ga,gb});
+    }
+    out.push(day);
+  }
+  return out;
+}
+
+const blankRow=()=>({p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+function applyResult(t,gf,ga){
+  t.p++;t.gf+=gf;t.ga+=ga;
+  if(gf>ga){t.w++;t.pts+=3;}else if(gf===ga){t.d++;t.pts++;}else t.l++;
+}
+/* the table after `upto` of your matches have been played (upto=22 → final) */
+function buildTable(myMatches,seed,poolMode,diff,upto){
+  const rivals=pickRivals(seed,poolMode,diff),ai=simRivalLeague(seed,rivals),fx=fixtures(seed);
+  const n=RIVAL_N+1,rows=Array.from({length:n},blankRow);
+  const played=upto==null?myMatches.length:Math.min(upto,myMatches.length);
+  for(let md=0;md<played;md++){
+    for(const r of ai[md]){applyResult(rows[r.a],r.ga,r.gb);applyResult(rows[r.b],r.gb,r.ga);}
+    const mine=fx[md].find(([a,b])=>a===0||b===0);
+    const opp=mine[0]===0?mine[1]:mine[0];
+    const m=myMatches[md];
+    applyResult(rows[0],m.gf,m.ga);applyResult(rows[opp],m.ga,m.gf);
+  }
+  return rows.map((r,i)=>Object.assign({i,you:i===0,club:i===0?null:rivals[i-1]},r))
+    .sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||(a.you?-1:b.you?1:a.i-b.i));
+}
+
+function scoreSeason(matches,flags){
+  let pts=0,w=0,d=0,l=0,gf=0,ga=0;
+  matches.forEach(m=>{
+    if(m.gf>m.ga){pts+=60;w++;}else if(m.gf===m.ga){pts+=25;d++;}else l++;
+    pts+=m.gf*3-m.ga*2;gf+=m.gf;ga+=m.ga;
+  });
+  const table=buildTable(matches,flags.seed,flags.pool,flags.diff),
+        pos=table.findIndex(t=>t.you)+1,
+        full=matches.length===MATCHDAYS,
+        champion=full&&pos===1,
+        unbeaten=full&&l===0,
+        perfect=full&&w===MATCHDAYS;
+  if(champion)pts+=250;
+  if(unbeaten)pts+=150;
+  if(perfect)pts+=400;
+  pts=Math.max(0,pts);
+  const feat=matchesFeatured(flags,flags.day);
+  const mult=(DIFF_MULT[flags.diff]||1)*(DRAFT_MULT[flags.draft]||1)*(POOL_MULT[flags.pool]??1)
+    *(flags.daily?1.1:1)*(feat?FEAT_MULT:1);
+  return{pts:Math.round(pts*mult),champion,unbeaten,perfect,pos,table,
+         lpts:w*3+d,w,d,l,gf,ga,base:pts,mult,feat};
+}
+/* ---------------- end LEAGUE CORE ---------------- */
+
+/* =========================================================
+   STATE + STORAGE
+========================================================= */
+let S={};
+let RUN_SEED=null;   // set before resetState to replay a challenge's league
+let pref={form:"4-3-3",draft:"classic",diff:"classic",dyn:null,pool:"all"};
+const utcDay=()=>new Date().toISOString().slice(0,10);
+
+function resetState(daily){
+  const draft=pref.draft, form=pref.form, diff=pref.diff;
+  const poolMode=draft==="dynasty"?"all":pref.pool;
+  const F=FORMATIONS[form];
+  const slots=[];F.rows.forEach(r=>r.forEach(id=>slots.push({id,cat:F.cats[id],player:null})));
+  const seed=RUN_SEED!=null?RUN_SEED:((Math.random()*4294967296)>>>0);
+  RUN_SEED=null;
+  S={form,draft,diff,poolMode,daily:!!daily,dyn:draft==="dynasty"?pref.dyn:null,
+     slots,lastSquad:-1,spinning:false,picked:new Set(),
+     respins:1,captain:null,goals:{},assists:{},era:0,budget:CAP_BUDGET,token:null,submitted:false,
+     seed,rng:mulberry32(seed),
+     pool:[],reelIdx:[],speed:1,
+     season:{md:0,matches:[],rivals:[],ai:[],fx:[],lastPos:null,playing:false,done:false}};
+  if(draft==="era"){
+    const minY=(POOLS[poolMode]||POOLS.all).y;
+    for(let k=0;k<ERAS.length;k++){const[a,b]=ERAS[k];if(CLUBS.some(s=>s.y>=Math.max(a,minY)&&s.y<=b)){S.era=k;break;}}
+  }
+}
+const R=()=>S.rng();
+const rnd=n=>Math.floor(R()*n);
+const pickFrom=a=>a[rnd(a.length)];
+
+const STORE_KEY="twentytwo_stats_v1";
+const STORE_DEF={runs:0,titles:0,unbeatens:0,perfects:0,bestPts:0,bestLpts:0,goals:0,topScorers:{},
+  badges:{},streak:0,lastDaily:"",lastRun:"",playerName:"",playerCountry:"",playerEmail:"",optin:false,
+  emailSent:0,albumSquads:{},albumPlayers:{}};
+const store={
+  get(){try{return Object.assign({},STORE_DEF,JSON.parse(localStorage.getItem(STORE_KEY))||{});}
+        catch(e){return Object.assign({},STORE_DEF);}},
+  set(v){try{localStorage.setItem(STORE_KEY,JSON.stringify(v));}catch(e){}}
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$(id).classList.add("on");window.scrollTo(0,0);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function tierOf(r){return r>=93?"icon":r>=88?"gold":r>=83?"silver":"bronze";}
+function hidden(){return S.diff==="hard"||S.diff==="legend";}
+const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const API=p=>fetch(p,{headers:{accept:"application/json"}}).then(r=>r.ok?r.json():Promise.reject(r.status));
+const apiPost=(p,body)=>fetch(p,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})})
+  .then(async r=>{let j={};try{j=await r.json();}catch(e){}return j;});
+const esc=s=>String(s).replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
+const SITE_URL="https://twentytwo.app";
+
+function toast(msg){
+  const t=$("toast");if(!t)return;
+  t.textContent=msg;t.classList.add("on");
+  clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2600);
+}
+function openInvite(){
+  const txt="22-0 — draft a WSL XI and play a whole season. One free run a day:\n"+SITE_URL;
+  if(navigator.share)navigator.share({title:"22-0",text:txt}).catch(()=>{});
+  else navigator.clipboard?.writeText(txt).then(()=>toast("Link copied ✓"),()=>toast(SITE_URL));
+}
+
+/* club badge glyph — initials on the club's colours */
+function badge(c,size){
+  const s=size||26;
+  return `<div class="cb" style="width:${s}px;height:${s}px;background:linear-gradient(150deg,${c.k},${c.k2||c.k});font-size:${Math.round(s*.42)}px">${esc(c.ab)}</div>`;
+}
+const clubLabel=i=>CLUBS[i].c+" "+CLUBS[i].s;
+
+/* =========================================================
+   PLAYER POOL + THE DRAW REEL
+========================================================= */
+function poolIdx(){
+  const minY=(POOLS[S.poolMode]||POOLS.all).y;
+  let idx=CLUBS.map((s,i)=>i).filter(i=>CLUBS[i].y>=minY);
+  if(S.draft==="dynasty"&&S.dyn)idx=idx.filter(i=>CLUBS[i].c===S.dyn);
+  if(S.draft==="era"){
+    const[a,b]=ERAS[Math.min(S.era,ERAS.length-1)];
+    const e=idx.filter(i=>CLUBS[i].y>=a&&CLUBS[i].y<=b);
+    if(e.length)idx=e;
+  }
+  if(S.draft==="cap"){
+    const afford=idx.filter(i=>CLUBS[i].p.some(p=>p[2]<=S.budget-CAP_FLOOR*(picksLeft()-1)));
+    if(afford.length)idx=afford;
+  }
+  return idx.length?idx:CLUBS.map((s,i)=>i);
+}
+function cellHTML(i){
+  const c=CLUBS[i];if(!c)return"";
+  return `<div class="rcell" style="--c1:${c.k}44;--c2:#1d0c36">
+    ${badge(c,26)}<div class="cn">${esc(c.c)}</div><div class="cy">${esc(c.s)}</div></div>`;
+}
+function cellW(){
+  const el=document.querySelector("#reel-track .rcell");
+  if(!el)return 112;
+  const st=getComputedStyle($("reel-track"));
+  return el.getBoundingClientRect().width+parseFloat(st.gap||8);
+}
+function buildReel(winner){
+  const idx=poolIdx(),track=$("reel-track"),n=42;
+  const cells=[];
+  for(let k=0;k<n;k++)cells.push(idx[Math.floor(R()*idx.length)]);
+  const stopAt=n-6;
+  cells[stopAt]=winner;
+  track.innerHTML=cells.map(cellHTML).join("");
+  return stopAt;
+}
+function spinReel(stopAt,done){
+  const track=$("reel-track"),w=cellW(),reelW=$("reel").getBoundingClientRect().width;
+  const target=-(stopAt*w)+(reelW/2)-(w/2)+4;
+  track.style.transition="none";track.style.transform="translateX(0)";
+  void track.offsetWidth;
+  const ms=reducedMotion?260:2400;
+  track.style.transition=`transform ${ms}ms cubic-bezier(.14,.72,.14,1)`;
+  track.style.transform=`translateX(${target}px)`;
+  setTimeout(()=>{$("reel-flash").classList.add("on");setTimeout(()=>$("reel-flash").classList.remove("on"),430);done();},ms);
+}
+
+/* =========================================================
+   CHEMISTRY — every player here comes from one league, so the
+   links that matter are: they actually played together, they
+   share a club across eras, they share a country, or they share
+   an era. Position fit is rewarded on top.
+========================================================= */
+const CHEM={mult:0.47,cap:4};
+function decOf(y){return Math.floor(y/3);}
+function bond(a,b){
+  if(a.sq===b.sq)return 2.2;                             // same squad, same season
+  if(a.team===b.team)return 1.6;                         // same club, different era
+  if(a.nat&&a.nat===b.nat)return 1.15;                   // countrymates
+  if(Math.abs(a.year-b.year)<=2)return 0.7;              // contemporaries
+  return 0.2;                                            // all WSL, at least
+}
+const ROLE_OF_SLOT={LWB:"LB",RWB:"RB",LCB:"CB",RCB:"CB",LCM:"CM",RCM:"CM",LDM:"DM",RDM:"DM",
+  CDM:"DM",LAM:"AM",RAM:"AM",CAM:"AM",ST1:"ST",ST2:"ST"};
+const roleOf=id=>ROLE_OF_SLOT[id]||id;
+function playerChem(p,mates,slotId){
+  const role=roleOf(slotId);
+  let fit=0;
+  if(p.sp===role)fit=1.6;
+  else if(POS_ZERO.some(g=>g.includes(p.sp)&&g.includes(role)))fit=1.2;
+  else if(LINE_OF[p.sp]===LINE_OF[role])fit=0.7;
+  let best=0,links=0;
+  for(const m of mates){if(m===p)continue;const b=bond(p,m);if(b>best)best=b;if(b>=1)links++;}
+  return fit+best+Math.min(1.4,0.2*links);
+}
+function teamChem(){
+  const ps=S.slots.filter(s=>s.player).map(s=>({...s.player,slot:s.id}));
+  if(!ps.length)return 0;
+  const tot=ps.reduce((a,p)=>a+playerChem(p,ps,p.slot),0);
+  return Math.round(tot*CHEM.mult*(11/ps.length)*10)/10;
+}
+const chemBoost=()=>Math.min(CHEM.cap,teamChem()*0.09);
+
+/* =========================================================
+   POSITIONS — FIFA-style softness: related roles are free,
+   near roles are cheap, only real misfits are punished.
+========================================================= */
+const LINE_OF={GK:"GK",RB:"DEF",LB:"DEF",CB:"DEF",DM:"MID",CM:"MID",AM:"MID",RM:"MID",LM:"MID",
+  RW:"FWD",LW:"FWD",ST:"FWD"};
+const POS_ZERO=[["LM","LW"],["RM","RW"],["CM","DM"],["CM","AM"],["LB","LM"],["RB","RM"],["CB","DM"]];
+const POS_CHEAP=[["LB","RB"],["LM","RM"],["LW","RW"],["CB","RB"],["CB","LB"],["AM","LW"],["AM","RW"],
+  ["AM","ST"],["DM","CB"],["LW","ST"],["RW","ST"]];
+const LINE_ORDER={GK:0,DEF:1,MID:2,FWD:3};
+function rolePenalty(sp,slotId){
+  const role=roleOf(slotId);
+  if(sp===role)return 0;
+  if(sp==="GK"||role==="GK")return 12;
+  if(POS_ZERO.some(g=>g.includes(sp)&&g.includes(role)))return 0;
+  if(POS_CHEAP.some(g=>g.includes(sp)&&g.includes(role)))return 2;
+  const a=LINE_OF[sp],b=LINE_OF[role];
+  if(a===b)return 3;
+  return Math.abs(LINE_ORDER[a]-LINE_ORDER[b])>=2?8:4;
+}
+const effRating=(p,slotId)=>Math.max(40,p.rating-rolePenalty(p.sp,slotId));
+
+/* =========================================================
+   LEADERSHIP — a hidden captaincy stat; the best captains drag
+   a side through a long season.
+========================================================= */
+function leadOf(p){
+  const h=hashStr(p.name);
+  return 4+(h%7)+(p.rating>=90?2:p.rating>=86?1:0);
+}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function capLead(){
+  const c=S.slots.find(s=>s.player&&s.id===S.captain);
+  return c?Math.min(10,leadOf(c.player)):5;
+}
+function capName(){const c=S.slots.find(s=>s.player&&s.id===S.captain);return c?c.player.name:"—";}
+const leadWord=l=>l>=10?"inspirational":l>=8?"a born leader":l>=6?"steady":"quiet";
+
+/* =========================================================
+   DRAFTING
+========================================================= */
+const picksLeft=()=>S.slots.filter(s=>!s.player).length;
+function needList(){
+  const need={};S.slots.filter(s=>!s.player).forEach(s=>{need[s.cat]=(need[s.cat]||0)+1;});
+  return need;
+}
+function draft(si,pi,key,slotId){
+  const c=CLUBS[si],pl=c.p[pi];
+  const slot=slotId?S.slots.find(s=>s.id===slotId&&!s.player):S.slots.find(s=>!s.player&&s.cat===pl[1]);
+  if(!slot)return;
+  slot.player={name:pl[0],rating:pl[2],sp:pl[3]||pl[1],nat:pl[4]||"",
+    team:c.c,year:c.y,season:c.s,ab:c.ab,k:c.k,k2:c.k2,cat:pl[1],num:pi+1,sq:si};
+  S.picked.add(key);
+  {const st=store.get();
+   st.albumSquads=st.albumSquads||{};st.albumPlayers=st.albumPlayers||{};
+   st.albumSquads[c.c+"|"+c.s]=(st.albumSquads[c.c+"|"+c.s]||0)+1;
+   st.albumPlayers[pl[0]+"|"+c.s]=(st.albumPlayers[pl[0]+"|"+c.s]||0)+1;
+   store.set(st);}
+  if(S.draft==="cap")S.budget-=pl[2];
+  if(S.draft==="era")S.era=(S.era+1)%ERAS.length;
+  $("modal-bg").classList.remove("on");
+  renderPitch(slot.id);
+  paintDraftMeta();
+  $("picks-n").textContent=picksLeft();
+  if(!picksLeft()){
+    if(!S.captain){
+      const best=S.slots.filter(s=>s.player).sort((a,b)=>leadOf(b.player)-leadOf(a.player))[0];
+      S.captain=best.id;
+    }
+    $("btn-kickoff").disabled=false;
+    $("btn-spin").disabled=true;$("btn-respin").disabled=true;
+    $("landed").innerHTML=`<span class="reveal"><b>Your XI is complete ✓</b></span>`;
+  }
+}
+
+function renderPitch(justFilled){
+  const F=FORMATIONS[S.form],pitch=$("pitch");
+  pitch.innerHTML=F.rows.map(row=>`<div class="prow">${row.map(id=>{
+    const s=S.slots.find(x=>x.id===id),p=s.player;
+    if(!p)return `<div class="slot empty${S.landedSquad!=null?" target":""}" data-slot="${id}">
+        <div class="sid">${roleOf(id)}</div></div>`;
+    const eff=effRating(p,id),pen=rolePenalty(p.sp,id);
+    return `<div class="slot filled" data-slot="${id}">
+      <div class="sid">${roleOf(id)}${S.captain===id?' <span style="color:var(--pink-hi)">C</span>':""}</div>
+      ${shirt(p,20)}
+      <div class="pn">${esc(shortName(p.name))}</div>
+      <div class="pr ${tierOf(eff)}">${hidden()?"?":eff}${pen?` <span class="oop">-${pen}</span>`:""}</div>
+    </div>`;}).join("")}</div>`).join("");
+  pitch.querySelectorAll(".slot.empty").forEach(el=>el.onclick=()=>openPicker(el.dataset.slot));
+  pitch.querySelectorAll(".slot.filled").forEach(el=>el.onclick=()=>{
+    S.captain=el.dataset.slot;renderPitch();toast("Captain: "+capName());});
+  if(justFilled)pitch.querySelector(`[data-slot="${justFilled}"]`)?.classList.add("pop");
+}
+function shortName(n){
+  const parts=n.split(" ");
+  return parts.length>1&&n.length>13?parts[0][0]+". "+parts.slice(1).join(" "):n;
+}
+function shirt(p,size){
+  const s=size||20;
+  return `<svg class="shirt" viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true">
+    <path d="M8 2 4 4v5h3v13h10V9h3V4l-4-2-2 2h-4z" fill="${p.k}" stroke="${p.k2||"#fff"}" stroke-width="1"/></svg>`;
+}
+function paintDraftMeta(){
+  const bits=[];
+  if(S.draft==="cap")bits.push(`Budget <b>${S.budget}</b>`);
+  if(S.draft==="era")bits.push(ERAS[Math.min(S.era,ERAS.length-1)][2]);
+  if(S.draft==="dynasty")bits.push(S.dyn);
+  const ch=teamChem();
+  if(S.slots.some(s=>s.player))bits.push(`Chemistry <b>${ch}</b>`);
+  $("draft-meta").innerHTML=bits.join(" · ");
+}
+
+/* =========================================================
+   TEAM STRENGTH
+========================================================= */
+function strengths(){
+  const F=FORMATIONS[S.form];
+  let att=0,mid=0,def=0,gk=70,na=0,nm=0,nd=0;
+  S.slots.forEach(s=>{
+    if(!s.player)return;
+    const e=effRating(s.player,s.id);
+    if(s.cat==="FWD"){att+=e;na++;}
+    else if(s.cat==="MID"){mid+=e;nm++;}
+    else if(s.cat==="DEF"){def+=e;nd++;}
+    else gk=e;
+  });
+  att=na?att/na:70;mid=nm?mid/nm:70;def=nd?def/nd:70;
+  const boost=chemBoost(),lead=capLead();
+  return{
+    att:att*0.62+mid*0.38+F.mod.att+boost+(lead-5)*0.22,
+    def:def*0.60+gk*0.22+mid*0.18+F.mod.def+boost+(lead-5)*0.22,
+    mid,gk,boost,
+    get overall(){return(this.att+this.def)/2;}
+  };
+}
+
+/* =========================================================
+   COMMENTARY
+========================================================= */
+const C_GOAL=["buries it low into the corner!","rises highest and it's in!","picks the spot and finds it!",
+  "smashes it in off the underside!","slides it under the keeper!","curls one into the top corner!",
+  "taps in at the back post!","fires it through a crowd — goal!"];
+const C_GOAL_BIG=["That is a goal worth the admission fee!","Oh, that is special. Absolutely unstoppable.",
+  "The keeper didn't move. She didn't dare.","One touch, one look, one finish. Ruthless."];
+const C_CONC=["gets in behind and finishes.","punishes a slack pass.","heads home from the corner.",
+  "beats the offside trap and slots it.","rifles one in from the edge."];
+const C_SAVE=["Huge save! Strong hand, out for a corner.","Somehow she keeps it out!","Point-blank — and saved!",
+  "Tipped onto the post and away."];
+const C_MISS=["drags it wide with the goal gaping.","hits the bar! Inches from that.",
+  "sends it into the stand.","forces a save but can't beat the keeper."];
+const C_NOTE=["The away end is in full voice.","A proper end-to-end spell here.",
+  "This has become a midfield battle.","The tempo has dropped — both sides catching breath.",
+  "The bench is up, screaming for pressure."];
+const C_LATE=["Into six added minutes.","The fourth official signals five more.","We're deep into stoppage time."];
+const C_TITLE=["The title is on the line here.","Win this and the trophy is theirs.",
+  "You can feel the nerves in the ground."];
+
+/* =========================================================
+   ONE MATCH
+========================================================= */
+const COHESION=1.0;   // rivals are real squads who actually played together
+function simMyMatch(rawOpp,home){
+  const st=strengths(),oppStr=rawOpp+COHESION;
+  const e=(st.att-oppStr+(home?2.2:0))/5, de=(oppStr-st.def+(home?0:2.2))/5;
+  const lf=clamp(1.48+e*0.62,0.14,5), la=clamp(1.40+de*0.62,0.10,4.6);
+  const gf=poisson(R,lf), ga=poisson(R,la);
+  // when to score
+  const mins=[];
+  for(let i=0;i<gf;i++)mins.push({me:true,m:1+rnd(93)});
+  for(let i=0;i<ga;i++)mins.push({me:false,m:1+rnd(93)});
+  mins.sort((a,b)=>a.m-b.m);
+  // who scores — weighted by attacking threat
+  const out=S.slots.filter(s=>s.player);
+  const weight=s=>{
+    const e2=effRating(s.player,s.id);
+    const w=s.cat==="FWD"?10:s.cat==="MID"?4:s.cat==="DEF"?1:0.05;
+    return w*Math.pow(e2/80,3);
+  };
+  const pick=()=>{
+    const tot=out.reduce((a,s)=>a+weight(s),0);
+    let r=R()*tot;
+    for(const s of out){r-=weight(s);if(r<=0)return s.player;}
+    return out[0].player;
+  };
+  const events=[];
+  for(const g of mins){
+    if(g.me){
+      const sc=pick();let as=null;
+      if(R()<0.7){for(let t=0;t<6;t++){const c=pick();if(c!==sc){as=c;break;}}}
+      S.goals[sc.name]=(S.goals[sc.name]||0)+1;
+      if(as)S.assists[as.name]=(S.assists[as.name]||0)+1;
+      events.push({m:g.m,cls:"goal",t:`⚽ <b>${esc(sc.name)}</b> ${pickFrom(C_GOAL)}${as?` <span class="dim">(${esc(shortName(as.name))})</span>`:""}`});
+      if(sc.rating>=91&&R()<0.5)events.push({m:g.m,cls:"big",t:pickFrom(C_GOAL_BIG)});
+    }else{
+      events.push({m:g.m,cls:"conc",t:`⚽ Their number ${1+rnd(11)} ${pickFrom(C_CONC)}`});
+    }
+  }
+  // colour: saves, misses, notes
+  const filler=2+rnd(3);
+  for(let i=0;i<filler;i++){
+    const m=1+rnd(93),r=R();
+    const t=r<0.34?pickFrom(C_SAVE):r<0.7?`<b>${esc(shortName(pick().name))}</b> ${pickFrom(C_MISS)}`:pickFrom(C_NOTE);
+    events.push({m,cls:"",t});
+  }
+  events.sort((a,b)=>a.m-b.m);
+  return{gf,ga,events};
+}
+
+/* =========================================================
+   SEASON FLOW
+========================================================= */
+const SPEEDS=[{n:"Normal",ms:520},{n:"Fast",ms:250},{n:"Instant",ms:0}];
+function myFixture(md){
+  const pair=S.season.fx[md].find(([a,b])=>a===0||b===0);
+  const home=pair[0]===0;
+  return{opp:pair[home?1:0],home};
+}
+function startSeason(){
+  S.season.rivals=pickRivals(S.seed,S.poolMode,S.diff);
+  S.season.fx=fixtures(S.seed);
+  S.season.ai=simRivalLeague(S.seed,S.season.rivals);
+  S.season.md=0;S.season.matches=[];S.season.done=false;
+  show("season");
+  paintMatchday();
+}
+function myName(){
+  const n=store.get().playerName;
+  return n?n+"'s XI":"Your XI";
+}
+function rowName(r){
+  if(r.you)return myName();
+  const c=CLUBS[S.season.rivals[r.i-1]];
+  return (c.sh||c.c)+' <span class="yr">'+c.s+"</span>";
+}
+
+function paintMatchday(){
+  const md=S.season.md;
+  if(md>=MATCHDAYS)return finishSeason();
+  const{opp,home}=myFixture(md),c=CLUBS[S.season.rivals[opp-1]];
+  $("md-label").textContent=`Matchday ${md+1} of ${MATCHDAYS}`;
+  $("mdbar").firstElementChild.style.width=(md/MATCHDAYS*100)+"%";
+  $("fx-ha").textContent=home?"Home":"Away";
+  $("fx-home").innerHTML=home?`${esc(myName())}`:`${esc(c.c)}<span class="yr">${esc(c.s)}</span>`;
+  $("fx-away").innerHTML=home?`${esc(c.c)}<span class="yr">${esc(c.s)}</span>`:`${esc(myName())}`;
+  $("fx-score").textContent="– –";
+  $("clock").textContent="";
+  $("feed").innerHTML=md===0&&c.l?`<div class="opplore">${esc(c.l)}</div>`:"";
+  $("btn-next").textContent=md===0?"Kick off ⚽":"Play matchday "+(md+1)+" →";
+  $("btn-next").disabled=false;
+  paintTable();
+  paintPos();
+}
+function paintPos(){
+  const t=buildTable(S.season.matches,S.seed,S.poolMode,S.diff);
+  const me=t.find(x=>x.you),pos=t.findIndex(x=>x.you)+1;
+  $("md-pos").innerHTML=S.season.matches.length
+    ? `<span class="pill pink">${ord(pos)}</span> <span class="mono">${me.pts} pts</span>` : "";
+  return{t,pos,me};
+}
+const ord=n=>n+(n%10===1&&n!==11?"st":n%10===2&&n!==12?"nd":n%10===3&&n!==13?"rd":"th");
+
+async function playMatchday(){
+  if(S.season.playing)return;
+  S.season.playing=true;
+  $("btn-next").disabled=true;
+  const md=S.season.md,{opp,home}=myFixture(md);
+  const c=CLUBS[S.season.rivals[opp-1]];
+  const r=simMyMatch(CS[S.season.rivals[opp-1]][0],home);
+  const ms=SPEEDS[S.speed].ms;
+  const feed=$("feed");feed.innerHTML="";
+  let gf=0,ga=0;
+  const setScore=()=>$("fx-score").textContent=home?`${gf} – ${ga}`:`${ga} – ${gf}`;
+  setScore();
+  // title-race tension in the run-in
+  if(md>=MATCHDAYS-3){
+    const{pos}=paintPos();
+    if(pos<=2)feed.innerHTML=`<div class="opplore">${pickFrom(C_TITLE)}</div>`;
+  }
+  for(const ev of r.events){
+    if(ms){
+      $("clock").textContent=`${ev.m}'`;
+      await wait(ms);
+    }
+    if(ev.cls==="goal")gf++;
+    if(ev.cls==="conc")ga++;
+    setScore();
+    const d=document.createElement("div");
+    d.className="ev "+ev.cls;
+    d.innerHTML=`<span class="min">${ev.m}'</span>${ev.t}`;
+    feed.appendChild(d);
+    feed.scrollTop=feed.scrollHeight;
+  }
+  gf=r.gf;ga=r.ga;setScore();
+  if(ms)$("clock").textContent="Full time";
+  const verdict=gf>ga?"Win":gf===ga?"Draw":"Defeat";
+  const d=document.createElement("div");
+  d.className="ev "+(gf>ga?"goal":gf===ga?"":"conc");
+  d.innerHTML=`<b>Full time — ${verdict}</b> vs ${esc(c.c)} ${esc(c.s)}`;
+  feed.appendChild(d);
+
+  S.season.matches.push({gf,ga});
+  S.season.md++;
+  paintTable();
+  const{pos}=paintPos();
+  $("mdbar").firstElementChild.style.width=(S.season.md/MATCHDAYS*100)+"%";
+  S.season.playing=false;
+  if(S.season.md>=MATCHDAYS){
+    $("btn-next").textContent="See how it ended →";
+    $("btn-next").disabled=false;
+  }else{
+    $("btn-next").textContent="Next match →";
+    $("btn-next").disabled=false;
+  }
+}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+function paintTable(){
+  const rows=buildTable(S.season.matches,S.seed,S.poolMode,S.diff);
+  const myPos=rows.findIndex(r=>r.you);
+  // mini table: top 5 plus you
+  let showIdx=[0,1,2,3,4];
+  if(myPos>4)showIdx.push(myPos);
+  const html=`<table class="tbl"><thead><tr><th></th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>
+    ${showIdx.map(i=>tableRow(rows[i],i,rows)).join("")}</tbody></table>`;
+  $("mini-table").innerHTML=html;
+  // other results for the last completed matchday
+  const md=S.season.md-1;
+  if(md>=0){
+    $("other-results").innerHTML=S.season.ai[md].map(r=>{
+      const a=CLUBS[S.season.rivals[r.a-1]],b=CLUBS[S.season.rivals[r.b-1]];
+      return `<span class="res">${esc(a.ab)} ${r.ga}-${r.gb} ${esc(b.ab)}</span>`;
+    }).join("");
+  }else $("other-results").innerHTML="";
+  S.season.lastPos=myPos;
+}
+function tableRow(r,i,rows){
+  const cls=[r.you?"you":"",i<3?"ucl":"",i>=rows.length-2?"rel":""].filter(Boolean).join(" ");
+  const gd=r.gf-r.ga;
+  return `<tr class="${cls}"><td>${i+1}</td><td><span class="cn">${rowName(r)}</span></td>
+    <td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
+    <td>${gd>0?"+":""}${gd}</td><td class="pts">${r.pts}</td></tr>`;
+}
+function fullTable(){
+  const rows=buildTable(S.season.matches,S.seed,S.poolMode,S.diff);
+  openSheet(`<div class="sheet-head"><h2 style="margin:0">Table</h2>
+    <button class="pill grey" onclick="closeSheet()">Close</button></div>
+    <table class="tbl"><thead><tr><th></th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>Pts</th></tr></thead>
+    <tbody>${rows.map((r,i)=>{
+      const cls=[r.you?"you":"",i<3?"ucl":"",i>=rows.length-2?"rel":""].filter(Boolean).join(" ");
+      return `<tr class="${cls}"><td>${i+1}</td><td><span class="cn">${rowName(r)}</span></td>
+        <td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf}</td><td>${r.ga}</td>
+        <td class="pts">${r.pts}</td></tr>`;}).join("")}</tbody></table>
+    <p class="xs dim" style="margin-top:10px">Top 3 qualify for the Champions League · bottom 2 relegated</p>`);
+}
+
+/* =========================================================
+   AWARDS + FINISH
+========================================================= */
+function awards(){
+  const g=Object.entries(S.goals).sort((a,b)=>b[1]-a[1]);
+  const boot=g.length?{name:g[0][0],g:g[0][1],a:S.assists[g[0][0]]||0}:null;
+  // holistic player of the season
+  let best=null,bs=-1;
+  S.slots.filter(s=>s.player).forEach(s=>{
+    const p=s.player,gl=S.goals[p.name]||0,as=S.assists[p.name]||0;
+    const cs=S.season.matches.filter(m=>m.ga===0).length;
+    const sc=gl*4+as*2.4+(s.cat==="DEF"?cs*1.6:s.cat==="GK"?cs*2.2:0)
+      +effRating(p,s.id)*0.06+(S.captain===s.id?1+leadOf(p)*0.2:0);
+    if(sc>bs){bs=sc;best=p.name;}
+  });
+  // league golden boot race — deterministic rival benchmark
+  const rng=mulberry32((S.seed^0x1d872b41)>>>0);
+  const bench=11+Math.floor(rng()*11);
+  return{boot,pots:best,bench,cs:S.season.matches.filter(m=>m.ga===0).length};
+}
+
+function finishSeason(){
+  S.season.done=true;
+  const flags={draft:S.draft,diff:S.diff,daily:S.daily,pool:S.poolMode,form:S.form,dyn:S.dyn,
+               seed:S.seed,day:utcDay()};
+  const r=scoreSeason(S.season.matches,flags);
+  S.result=r;
+  const aw=awards();
+  $("r-verdict").innerHTML=r.perfect?'22<b>-</b>0':r.champion?"CHAMPIONS":esc(ord(r.pos));
+  $("r-sub").textContent=
+      r.perfect  ? "The perfect season. Nobody has ever done it."
+    : r.champion ? (r.unbeaten?"Champions — and unbeaten":"Champions of England")
+    : r.unbeaten ? "Unbeaten all season — but not champions"
+    : r.pos<=3   ? "Champions League football"
+    : r.pos<=6   ? "A good season, just short of Europe"
+    : r.pos<=10  ? "A season in the middle"
+    :              "Relegated";
+  $("r-pos").textContent=ord(r.pos)+" of 12";
+  $("r-record").textContent=`W${r.w} D${r.d} L${r.l} · ${r.gf}:${r.ga}`;
+  $("r-lpts").textContent=r.lpts+" pts";
+  $("r-score").textContent=r.pts.toLocaleString();
+  const mb=[];
+  if(DIFF_MULT[S.diff]!==1)mb.push(`${DRAFT_MODES[S.draft]?"":""}${S.diff} ×${DIFF_MULT[S.diff]}`);
+  if(DRAFT_MULT[S.draft]!==1)mb.push(`${DRAFT_MODES[S.draft].n} ×${DRAFT_MULT[S.draft]}`);
+  if(POOL_MULT[S.poolMode]!==1)mb.push(`${POOLS[S.poolMode].n} ×${POOL_MULT[S.poolMode]}`);
+  if(S.daily)mb.push("Daily ×1.1");
+  if(r.feat)mb.push("⭐ Featured ×1.15");
+  $("r-mult").textContent=mb.length?mb.join(" · "):"";
+
+  $("r-table").innerHTML=`<table class="tbl"><thead><tr><th></th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+    <tbody>${r.table.map((row,i)=>tableRow(row,i,r.table)).join("")}</tbody></table>`;
+
+  const awHTML=[];
+  if(aw.boot)awHTML.push(awRow("Your top scorer",`${aw.boot.name} — ${aw.boot.g} goals${aw.boot.a?` (${aw.boot.a} assists)`:""}`));
+  if(aw.boot&&aw.boot.g>=aw.bench)awHTML.push(awRow("🥇 WSL Golden Boot",`${aw.boot.name} wins it (beat ${aw.bench})`));
+  else awHTML.push(awRow("WSL Golden Boot","Won elsewhere on "+aw.bench+" goals"));
+  if(aw.pots)awHTML.push(awRow("Player of the season",aw.pots));
+  awHTML.push(awRow("Clean sheets",aw.cs+" of "+MATCHDAYS));
+  $("r-awards").innerHTML=awHTML.join("");
+
+  $("r-xi").innerHTML=S.slots.filter(s=>s.player).map(s=>{
+    const p=s.player,gl=S.goals[p.name]||0;
+    return `<div class="prow2" style="cursor:default">${shirt(p,20)}
+      <div class="nm"><b>${esc(p.name)}</b><span>${roleOf(s.id)} · ${esc(p.team)} ${esc(p.season)}${S.captain===s.id?" · captain":""}</span></div>
+      <div class="rt">${gl?"⚽"+gl:""}</div></div>`;}).join("");
+
+  paintChallengeResult(r);
+  awardBadges(r,aw);
+  recordRun(r,aw);
+  show("result");
+  if(r.champion)confetti();
+  autoSubmit(r);
+}
+const awRow=(t,n)=>`<div class="award"><div style="flex:1"><div class="aw-t">${t}</div><div class="aw-n">${esc(n)}</div></div></div>`;
+
+/* =========================================================
+   BADGES + LOCAL RECORD
+========================================================= */
+const BADGES=[
+  {id:"first",n:"First season",d:"Finish a season"},
+  {id:"champ",n:"Champions",d:"Win the WSL"},
+  {id:"unbeaten",n:"Invincible",d:"A season without defeat"},
+  {id:"perfect",n:"22-0",d:"Win all 22"},
+  {id:"treble",n:"Three in a row",d:"Win the title three runs running"},
+  {id:"boot",n:"Golden Boot",d:"One of yours wins the league's scoring race"},
+  {id:"fort",n:"Fortress",d:"10+ clean sheets"},
+  {id:"century",n:"Century",d:"Score 60+ league goals"},
+  {id:"chem",n:"Telepathy",d:"Chemistry of 24 or more"},
+  {id:"streak7",n:"Regular",d:"A 7-day streak"}
+];
+function awardBadges(r,aw){
+  const st=store.get(),got=[];
+  const give=id=>{if(!st.badges[id]){st.badges[id]=1;got.push(id);}};
+  give("first");
+  if(r.champion)give("champ");
+  if(r.unbeaten)give("unbeaten");
+  if(r.perfect)give("perfect");
+  if(aw.boot&&aw.boot.g>=aw.bench)give("boot");
+  if(aw.cs>=10)give("fort");
+  if(r.gf>=60)give("century");
+  if(teamChem()>=24)give("chem");
+  if(st.streak>=7)give("streak7");
+  store.set(st);
+  $("r-badges").innerHTML=got.length
+    ? `<div class="card"><h3 style="margin-top:0">Unlocked</h3>${got.map(id=>{
+        const b=BADGES.find(x=>x.id===id);
+        return `<div class="award"><div style="flex:1"><div class="aw-n">🏅 ${b.n}</div><div class="aw-t">${b.d}</div></div></div>`;
+      }).join("")}</div>` : "";
+}
+function recordRun(r,aw){
+  const st=store.get(),today=utcDay();
+  st.runs++;
+  if(r.champion)st.titles++;
+  if(r.unbeaten)st.unbeatens++;
+  if(r.perfect)st.perfects++;
+  st.bestPts=Math.max(st.bestPts,r.pts);
+  st.bestLpts=Math.max(st.bestLpts,r.lpts);
+  st.goals+=r.gf;
+  if(aw.boot)st.topScorers[aw.boot.name]=(st.topScorers[aw.boot.name]||0)+aw.boot.g;
+  if(S.daily){
+    const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+    st.streak=st.lastDaily===y?st.streak+1:st.lastDaily===today?st.streak:1;
+    st.lastDaily=today;
+  }
+  st.lastRun=today;
+  store.set(st);
+}
+
+/* =========================================================
+   SUBMIT
+========================================================= */
+async function autoSubmit(r){
+  if(S.submitted)return;S.submitted=true;
+  const st=store.get();
+  if(!st.playerName)return;
+  const body={
+    name:st.playerName,country:st.playerCountry,
+    matches:S.season.matches,seed:S.seed,
+    draft:S.draft,diff:S.diff,pool:S.poolMode,form:S.form,dyn:S.dyn,daily:S.daily,
+    xi:S.slots.filter(s=>s.player).map(s=>[s.player.name,s.player.year,s.player.ab]),
+    token:S.token,web:$("in-web")?.value||""
+  };
+  if(st.optin&&st.playerEmail&&!st.emailSent){body.email=st.playerEmail;body.optin=true;}
+  try{
+    const j=await apiPost("/api/score",body);
+    if(j&&j.ok){
+      if(body.email){const s2=store.get();s2.emailSent=1;store.set(s2);}
+      if(j.rank)toast(`Saved — #${j.rank} all-time 🌍`);
+      else toast("Saved to the leaderboard ✓");
+      if(j.pts&&Math.abs(j.pts-r.pts)>1)console.warn("score mismatch",j.pts,r.pts);
+    }else if(j&&j.err)console.warn("submit rejected:",j.err);
+  }catch(e){}
+}
+
+/* =========================================================
+   CHALLENGE LINKS — same seed, same rules, same league
+========================================================= */
+let ACTIVE_CH=null;
+function challengeLink(){
+  const r=S.result;
+  const p=[S.seed.toString(16),r.pts,S.draft,S.diff,S.poolMode,S.form].join("-");
+  const st=store.get();
+  return `${SITE_URL}/?c=${p}&by=${encodeURIComponent(st.playerName||"a manager")}${S.dyn?"&dyn="+encodeURIComponent(S.dyn):""}`;
+}
+function parseChallengeURL(){
+  const u=new URLSearchParams(location.search),c=u.get("c");
+  if(!c)return;
+  const[seed,pts,draft,diff,pool,form]=c.split("-");
+  if(!seed||!form||!FORMATIONS[form])return;
+  const ch={seed:parseInt(seed,16),pts:+pts||0,draft,diff,pool,form,
+            by:u.get("by")||"a manager",dyn:u.get("dyn")||null};
+  try{localStorage.setItem("twentytwo_challenge",JSON.stringify(ch));}catch(e){}
+  history.replaceState(null,"",location.pathname);
+}
+function getChallenge(){
+  try{return JSON.parse(localStorage.getItem("twentytwo_challenge"));}catch(e){return null;}
+}
+function paintChallenge(){
+  const ch=getChallenge(),el=$("chbanner");
+  if(!ch){el.style.display="none";return;}
+  el.style.display="";
+  el.innerHTML=`<div><b>${esc(ch.by)}</b> scored <b>${ch.pts.toLocaleString()}</b> and dares you to beat it.</div>
+    <div class="xs dim" style="margin-top:4px">Same league, same rivals, same rules: ${esc(ch.form)} · ${esc(ch.draft)} · ${esc(ch.diff)}</div>
+    <div class="row" style="margin-top:9px">
+      <button class="btn sm" id="ch-accept" style="margin:0">Accept the challenge</button>
+      <button class="btn ghost sm" id="ch-clear" style="margin:0">Dismiss</button></div>`;
+  $("ch-accept").onclick=acceptChallenge;
+  $("ch-clear").onclick=()=>{localStorage.removeItem("twentytwo_challenge");paintChallenge();};
+}
+function acceptChallenge(){
+  const ch=getChallenge();if(!ch)return;
+  ACTIVE_CH=ch;
+  pref={form:ch.form,draft:ch.draft,diff:ch.diff,pool:ch.pool,dyn:ch.dyn};
+  RUN_SEED=ch.seed;
+  localStorage.removeItem("twentytwo_challenge");
+  beginRun(true);
+}
+function paintChallengeResult(r){
+  const el=$("r-challenge");
+  if(!ACTIVE_CH){el.innerHTML="";return;}
+  const beat=r.pts>ACTIVE_CH.pts;
+  el.innerHTML=`<div class="card" style="border-color:${beat?"var(--mint)":"var(--loss)"}">
+    <b>${beat?"Challenge beaten 🎉":"Challenge not beaten"}</b>
+    <div class="sm dim">${esc(ACTIVE_CH.by)} scored ${ACTIVE_CH.pts.toLocaleString()} — you scored ${r.pts.toLocaleString()}.</div></div>`;
+}
+function shareChallenge(){
+  const txt=`I scored ${S.result.pts.toLocaleString()} in 22-0 — same league, same rivals. Beat it:\n${challengeLink()}`;
+  if(navigator.share)navigator.share({title:"22-0",text:txt}).catch(()=>{});
+  else navigator.clipboard?.writeText(txt).then(()=>toast("Challenge link copied ✓"));
+}
+
+/* =========================================================
+   SHARE
+========================================================= */
+function shareText(){
+  const r=S.result;
+  const head=r.perfect?"22-0. THE PERFECT SEASON 🏆":r.champion?"CHAMPIONS OF ENGLAND 🏆":
+    r.unbeaten?"Unbeaten all season":`Finished ${ord(r.pos)}`;
+  const grid=S.season.matches.map(m=>m.gf>m.ga?"🟩":m.gf===m.ga?"⬜":"🟥").join("");
+  return `22-0 — ${head}\n${grid}\nW${r.w} D${r.d} L${r.l} · ${r.lpts} pts · ${r.pts.toLocaleString()} points\n🎯 Beat my season: ${challengeLink()}`;
+}
+async function doShare(){
+  const txt=shareText();
+  try{
+    const blob=await renderShareCard();
+    if(blob&&navigator.canShare&&navigator.canShare({files:[new File([blob],"22-0.png",{type:"image/png"})]})){
+      await navigator.share({files:[new File([blob],"22-0.png",{type:"image/png"})],text:txt});
+      return;
+    }
+    if(blob){
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);a.download="22-0.png";a.click();
+      navigator.clipboard?.writeText(txt);toast("Image saved, text copied ✓");return;
+    }
+  }catch(e){}
+  if(navigator.share)navigator.share({title:"22-0",text:txt}).catch(()=>{});
+  else navigator.clipboard?.writeText(txt).then(()=>toast("Copied ✓"));
+}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function renderShareCard(){
+  return new Promise(res=>{
+    const r=S.result,W=1080,H=1350;
+    const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+    const x=cv.getContext("2d");
+    const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#2b1450");g.addColorStop(1,"#0d0318");
+    x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.textAlign="center";
+    x.fillStyle="#f6eefe";x.font="900 108px -apple-system,Segoe UI,Roboto,sans-serif";
+    x.fillText("22",W/2-46,150);
+    x.fillStyle="#ff3d7f";x.fillText("-",W/2+40,150);
+    x.fillStyle="#f6eefe";x.fillText("0",W/2+96,150);
+    x.font="600 26px -apple-system,Segoe UI,Roboto,sans-serif";x.fillStyle="#b9a8cc";
+    x.fillText("BUILD THE ULTIMATE WSL XI",W/2,196);
+    const head=r.perfect?"THE PERFECT SEASON":r.champion?"CHAMPIONS":r.unbeaten?"UNBEATEN":ord(r.pos)+" PLACE";
+    x.font="900 68px -apple-system,Segoe UI,Roboto,sans-serif";x.fillStyle=r.champion?"#ff3d7f":"#f6eefe";
+    x.fillText(head,W/2,300);
+    x.font="900 128px -apple-system,Segoe UI,Roboto,sans-serif";x.fillStyle="#f6eefe";
+    x.fillText(r.pts.toLocaleString(),W/2,440);
+    x.font="600 30px -apple-system,Segoe UI,Roboto,sans-serif";x.fillStyle="#b9a8cc";
+    x.fillText(`W${r.w}  D${r.d}  L${r.l}   ·   ${r.lpts} league points`,W/2,490);
+    // result grid
+    const cols=11,cw=76,ch=30,gx=(W-cols*cw)/2;
+    S.season.matches.forEach((m,i)=>{
+      const cx=gx+(i%cols)*cw,cy=540+Math.floor(i/cols)*(ch+10);
+      x.fillStyle=m.gf>m.ga?"#52e6c4":m.gf===m.ga?"#a99bb8":"#ff6b5a";
+      rr(x,cx+4,cy,cw-8,ch,7);x.fill();
+    });
+    // XI
+    let y=660;
+    x.font="700 24px -apple-system,Segoe UI,Roboto,sans-serif";
+    S.slots.filter(s=>s.player).forEach((s,i)=>{
+      const p=s.player,col=i%2,row=Math.floor(i/2);
+      const bx=90+col*460,by=y+row*74;
+      x.fillStyle="rgba(255,255,255,.06)";rr(x,bx,by,430,60,12);x.fill();
+      x.fillStyle=p.k;rr(x,bx+14,by+14,32,32,7);x.fill();
+      x.textAlign="left";x.fillStyle="#f6eefe";x.font="700 23px -apple-system,Segoe UI,Roboto,sans-serif";
+      x.fillText(p.name.slice(0,20),bx+60,by+30);
+      x.fillStyle="#b9a8cc";x.font="500 18px -apple-system,Segoe UI,Roboto,sans-serif";
+      x.fillText(`${roleOf(s.id)} · ${p.team} ${p.season}`,bx+60,by+50);
+      x.textAlign="center";
+    });
+    x.textAlign="center";x.fillStyle="#b9a8cc";x.font="600 26px -apple-system,Segoe UI,Roboto,sans-serif";
+    x.fillText("twentytwo.app",W/2,H-52);
+    cv.toBlob(b=>res(b),"image/png");
+  });
+}
+function confetti(){
+  if(reducedMotion)return;
+  const cv=document.createElement("canvas");
+  cv.style.cssText="position:fixed;inset:0;pointer-events:none;z-index:90";
+  cv.width=innerWidth;cv.height=innerHeight;document.body.appendChild(cv);
+  const x=cv.getContext("2d"),cols=["#ff3d7f","#52e6c4","#ffa8c6","#f6eefe"];
+  const bits=Array.from({length:110},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height,
+    vy:2+Math.random()*4,vx:-1+Math.random()*2,s:5+Math.random()*7,c:cols[Math.floor(Math.random()*4)],
+    r:Math.random()*6}));
+  let t=0;
+  (function loop(){
+    t++;x.clearRect(0,0,cv.width,cv.height);
+    bits.forEach(b=>{b.y+=b.vy;b.x+=b.vx;b.r+=0.1;
+      x.save();x.translate(b.x,b.y);x.rotate(b.r);x.fillStyle=b.c;x.fillRect(-b.s/2,-b.s/2,b.s,b.s*0.6);x.restore();});
+    if(t<190)requestAnimationFrame(loop);else cv.remove();
+  })();
+}
+
+/* =========================================================
+   PLAYER PICKER
+========================================================= */
+function openSheet(html){$("sheet").innerHTML=html;$("modal-bg").classList.add("on");}
+function closeSheet(){$("modal-bg").classList.remove("on");}
+function openPicker(slotId){
+  if(S.landedSquad==null){toast("Draw a squad first");return;}
+  const si=S.landedSquad,c=CLUBS[si];
+  const need=needList();
+  const needTxt=Object.entries(need).map(([k,v])=>`<b>${v}</b> ${k}`).join(" · ");
+  const rows=c.p.map((p,pi)=>{
+    const key=si+":"+pi,taken=S.picked.has(key);
+    const cap=S.draft==="cap"&&p[2]>S.budget-CAP_FLOOR*(picksLeft()-1);
+    const eff=slotId?Math.max(40,p[2]-rolePenalty(p[3]||p[1],slotId)):p[2];
+    const pen=slotId?rolePenalty(p[3]||p[1],slotId):0;
+    return `<div class="prow2${taken||cap?" off":""}" data-pi="${pi}">
+      ${shirt({k:c.k,k2:c.k2},20)}
+      <div class="nm"><b>${esc(p[0])}</b><span>${p[3]||p[1]}${p[4]?" · "+esc(p[4]):""}${taken?" · already picked":cap?" · over budget":""}</span></div>
+      <div class="rt ${tierOf(eff)}">${hidden()?"?":eff}${pen?`<span class="oop"> -${pen}</span>`:""}</div></div>`;
+  }).join("");
+  openSheet(`<div class="sheet-head">
+      <div><h2 style="margin:0">${esc(c.c)} ${esc(c.s)}</h2>
+      <div class="xs dim">Choosing for <b style="color:var(--pink-hi)">${roleOf(slotId)}</b></div></div>
+      <button class="pill grey" onclick="closeSheet()">Close</button></div>
+    <div class="needlist">Still to fill: ${needTxt}</div>
+    <div class="plist">${rows}</div>`);
+  $("sheet").querySelectorAll(".prow2:not(.off)").forEach(el=>{
+    el.onclick=()=>{
+      const pi=+el.dataset.pi;
+      draft(si,pi,si+":"+pi,slotId);
+      S.landedSquad=null;
+      $("btn-spin").disabled=picksLeft()===0;
+      renderPitch();
+    };
+  });
+}
+
+/* =========================================================
+   DRAW SCREEN
+========================================================= */
+function doSpin(isRespin){
+  if(S.spinning||!picksLeft())return;
+  S.spinning=true;
+  $("btn-spin").disabled=true;$("btn-respin").disabled=true;
+  $("landed").classList.remove("pop");
+  $("landed").innerHTML=`<span class="prompt">Drawing…</span>`;
+  const idx=poolIdx();
+  const winner=idx[Math.floor(R()*idx.length)];
+  const stopAt=buildReel(winner);
+  spinReel(stopAt,()=>{
+    S.spinning=false;S.landedSquad=winner;S.lastSquad=winner;
+    const c=CLUBS[winner];
+    const l=$("landed");
+    l.innerHTML=`<span class="reveal">${esc(c.c)} <span class="dim">${esc(c.s)}</span></span>`;
+    l.classList.add("pop");
+    if(c.l)$("draft-meta").innerHTML=`<span class="xs dim" style="font-style:italic">${esc(c.l)}</span>`;
+    setTimeout(paintDraftMeta,3200);
+    $("btn-spin").disabled=true;
+    $("btn-respin").disabled=S.respins<=0;
+    renderPitch();
+    toast("Tap a shirt on the pitch to place a player");
+  });
+}
+function doRespin(){
+  if(S.respins<=0||S.spinning)return;
+  S.respins--;$("respins").textContent=S.respins;
+  S.landedSquad=null;
+  doSpin(true);
+}
+
+/* =========================================================
+   WIZARD
+========================================================= */
+let WIZ={step:0,daily:true};
+const WIZ_STEPS=[
+  {k:"form",t:"Pick your formation",b:"Shapes change how your XI attacks and defends.",
+   opts:()=>Object.entries(FORMATIONS).map(([k,v])=>({v:k,n:k,d:v.blurb}))},
+  {k:"draft",t:"Pick a draft mode",b:"How the squads come to you.",
+   opts:()=>Object.entries(DRAFT_MODES).map(([k,v])=>({v:k,n:v.n,d:v.d,m:DRAFT_MULT[k]}))},
+  {k:"diff",t:"Pick a difficulty",b:"Harder leagues mean better rivals — and bigger scores.",
+   opts:()=>[{v:"classic",n:"Classic",d:"ratings shown",m:1},
+             {v:"hard",n:"Hard",d:"ratings hidden, stronger league",m:1.3},
+             {v:"legend",n:"Legend",d:"the best clubs, every week",m:1.7}]},
+  {k:"pool",t:"Pick a player pool",b:"Which slice of WSL history you draft from.",
+   opts:()=>Object.entries(POOLS).map(([k,v])=>({v:k,n:v.n,d:v.d,m:POOL_MULT[k]}))}
+];
+function openWizard(daily){
+  WIZ={step:0,daily:!!daily};
+  show("wiz");paintWizard();
+}
+function paintWizard(){
+  // Dynasty needs a club choice; slot it in after the draft step
+  const steps=WIZ_STEPS.filter(s=>!(s.k==="pool"&&pref.draft==="dynasty"));
+  const dyn=pref.draft==="dynasty";
+  const total=steps.length+(dyn?1:0);
+  if(WIZ.step>=total)return startSignupOrRun();
+  let step,isDyn=false;
+  if(dyn&&WIZ.step===2){isDyn=true;}
+  else step=steps[WIZ.step>2&&dyn?WIZ.step-1:WIZ.step];
+  $("wiz-step").textContent=`Step ${WIZ.step+1} of ${total}`;
+  if(isDyn){
+    $("wiz-title").textContent="Pick your club";
+    $("wiz-blurb").textContent="Dynasty: every season that club has played in the WSL.";
+    $("wiz-opts").innerHTML=DYNASTIES.map(([c,v])=>
+      `<button class="optbtn${pref.dyn===c?" on":""}" data-v="${esc(c)}">${esc(c)}<span>${v.length} seasons</span></button>`).join("");
+    $("wiz-opts").querySelectorAll(".optbtn").forEach(el=>el.onclick=()=>{
+      pref.dyn=el.dataset.v;WIZ.step++;paintWizard();});
+  }else{
+    $("wiz-title").textContent=step.t;
+    $("wiz-blurb").textContent=step.b;
+    $("wiz-opts").innerHTML=step.opts().map(o=>
+      `<button class="optbtn${pref[step.k]===o.v?" on":""}" data-v="${esc(o.v)}">${esc(o.n)}
+        <span>${esc(o.d)}${o.m&&o.m!==1?` · ×${o.m}`:""}</span></button>`).join("");
+    $("wiz-opts").querySelectorAll(".optbtn").forEach(el=>el.onclick=()=>{
+      pref[step.k]=el.dataset.v;
+      if(step.k==="draft"&&el.dataset.v!=="dynasty")pref.dyn=null;
+      WIZ.step++;paintWizard();});
+  }
+  const m=(DIFF_MULT[pref.diff]||1)*(DRAFT_MULT[pref.draft]||1)*(POOL_MULT[pref.pool]??1)*(WIZ.daily?1.1:1);
+  $("wiz-mult").textContent=`Score multiplier so far ×${m.toFixed(2)}`;
+}
+function startSignupOrRun(){
+  const st=store.get();
+  if(!st.playerName)show("signup");
+  else beginRun(WIZ.daily);
+}
+
+/* =========================================================
+   RUN START
+========================================================= */
+async function beginRun(daily){
+  const st=store.get();
+  if(daily&&st.lastDaily===utcDay()&&!ACTIVE_CH){
+    toast("You've played today's season — come back tomorrow 🔥");
+    show("home");return;
+  }
+  resetState(daily);
+  S.speed=1;
+  $("respins").textContent=S.respins;
+  $("picks-n").textContent=picksLeft();
+  $("btn-kickoff").disabled=true;
+  $("btn-spin").disabled=false;$("btn-respin").disabled=true;
+  $("draw-mode").textContent=`${S.form} · ${DRAFT_MODES[S.draft].n} · ${S.diff}${S.dyn?" · "+S.dyn:""}`;
+  $("landed").innerHTML=`<span class="prompt">Draw a squad to begin</span>`;
+  $("reel-track").innerHTML="";
+  renderPitch();paintDraftMeta();
+  show("draw");
+  try{
+    const j=await API("/api/token");
+    S.token=j&&j.t?j:null;
+  }catch(e){S.token=null;}
+}
+
+/* =========================================================
+   LEADERBOARD
+========================================================= */
+let BOARD="alltime";
+async function loadBoard(kind,into){
+  BOARD=kind||BOARD;
+  const el=into||$("board-list");
+  el.innerHTML='<div class="dim sm">Loading…</div>';
+  try{
+    const j=await API("/api/leaderboard?board="+BOARD+"&v="+Date.now());
+    const me=store.get().playerName.toLowerCase();
+    if(!j.top||!j.top.length){el.innerHTML='<div class="dim sm">Nobody yet. Be first.</div>';return;}
+    el.innerHTML=j.top.map((e,i)=>{
+      const mine=e.n.toLowerCase()===me;
+      const val=BOARD==="streaks"?`🔥 ${e.streak}`:e.p.toLocaleString();
+      const sub=BOARD==="streaks"?`${e.days} days · ${(e.tp||0).toLocaleString()} pts`:esc(e.m||"");
+      return `<div class="lb-row${mine?" me":""}"><div class="rk">${i+1}</div>
+        <div class="who"><b>${esc(e.n)}</b>${e.c?` <span class="xs dim">${esc(e.c)}</span>`:""}
+          <div class="xs dim">${sub}</div></div>
+        <div class="pt">${val}</div></div>`;}).join("");
+  }catch(e){el.innerHTML='<div class="dim sm">Leaderboard unavailable right now.</div>';}
+}
+function paintHomeBoard(){
+  const el=$("home-board");
+  el.innerHTML='<h3 style="margin-top:0">Top seasons</h3><div class="dim sm">Loading…</div>';
+  API("/api/leaderboard?board=alltime").then(j=>{
+    const rows=(j.top||[]).slice(0,5);
+    el.innerHTML='<h3 style="margin-top:0">Top seasons</h3>'+(rows.length
+      ? rows.map((e,i)=>`<div class="lb-row"><div class="rk">${i+1}</div>
+          <div class="who"><b>${esc(e.n)}</b></div><div class="pt">${e.p.toLocaleString()}</div></div>`).join("")
+      : '<div class="dim sm">Nobody yet. Be first.</div>');
+  }).catch(()=>{el.innerHTML="";});
+}
+
+/* =========================================================
+   ALBUM
+========================================================= */
+function openAlbum(){
+  const st=store.get(),sq=st.albumSquads||{};
+  const got=Object.keys(sq).length;
+  $("album-progress").innerHTML=`<div class="kv"><div><b>${got}</b> of ${CLUBS.length} club-seasons</div>
+    <div class="pill pink">${Math.round(got/CLUBS.length*100)}%</div></div>
+    <div class="xs dim" style="margin-top:6px">Every squad you have drafted from, ever.</div>`;
+  const byEra={};
+  CLUBS.forEach((c,i)=>{
+    const e=ERAS.find(([a,b])=>c.y>=a&&c.y<=b)||ERAS[ERAS.length-1];
+    (byEra[e[2]]=byEra[e[2]]||[]).push(i);
+  });
+  $("album-list").innerHTML=Object.entries(byEra).map(([era,idx])=>
+    `<h3>${esc(era)}</h3><div class="alb-grid">${idx.map(i=>{
+      const c=CLUBS[i],has=sq[c.c+"|"+c.s];
+      return `<div class="alb${has?" got":""}" data-i="${i}">
+        ${has?badge(c,22):'<div class="cb" style="background:#2b1450">?</div>'}
+        <div class="an">${esc(has?c.c:"???")}</div><div class="ay">${esc(c.s)}</div></div>`;
+    }).join("")}</div>`).join("");
+  $("album-list").querySelectorAll(".alb.got").forEach(el=>el.onclick=()=>albumDetail(+el.dataset.i));
+  show("album");
+}
+function albumDetail(i){
+  const c=CLUBS[i],st=store.get();
+  openSheet(`<div class="sheet-head"><div><h2 style="margin:0">${esc(c.c)} ${esc(c.s)}</h2></div>
+    <button class="pill grey" onclick="closeSheet()">Close</button></div>
+    ${c.l?`<p class="sm dim" style="font-style:italic">${esc(c.l)}</p>`:""}
+    <div class="plist">${c.p.map(p=>{
+      const fielded=(st.albumPlayers||{})[p[0]+"|"+c.s];
+      return `<div class="prow2" style="cursor:default${fielded?"":";opacity:.5"}">
+        <div class="nm"><b>${esc(p[0])}</b><span>${p[3]||p[1]}${p[4]?" · "+esc(p[4]):""}${fielded?" · fielded ✓":""}</span></div>
+        <div class="rt">${p[2]}</div></div>`;}).join("")}</div>`);
+}
+
+/* =========================================================
+   HOME PAINT
+========================================================= */
+function paintHome(){
+  const st=store.get(),today=utcDay();
+  const played=st.lastDaily===today;
+  $("btn-daily").textContent=played?"Played today ✓ — play again tomorrow":"Play today's season →";
+  $("btn-daily").disabled=played;
+  $("daily-sub").textContent=played?"Your streak is safe. New season at midnight UTC."
+    :"One free season a day — play it your way";
+  $("streak-pill").innerHTML=st.streak>=2?`<span class="pill pink">🔥 ${st.streak}</span>`:"";
+  const f=featuredFor(today);
+  $("daily-featured").innerHTML=`⭐ Today's featured challenge: <b>${esc(f.n)}</b> — +15% if your season matches it.`;
+  $("btn-featured").style.display=played?"none":"";
+  paintChallenge();
+  paintHomeBoard();
+}
+function applyFeatured(){
+  const f=featuredFor(utcDay());
+  pref={form:f.form,draft:f.draft,diff:f.diff,pool:f.pool,dyn:f.dyn||null};
+  beginRun(true);
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+function init(){
+  parseChallengeURL();
+  paintHome();
+
+  $("btn-daily").onclick=()=>openWizard(true);
+  $("btn-featured").onclick=applyFeatured;
+  $("btn-board").onclick=()=>{show("board");loadBoard("alltime");};
+  $("btn-album").onclick=openAlbum;
+  $("btn-how").onclick=()=>show("how");
+  $("btn-invite").onclick=openInvite;
+  $("how-back").onclick=()=>show("home");
+  $("board-back").onclick=()=>show("home");
+  $("album-back").onclick=()=>show("home");
+  $("btn-home2").onclick=()=>{paintHome();show("home");};
+  $("btn-result-board").onclick=()=>{show("board");loadBoard("alltime");};
+  $("signup-back").onclick=()=>show("wiz");
+  $("wiz-back").onclick=()=>{if(WIZ.step>0){WIZ.step--;paintWizard();}else{paintHome();show("home");}};
+
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");loadBoard(t.dataset.b);});
+
+  $("btn-signup-go").onclick=()=>{
+    const name=$("in-name").value.trim();
+    if(name.length<2){toast("Pick a manager name");return;}
+    const st=store.get();
+    st.playerName=name.slice(0,20);
+    st.playerCountry=$("in-country").value.trim().toUpperCase().slice(0,2);
+    st.playerEmail=$("in-email").value.trim();
+    st.optin=$("in-optin").checked&&!!st.playerEmail;
+    store.set(st);
+    beginRun(WIZ.daily);
+  };
+
+  $("btn-spin").onclick=()=>doSpin(false);
+  $("btn-respin").onclick=doRespin;
+  $("btn-quit").onclick=()=>{paintHome();show("home");};
+  $("btn-kickoff").onclick=startSeason;
+
+  $("btn-next").onclick=()=>{
+    if(S.season.md>=MATCHDAYS)finishSeason();
+    else if(S.season.md===0&&!S.season.matches.length&&$("btn-next").textContent.startsWith("Kick"))playMatchday();
+    else playMatchday();
+  };
+  $("btn-table-full").onclick=fullTable;
+  $("btn-speed").onclick=()=>{
+    S.speed=(S.speed+1)%SPEEDS.length;
+    $("btn-speed").textContent="Speed: "+SPEEDS[S.speed].n;
+  };
+  $("btn-squad").onclick=()=>openSheet(`<div class="sheet-head"><h2 style="margin:0">Your XI</h2>
+    <button class="pill grey" onclick="closeSheet()">Close</button></div>
+    <div class="plist">${S.slots.filter(s=>s.player).map(s=>{
+      const p=s.player,g=S.goals[p.name]||0;
+      return `<div class="prow2" style="cursor:default">${shirt(p,20)}
+        <div class="nm"><b>${esc(p.name)}</b><span>${roleOf(s.id)} · ${esc(p.team)} ${esc(p.season)}</span></div>
+        <div class="rt">${g?"⚽"+g:""}</div></div>`;}).join("")}</div>`);
+
+  $("btn-share").onclick=doShare;
+  $("btn-challenge-share").onclick=shareChallenge;
+  $("modal-bg").onclick=e=>{if(e.target.id==="modal-bg")closeSheet();};
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

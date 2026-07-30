@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "twenty-two-zero",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8492"],
+      "port": 8492
+    }
+  ]
+}

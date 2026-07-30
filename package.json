@@ -1,0 +1,14 @@
+{
+  "name": "twenty-two-zero",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "data": "node scripts/extract.mjs",
+    "export-emails": "node scripts/export-emails.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.4.0"
+  }
+}
