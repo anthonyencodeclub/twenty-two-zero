@@ -49,6 +49,44 @@ const NAME_ALIAS = {
   "Gabrielle George": "Gabby George"
 };
 
+/* hand-set ratings for marquee player-seasons ("Name|Season"). The tier bands
+   place everyone else; these pin the icons so a Golden Boot season always
+   out-rates a good season, and a record season tops the game. Applied after
+   the band+jitter+era pipeline, as absolute values. */
+const RATING_OVERRIDE = {
+  // the very top
+  "Vivianne Miedema|2018-19":95, "Vivianne Miedema|2019-20":94,
+  "Sam Kerr|2020-21":94, "Sam Kerr|2021-22":94, "Sam Kerr|2022-23":93,
+  "Khadija Shaw|2023-24":94, "Khadija Shaw|2024-25":93, "Khadija Shaw|2025-26":94, "Khadija Shaw|2022-23":92,
+  "Rachel Daly|2022-23":93,
+  "Lauren James|2023-24":93, "Lauren James|2024-25":93, "Lauren James|2025-26":93,
+  "Lauren Hemp|2021-22":93, "Lauren Hemp|2023-24":93, "Lauren Hemp|2025-26":93,
+  "Fran Kirby|2017-18":92, "Fran Kirby|2020-21":93,
+  "Pernille Harder|2020-21":93,
+  "Beth Mead|2021-22":93, "Beth Mead|2022-23":92,
+  "Beth England|2019-20":92,
+  "Mariona Caldentey|2024-25":93, "Mariona Caldentey|2025-26":92,
+  "Alessia Russo|2024-25":93, "Alessia Russo|2025-26":92,
+  "Yui Hasegawa|2024-25":92, "Yui Hasegawa|2025-26":93,
+  "Keira Walsh|2024-25":92, "Keira Walsh|2025-26":92,
+  "Hannah Hampton|2025-26":92,
+  "Mary Earps|2022-23":92, "Mary Earps|2023-24":92,
+  "Lucy Bronze|2020-21":92, "Lucy Bronze|2024-25":90, "Lucy Bronze|2025-26":90,
+  "Vivianne Miedema|2017-18":91, "Vivianne Miedema|2021-22":92, "Vivianne Miedema|2022-23":92,
+  "Vivianne Miedema|2024-25":90, "Vivianne Miedema|2025-26":91,
+  // era greats, priced to their own league
+  "Kelly Smith|2012":92, "Kim Little|2012":92, "Kim Little|2013":91,
+  "Rachel Williams|2011":89, "Natasha Dowie|2013":90, "Fara Williams|2013":91, "Fara Williams|2017-18":89,
+  "Ji So-yun|2014":90, "Ji So-yun|2015":91, "Beth Mead|2015":91,
+  "Eniola Aluko|2016":91, "Izzy Christiansen|2016":91, "Ellen White|2017-18":92, "Ellen White|2020-21":91,
+  "Nikita Parris|2018-19":91, "Steph Houghton|2014":91, "Fran Kirby|2017 Spring Series":90,
+  // corrections where the blind jitter over- or under-shot
+  "Ella Toone|2023-24":91, "Elisabeth Terland|2025-26":91, "Phallon Tullis-Joyce|2024-25":91,
+  "Millie Bright|2024-25":92, "Erin Cuthbert|2024-25":91, "Maya Le Tissier|2024-25":91,
+  "Sandy Baltimore|2024-25":91, "Olivia Smith|2024-25":91, "Olivia Smith|2025-26":92,
+  "Ellen White|2018-19":91, "Viviane Asseyi|2024-25":88, "Jane Ross|2018-19":88, "Sue Smith|2013":87
+};
+
 const TIER = { star:[89,93], key:[82,87], squad:[76,81] };
 const SPREAD_MID = 84, SPREAD_K = 1.9;
 const ERA_LIFT = y => y <= 2013 ? -4 : y <= 2016 ? -2.5 : y <= 2019 ? -1 : y <= 2022 ? 0 : 0.5;
@@ -82,7 +120,8 @@ for (const cs of CLUB_SEASONS) {
     else if (LINE_OF[pos] !== line) problems.push(`${key}: ${name} is ${line} but plays ${pos}`);
     const band = TIER[tierName] || TIER.squad;
     const spread = band[1] - band[0];
-    const r = band[0] + (hash(name + cs.s) % (spread + 1)) + ERA_LIFT(y);
+    const generated = band[0] + (hash(name + cs.s) % (spread + 1)) + ERA_LIFT(y);
+    const r = RATING_OVERRIDE[name + '|' + cs.s] ?? generated;
     return [name, line, Math.max(70, Math.min(96, Math.round(r))), pos, nat || ''];
   });
 

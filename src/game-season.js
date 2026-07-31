@@ -136,7 +136,7 @@ function simHalf(lf,la,fromMin,toMin,lineup){
 function prepMatch(rawOpp,home,lineup){
   const st=lineupStrengths(lineup),oppStr=rawOpp+COHESION;
   const tac=TACTICS[S.tactic]||TACTICS.balanced;
-  const e=(st.att+tac.att-oppStr+(home?2.2:0))/5, de=(oppStr-(st.def+tac.def)+(home?0:2.2))/5;
+  const e=(st.att+tac.att-oppStr+(home?1.8:0))/5, de=(oppStr-(st.def+tac.def)+(home?0:1.8))/5;
   return{lf:clamp(1.48+e*0.62,0.14,5)/2, la:clamp(1.40+de*0.62,0.10,4.6)/2};
 }
 function secondHalfRates(base,tactic,trailing){

@@ -74,7 +74,7 @@ export function fixtures(seed){
 }
 function poisson(rng,l){let x=0,p=Math.exp(-l),s=p,u=rng();while(u>s&&x<9){x++;p*=l/x;s+=p;}return x;}
 function simAI(rng,sa,sb){
-  const e=(sa+2.2-sb)/5;
+  const e=(sa+1.8-sb)/5;
   return [poisson(rng,cl(1.48+e*0.62,0.15,5)),poisson(rng,cl(1.48-e*0.62,0.15,5))];
 }
 export function simRivalLeague(seed,rivals){
@@ -246,9 +246,12 @@ export async function readAgg(key) {
   }
 }
 export async function writeAgg(key, agg) {
+  // cacheControlMaxAge MUST be 0: the Blob CDN ignores query strings, so the
+  // ?v= cache-buster does nothing and a 60s TTL can serve boards stale for
+  // hours. The API route's own s-maxage=15 is the only cache we want.
   await put(`agg/${key}.json`, JSON.stringify(agg), {
     access: 'public', addRandomSuffix: false, allowOverwrite: true,
-    contentType: 'application/json', cacheControlMaxAge: 60
+    contentType: 'application/json', cacheControlMaxAge: 0
   });
 }
 const aggKey = e => e.n.toLowerCase() + '|' + (e.c || '');

@@ -123,7 +123,7 @@ function poisson(rng,l){let x=0,p=Math.exp(-l),s=p,u=rng();while(u>s&&x<9){x++;p
 function simAI(rng,sa,sb){                    // sa is at home
   // tuned against the real league: champions land ~50 pts, the bottom club ~10,
   // and the whole division averages just under three goals a game
-  const e=(sa+2.2-sb)/5;
+  const e=(sa+1.8-sb)/5;
   return [poisson(rng,cl(1.48+e*0.62,0.15,5)),poisson(rng,cl(1.48-e*0.62,0.15,5))];
 }
 

@@ -132,7 +132,7 @@ export const CLUB_SEASONS = [
   ["Leandra Little","DEF","CB","key","ENG"],["Victoria Williams","DEF","CB","key","ENG"],
   ["Emma Thomson","DEF","CB","squad",""],["Danielle Cox","DEF","CB","squad","ENG"],
   ["Jemma Purfield","DEF","LB","squad","ENG"],["Lyndsey Cunningham","DEF","RB","squad",""],
-  ["Kasia Lipka","MID","CM","key","ENG"],["Sue Smith","MID","LM","star","ENG"],
+  ["Kasia Lipka","MID","CM","key","ENG"],["Sue Smith","MID","LM","key","ENG"],
   ["Jessica Sigsworth","FWD","ST","key","ENG"],["Beth England","FWD","ST","squad","ENG"],
   ["Cheryl Foster","FWD","ST","squad","WAL"]]},
 
@@ -744,7 +744,7 @@ export const CLUB_SEASONS = [
   ["Li Mengwen","DEF","LB","squad","CHN"],["Kirsty Smith","DEF","RB","squad","SCO"],
   ["Katrina Gorry","MID","CM","key","AUS"],["Oona Sirén","MID","DM","key","FIN"],
   ["Seraina Piubel","MID","AM","key","SUI"],["Dagny Brynjarsdóttir","MID","CM","squad","ISL"],
-  ["Viviane Asseyi","FWD","LW","star","FRA"],["Riko Ueki","FWD","ST","key","JPN"],
+  ["Viviane Asseyi","FWD","LW","key","FRA"],["Riko Ueki","FWD","ST","key","JPN"],
   ["Shekiera Martinez","FWD","ST","key","GER"],["Manuela Paví","FWD","RW","squad","COL"]]},
 
 {c:"Liverpool",s:"2024-25",p:[
@@ -949,7 +949,7 @@ export const CLUB_SEASONS = [
   ["Rachel Furness","MID","CM","key","NIR"],
   ["Rachel Rowe","MID","LM","key","WAL"],
   ["Natasha Harding","FWD","RW","key","WAL"],
-  ["Brooke Chaplen","FWD","ST","star","ENG"],
+  ["Brooke Chaplen","FWD","ST","key","ENG"],
   ["Lauren Bruton","FWD","ST","key","ENG"],
   ["Kirsty Linnett","FWD","ST","squad","ENG"]]},
 
@@ -965,14 +965,14 @@ export const CLUB_SEASONS = [
   ["Rachel Furness","MID","CM","key","NIR"],
   ["Jade Moore","MID","DM","key","ENG"],
   ["Charlie Estcourt","MID","CM","squad","WAL"],
-  ["Brooke Chaplen","MID","AM","star","ENG"],
+  ["Brooke Chaplen","MID","AM","key","ENG"],
   ["Gemma Davison","FWD","RW","key","ENG"],
   ["Natasha Harding","FWD","LW","key","WAL"],
   ["Rakel Honnudottir","FWD","LW","squad","ISL"],
   ["Lauren Bruton","FWD","ST","key","ENG"]]},
 
 {c:"Yeovil Town",s:"2017-18",p:[
-  ["Megan Walsh","GK","GK","star","ENG"],
+  ["Megan Walsh","GK","GK","key","ENG"],
   ["Bethany-May Howard","GK","GK","squad","ENG"],
   ["Gemma Evans","DEF","CB","key","WAL"],
   ["Nicola Cousins","DEF","CB","key","WAL"],
@@ -989,7 +989,7 @@ export const CLUB_SEASONS = [
   ["Chloe Melton","FWD","ST","squad","ENG"]]},
 
 {c:"Bristol City",s:"2019-20",p:[
-  ["Sophie Baggaley","GK","GK","star","ENG"],
+  ["Sophie Baggaley","GK","GK","key","ENG"],
   ["Eartha Cumings","GK","GK","squad","SCO"],
   ["Loren Dykes","DEF","RB","key","WAL"],
   ["Gemma Evans","DEF","CB","key","WAL"],
@@ -1002,7 +1002,7 @@ export const CLUB_SEASONS = [
   ["Katie Robinson","FWD","RW","squad","ENG"],
   ["Yana Daniels","FWD","LW","key","BEL"],
   ["Charlie Wellings","FWD","ST","key","ENG"],
-  ["Ebony Salmon","FWD","ST","star","ENG"],
+  ["Ebony Salmon","FWD","ST","key","ENG"],
   ["Abi Harrison","FWD","ST","squad","SCO"]]},
 
 {c:"Bristol City",s:"2023-24",p:[
@@ -1014,12 +1014,12 @@ export const CLUB_SEASONS = [
   ["Mari Ward","DEF","CB","squad","ENG"],
   ["Jamie-Lee Napier","DEF","LB","key","SCO"],
   ["Emily Syme","MID","DM","squad","ENG"],
-  ["Megan Connolly","MID","CM","star","IRL"],
+  ["Megan Connolly","MID","CM","key","IRL"],
   ["Amy Rodgers","MID","CM","key","ENG"],
   ["Rachel Furness","MID","CM","squad","NIR"],
   ["Carrie Jones","FWD","RW","key","WAL"],
   ["Ffion Morgan","FWD","LW","key","WAL"],
-  ["Amalie Thestrup","FWD","ST","star","DEN"],
+  ["Amalie Thestrup","FWD","ST","key","DEN"],
   ["Abi Harrison","FWD","ST","key","SCO"],
   ["Shania Hayles","FWD","ST","squad","JAM"]]},
 
@@ -1035,8 +1035,8 @@ export const CLUB_SEASONS = [
   ["Brianna Visalli","MID","CM","key","USA"],
   ["Julia Simic","MID","AM","key","GER"],
   ["Cho So-hyun","MID","DM","squad","KOR"],
-  ["Alisha Lehmann","FWD","RW","star","SUI"],
-  ["Jane Ross","FWD","ST","star","SCO"],
+  ["Alisha Lehmann","FWD","RW","key","SUI"],
+  ["Jane Ross","FWD","ST","key","SCO"],
   ["Leanne Kiernan","FWD","ST","key","IRL"],
   ["Adriana Leon","FWD","LW","squad","CAN"],
   ["Rosie Kmita","FWD","RW","squad","ENG"]]},
@@ -1055,7 +1055,7 @@ export const CLUB_SEASONS = [
   ["Olivia Chance","MID","AM","squad","NZL"],
   ["Mollie Green","MID","AM","squad","ENG"],
   ["Chloe Kelly","FWD","RW","star","ENG"],
-  ["Courtney Sweetman-Kirk","FWD","ST","star","ENG"],
+  ["Courtney Sweetman-Kirk","FWD","ST","key","ENG"],
   ["Chantelle Boye-Hlorkah","FWD","LW","squad","ENG"],
   ["Simone Magill","FWD","ST","squad","NIR"]]},
 
@@ -1079,7 +1079,7 @@ export const CLUB_SEASONS = [
 {c:"Birmingham City",s:"2021-22",p:[
   ["Emily Ramsey","GK","GK","key","ENG"],
   ["Marie Hourihan","GK","GK","squad","IRL"],
-  ["Louise Quinn","DEF","CB","star","IRL"],
+  ["Louise Quinn","DEF","CB","key","IRL"],
   ["Rebecca Holloway","DEF","CB","key","NIR"],
   ["Harriet Scott","DEF","RB","key","IRL"],
   ["Gemma Lawley","DEF","LB","key","ENG"],
