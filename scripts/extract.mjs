@@ -42,7 +42,11 @@ const NAME_ALIAS = {
   "Bethany England": "Beth England",
   "Becky Spencer": "Rebecca Spencer",
   "Jessica Carter": "Jess Carter",
-  "Jessica Sigsworth": "Jess Sigsworth"
+  "Jessica Sigsworth": "Jess Sigsworth",
+  "Steph Bannon": "Stephanie Bannon",
+  "Vicki Greenwell": "Victoria Greenwell",
+  "Sophie Bradley-Auckland": "Sophie Bradley",
+  "Gabrielle George": "Gabby George"
 };
 
 const TIER = { star:[89,93], key:[82,87], squad:[76,81] };

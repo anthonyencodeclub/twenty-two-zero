@@ -103,5 +103,17 @@ export const LORE = {
   "Aston Villa|2025-26": "Six straight seasons in the WSL since coming up when COVID ended a season early.",
   "Tottenham Hotspur|2025-26": "Seven seasons in the top flight since promotion, still looking for a first trophy.",
   "West Ham United|2025-26": "Eight seasons up, from a licence granted straight out of the third tier.",
-  "Leicester City|2025-26": "Relegated on penalties in a play-off, after five years in the division."
+  "Leicester City|2025-26": "Relegated on penalties in a play-off, after five years in the division.",
+
+  // ---- the rest of the league ----
+  "Reading|2017-18": "Kelly Chambers' Reading in the first winter season, with Fara Williams pulling the strings in midfield.",
+  "Reading|2018-19": "Mid-table and hard to beat — the quiet middle of an eight-season top-flight stay nobody predicted.",
+  "Yeovil Town|2017-18": "Part-timers against professionals: two goals scored all season, and they turned up every single week anyway.",
+  "Bristol City|2019-20": "A teenage Ebony Salmon up front — and an 11-1 at the Emirates that went into the record books against their name.",
+  "Bristol City|2023-24": "One win all season and straight back down; by now the gap to the professionals was a chasm.",
+  "West Ham United|2018-19": "Into the top flight straight from the third tier by licence — and to an FA Cup final at Wembley in year one.",
+  "Everton|2017-18": "Back in the big league after the reset, with a teenage Chloe Kelly learning her trade out wide.",
+  "Sunderland|2016": "The last summer season and Beth Mead's last year in red and white — the licensing axe already being sharpened.",
+  "Birmingham City|2021-22": "Bottom from the start, relegated by May — eleven seasons of punching above their weight, ended.",
+  "Liverpool|2018-19": "Two-time champions drifting in mid-table, one season from the points-per-game relegation nobody forgave."
 };
