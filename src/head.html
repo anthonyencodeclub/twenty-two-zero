@@ -150,11 +150,16 @@ button{font-family:inherit;font-size:15px;cursor:pointer;border:0}
 .prow2 .nm span{font-size:11px;color:var(--chalk-dim)}
 .prow2 .rt{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
 .icon{color:#ffd6ea}.gold{color:var(--pink-hi)}.silver{color:#dcd2e8}.bronze{color:#c9a889}
-.slotpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.slotbtn{padding:8px 11px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid var(--line);
-  font-size:12px;font-weight:700;color:var(--chalk)}
-.slotbtn.best{border-color:var(--mint);color:var(--mint)}
-.slotbtn.bad{opacity:.6}
+.slotrow{display:flex;gap:6px;margin-bottom:7px;justify-content:center}
+.slotbtn{flex:1;max-width:92px;padding:9px 4px;border-radius:10px;background:rgba(255,255,255,.07);
+  border:1.5px solid var(--line);font-size:11px;font-weight:800;color:var(--chalk-dim);
+  text-align:center;line-height:1.3;letter-spacing:.4px}
+.slotbtn b{font-size:14.5px;letter-spacing:0}
+.slotbtn .oop{font-size:9.5px;color:var(--loss);font-weight:800}
+.slotbtn.best{border-color:var(--mint);box-shadow:0 0 10px rgba(82,230,196,.25)}
+.slotbtn.bad{opacity:.55}
+.slotbtn.taken{opacity:.4;border-style:dashed}
+.slotbtn:active:not(:disabled){background:rgba(255,255,255,.13)}
 
 /* ---------- season screen ---------- */
 .md-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
@@ -241,6 +246,13 @@ label.chk input{margin-top:2px;width:17px;height:17px;accent-color:var(--pink)}
 .award{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.07)}
 .award .aw-t{font-size:10.5px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
 .award .aw-n{font-size:14px;font-weight:800}
+.bench-t{font-size:10px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px}
+.bench-row{display:flex;gap:5px;flex-wrap:wrap}
+.bslot{flex:1;min-width:32px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.05);
+  padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8.5px;
+  color:var(--chalk-dim);text-align:center;overflow:hidden;white-space:nowrap}
+.bslot.empty{border-style:dashed;opacity:.6}
+.bslot span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 footer{text-align:center;font-size:11px;color:var(--chalk-dim);margin-top:22px;line-height:1.6}
 footer a{color:var(--chalk-dim)}
 @media(max-width:400px){
@@ -312,6 +324,7 @@ footer a{color:var(--chalk-dim)}
   <div class="card">
     <p class="sm dim">Your name goes on the world leaderboard. Email is optional — it just saves your run and sends the daily nudge.</p>
     <input class="field" id="in-name" maxlength="20" placeholder="Manager name" autocomplete="nickname">
+    <input class="field" id="in-team" maxlength="24" placeholder="Team name (optional — e.g. Beaumont Athletic)">
     <input class="field" id="in-country" maxlength="2" placeholder="Country code (GB, US, SE…)" autocomplete="country" style="text-transform:uppercase">
     <input class="field" id="in-email" type="email" maxlength="80" placeholder="Email (optional)" autocomplete="email">
     <input class="hp" id="in-web" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -339,6 +352,7 @@ footer a{color:var(--chalk-dim)}
   <button class="btn" id="btn-spin">Draw a squad 🎰</button>
   <button class="btn ghost sm" id="btn-respin">↻ Re-draw (<span id="respins">1</span> left)</button>
   <div id="pitch"></div>
+  <div id="bench" class="card" style="padding:10px 12px"></div>
   <button class="btn mint" id="btn-kickoff" disabled>Kick off the season ⚽</button>
   <button class="btn ghost sm" id="btn-quit">Abandon run</button>
 </div>
@@ -374,7 +388,8 @@ footer a{color:var(--chalk-dim)}
   <button class="btn" id="btn-next">Next match →</button>
   <div class="row">
     <button class="btn ghost sm" id="btn-speed">Speed: Normal</button>
-    <button class="btn ghost sm" id="btn-squad">My XI</button>
+    <button class="btn ghost sm" id="btn-tactic">Tactic: Balanced</button>
+    <button class="btn ghost sm" id="btn-squad">Squad</button>
   </div>
 </div>
 
@@ -389,6 +404,7 @@ footer a{color:var(--chalk-dim)}
       <div class="dim sm">Game score</div><div style="font-size:26px;font-weight:900" class="mono" id="r-score"></div>
     </div>
     <div class="sm dim" id="r-mult"></div>
+    <div class="sm" id="r-save" style="margin-top:9px"></div>
   </div>
   <div id="r-challenge"></div>
   <div class="card"><h3 style="margin-top:0">Final table</h3><div id="r-table"></div></div>
@@ -430,7 +446,11 @@ footer a{color:var(--chalk-dim)}
     <p>Then you play a <b>full 22-game WSL season</b>: eleven rivals, home and away, a live table, a title race and a run-in.</p>
     <p><b>22 wins, 0 defeats</b> is the perfect season. Nobody has done it.</p>
     <h3>Drafting</h3>
-    <p>Every draw lands on one club-season. Pick a player, then choose the shirt they wear. Play them out of position and their rating drops — a full-back at centre-back is fine, a striker in goal is not.</p>
+    <p>Every draw lands on one club-season and its squad opens. Pick a player, then choose her shirt — a slot in the XI or a place on the bench. Out of position her rating drops; a full-back at centre-back is fine, a striker in goal is not.</p>
+    <p>You draft <b>20 players</b>: a starting XI plus a bench of 1 GK, 3 defenders, 2 midfielders and 3 attackers. Rotation happens — a deep bench keeps the season alive.</p>
+    <p>Then <b>name a captain</b>. Leadership is hidden in every player: the right armband rallies comebacks at half-time.</p>
+    <h3>Tactics</h3>
+    <p>Set your approach between matches and change it at half-time: <b>all-out attack</b>, <b>balanced</b>, or <b>park the bus</b>. Chasing a title decider is different from protecting a lead.</p>
     <p><b>Chemistry</b> rewards real football: players who actually played together, clubmates across eras, countrymates, and anyone in their proper position.</p>
     <h3>Scoring</h3>
     <p>Win 60 · Draw 25 · goals +3 / −2 · Champions +250 · Unbeaten +150 · Perfect 22-0 +400. Modes multiply it. The server recomputes every run.</p>

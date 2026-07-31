@@ -36,12 +36,12 @@ const DRAFT_MODES={
   classic:{n:"Classic",d:"all "+CLUBS.length+" club-seasons"},
   era:{n:"Era Tour",d:"a new WSL era each draw"},
   dynasty:{n:"Dynasty",d:"one club, every season"},
-  cap:{n:"Wage Cap",d:"budget 930 — spend wisely"}
+  cap:{n:"Wage Cap",d:"budget 1560 for 20 players"}
 };
 /* WSL eras — the league's own history, not decades */
 const ERAS=[[2011,2013,"The founding years"],[2014,2016,"Two tiers"],
             [2017,2019,"Going full-time"],[2020,2022,"The boom"],[2023,2030,"The modern game"]];
-const CAP_BUDGET=930, CAP_FLOOR=74;
+const CAP_BUDGET=1560, CAP_FLOOR=74;
 
 /* featured challenge of the day — deterministic rotation, ×1.15 bonus when your
    daily season matches it (mirrored in api/_shared.js — keep in sync) */
@@ -79,6 +79,9 @@ const DYNASTIES=(()=>{const m={};CLUBS.forEach((s,i)=>{(m[s.c]=m[s.c]||[]).push(
    scorelines instead of trusting the client.
 --------------------------------------------------------- */
 const RIVAL_N=11, MATCHDAYS=22;
+/* the bench Anthony specified: 1 GK, 3 defenders, 2 midfielders, 3 attackers */
+const BENCH_DEF=[{id:"BG1",cat:"GK"},{id:"BD1",cat:"DEF"},{id:"BD2",cat:"DEF"},{id:"BD3",cat:"DEF"},
+  {id:"BM1",cat:"MID"},{id:"BM2",cat:"MID"},{id:"BF1",cat:"FWD"},{id:"BF2",cat:"FWD"},{id:"BF3",cat:"FWD"}];
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 
@@ -201,7 +204,8 @@ function resetState(daily){
   const seed=RUN_SEED!=null?RUN_SEED:((Math.random()*4294967296)>>>0);
   RUN_SEED=null;
   S={form,draft,diff,poolMode,daily:!!daily,dyn:draft==="dynasty"?pref.dyn:null,
-     slots,lastSquad:-1,spinning:false,picked:new Set(),
+     slots,bench:BENCH_DEF.map(b=>({...b,player:null})),tactic:"balanced",apps:{},
+     lastSquad:-1,spinning:false,picked:new Set(),
      respins:1,captain:null,goals:{},assists:{},era:0,budget:CAP_BUDGET,token:null,submitted:false,
      seed,rng:mulberry32(seed),
      pool:[],reelIdx:[],speed:1,
@@ -251,10 +255,18 @@ function openInvite(){
   else navigator.clipboard?.writeText(txt).then(()=>toast("Link copied ✓"),()=>toast(SITE_URL));
 }
 
-/* club badge glyph — initials on the club's colours */
+/* club crest — a proper little shield in the club's colours */
 function badge(c,size){
-  const s=size||26;
-  return `<div class="cb" style="width:${s}px;height:${s}px;background:linear-gradient(150deg,${c.k},${c.k2||c.k});font-size:${Math.round(s*.42)}px">${esc(c.ab)}</div>`;
+  const s=size||26, id="g"+hashStr(c.k+c.ab+s);
+  const dark=c.k2&&c.k2!=="#FFFFFF"?c.k2:"#1d0c36";
+  return `<svg class="cb" width="${s}" height="${s}" viewBox="0 0 24 26" aria-hidden="true">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${c.k}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs>
+    <path d="M12 1 22 4v9c0 6.5-4.2 10.4-10 12C6.2 23.4 2 19.5 2 13V4z" fill="url(#${id})"
+      stroke="rgba(255,255,255,.45)" stroke-width="1"/>
+    <path d="M12 1 22 4v3H2V4z" fill="rgba(255,255,255,.16)"/>
+    <text x="12" y="16" text-anchor="middle" font-size="7.4" font-weight="900"
+      fill="#fff" style="text-shadow:0 1px 2px rgba(0,0,0,.6)">${esc(c.ab)}</text></svg>`;
 }
 const clubLabel=i=>CLUBS[i].c+" "+CLUBS[i].s;
 
@@ -384,17 +396,23 @@ const leadWord=l=>l>=10?"inspirational":l>=8?"a born leader":l>=6?"steady":"quie
 /* =========================================================
    DRAFTING
 ========================================================= */
-const picksLeft=()=>S.slots.filter(s=>!s.player).length;
+const picksLeft=()=>S.slots.filter(s=>!s.player).length+S.bench.filter(s=>!s.player).length;
+const xiLeft=()=>S.slots.filter(s=>!s.player).length;
 function needList(){
   const need={};S.slots.filter(s=>!s.player).forEach(s=>{need[s.cat]=(need[s.cat]||0)+1;});
   return need;
 }
+function needBench(){
+  const need={};S.bench.filter(s=>!s.player).forEach(s=>{need[s.cat]=(need[s.cat]||0)+1;});
+  return need;
+}
+const findSlot=id=>S.slots.find(s=>s.id===id)||S.bench.find(s=>s.id===id);
 function draft(si,pi,key,slotId){
   const c=CLUBS[si],pl=c.p[pi];
-  const slot=slotId?S.slots.find(s=>s.id===slotId&&!s.player):S.slots.find(s=>!s.player&&s.cat===pl[1]);
-  if(!slot)return;
+  const slot=slotId?findSlot(slotId):S.slots.find(s=>!s.player&&s.cat===pl[1]);
+  if(!slot||slot.player)return;
   slot.player={name:pl[0],rating:pl[2],sp:pl[3]||pl[1],nat:pl[4]||"",
-    team:c.c,year:c.y,season:c.s,ab:c.ab,k:c.k,k2:c.k2,cat:pl[1],num:pi+1,sq:si};
+    team:c.c,year:c.y,season:c.s,ab:c.ab,k:c.k,k2:c.k2,pat:c.pat,cat:pl[1],num:pi+1,sq:si};
   S.picked.add(key);
   {const st=store.get();
    st.albumSquads=st.albumSquads||{};st.albumPlayers=st.albumPlayers||{};
@@ -407,6 +425,10 @@ function draft(si,pi,key,slotId){
   renderPitch(slot.id);
   paintDraftMeta();
   $("picks-n").textContent=picksLeft();
+  if(!xiLeft()&&picksLeft()&&!S._benchToldOnce){
+    S._benchToldOnce=true;
+    toast("Starting XI complete — now build the bench");
+  }
   if(!picksLeft()){
     if(!S.captain){
       const best=S.slots.filter(s=>s.player).sort((a,b)=>leadOf(b.player)-leadOf(a.player))[0];
@@ -414,7 +436,8 @@ function draft(si,pi,key,slotId){
     }
     $("btn-kickoff").disabled=false;
     $("btn-spin").disabled=true;$("btn-respin").disabled=true;
-    $("landed").innerHTML=`<span class="reveal"><b>Your XI is complete ✓</b></span>`;
+    $("landed").innerHTML=`<span class="reveal"><b>Squad complete ✓ — 11 + ${S.bench.length} subs</b></span>`;
+    setTimeout(openCaptainSheet,350);
   }
 }
 
@@ -431,19 +454,35 @@ function renderPitch(justFilled){
       <div class="pn">${esc(shortName(p.name))}</div>
       <div class="pr ${tierOf(eff)}">${hidden()?"?":eff}${pen?` <span class="oop">-${pen}</span>`:""}</div>
     </div>`;}).join("")}</div>`).join("");
-  pitch.querySelectorAll(".slot.empty").forEach(el=>el.onclick=()=>openPicker(el.dataset.slot));
+  pitch.querySelectorAll(".slot.empty").forEach(el=>el.onclick=()=>openSquad());
   pitch.querySelectorAll(".slot.filled").forEach(el=>el.onclick=()=>{
     S.captain=el.dataset.slot;renderPitch();toast("Captain: "+capName());});
   if(justFilled)pitch.querySelector(`[data-slot="${justFilled}"]`)?.classList.add("pop");
+  renderBench();
+}
+function renderBench(){
+  const el=$("bench");if(!el)return;
+  el.innerHTML='<div class="bench-t">Bench</div><div class="bench-row">'+S.bench.map(b=>{
+    if(!b.player)return `<div class="bslot empty"><span>${b.cat==="GK"?"GK":b.cat==="DEF"?"DF":b.cat==="MID"?"MF":"FW"}</span></div>`;
+    return `<div class="bslot">${shirt(b.player,16)}<span>${esc(shortName(b.player.name).split(" ").pop())}</span></div>`;
+  }).join("")+"</div>";
 }
 function shortName(n){
   const parts=n.split(" ");
   return parts.length>1&&n.length>13?parts[0][0]+". "+parts.slice(1).join(" "):n;
 }
 function shirt(p,size){
-  const s=size||20;
+  const s=size||20, k=p.k, k2=p.k2||"#fff", pat=p.pat||"solid";
+  const BODY="M8 2 4 4v5h3v13h10V9h3V4l-4-2-2 2h-4z";
+  let detail="";
+  if(pat==="sleeves")detail=`<path d="M8 2 4 4v5h3V4.6z" fill="${k2}"/><path d="M16 2 20 4v5h-3V4.6z" fill="${k2}"/>`;
+  else if(pat==="stripes")detail=`<path d="M9.5 3.4h1.8V22H9.5zM12.9 3.4h1.8V22h-1.8z" fill="${k2}" opacity=".9"/>`;
+  else if(pat==="hoops")detail=`<path d="M7 9.5h10v2.4H7zM7 14.5h10v2.4H7z" fill="${k2}" opacity=".9"/>`;
   return `<svg class="shirt" viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true">
-    <path d="M8 2 4 4v5h3v13h10V9h3V4l-4-2-2 2h-4z" fill="${p.k}" stroke="${p.k2||"#fff"}" stroke-width="1"/></svg>`;
+    <g clip-path="url(#shc)"><clipPath id="shc"><path d="${BODY}"/></clipPath>
+      <path d="${BODY}" fill="${k}"/>${detail}</g>
+    <path d="${BODY}" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1"/>
+    <path d="M10 2.2c.6.8 1.2 1.2 2 1.2s1.4-.4 2-1.2" fill="none" stroke="${k2}" stroke-width="1.1"/></svg>`;
 }
 function paintDraftMeta(){
   const bits=[];

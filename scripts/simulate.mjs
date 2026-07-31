@@ -40,18 +40,25 @@ for (let run = 0; run < RUNS; run++) {
   G.resetState(true);
   const S = G.S();
 
-  // draft greedily: for each empty slot, draw a squad and take the best fit
+  // draft greedily: XI first, then the 9-player bench
   let guard = 0;
-  while (G.picksLeft() > 0 && guard++ < 400) {
+  while (G.picksLeft() > 0 && guard++ < 900) {
     const idx = G.poolIdx();
     const si = idx[Math.floor(Math.random() * idx.length)];
-    const slot = S.slots.find(s => !s.player);
+    const slot = S.slots.find(s => !s.player) || S.bench.find(s => !s.player);
     const club = G.CLUBS[si];
+    const isBench = !S.slots.includes(slot);
     let bestPi = -1, bestVal = -1;
     club.p.forEach((p, pi) => {
       if (S.picked.has(si + ':' + pi)) return;
-      const v = p[2] - G.rolePenalty(p[3] || p[1], slot.id);
-      if (v > bestVal) { bestVal = v; bestPi = pi; }
+      if (isBench) {                       // bench slots are typed by line
+        const LINE = { GK:'GK',RB:'DEF',LB:'DEF',CB:'DEF',DM:'MID',CM:'MID',AM:'MID',RM:'MID',LM:'MID',RW:'FWD',LW:'FWD',ST:'FWD' };
+        if ((LINE[p[3] || p[1]] || p[1]) !== slot.cat) return;
+        if (p[2] > bestVal) { bestVal = p[2]; bestPi = pi; }
+      } else {
+        const v = p[2] - G.rolePenalty(p[3] || p[1], slot.id);
+        if (v > bestVal) { bestVal = v; bestPi = pi; }
+      }
     });
     if (bestPi < 0) continue;
     S.landedSquad = si;

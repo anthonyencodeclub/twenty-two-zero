@@ -49,8 +49,9 @@ export default async function handler(req, res) {
     scoreRun(b.matches, { draft, diff, daily, pool, form, dyn: dynFlag, seed: b.seed });
 
   const dyn = draft === 'dynasty' ? String(b.dyn || '').replace(/[^A-Za-z &]/g, '').slice(0, 24) : '';
+  const tn = String(b.tn || '').replace(/[\u0000-\u001f<>&"'`\\]/g, '').slice(0, 24);
   const entry = {
-    n: name, c: country, p: pts,
+    n: name, c: country, tn, p: pts,
     w, d, l, gf, ga, lp: lpts, ps: pos,
     m: (feat ? '⭐' : '') + draft + (dyn ? '(' + dyn + ')' : '') + '·' + diff + (pool !== 'all' ? '·' + pool : '') + (daily ? '·daily' : ''),
     f: form,

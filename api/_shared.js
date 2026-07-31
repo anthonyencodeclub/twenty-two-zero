@@ -223,7 +223,7 @@ export function cleanCountry(raw) {
 }
 export function cleanXI(raw) {
   if (!Array.isArray(raw)) return [];
-  return raw.slice(0, 11).map(p => {
+  return raw.slice(0, 20).map(p => {
     if (!Array.isArray(p)) return null;
     const name = String(p[0] || '').replace(/[<>&"'`\\]/g, '').slice(0, 32);
     const year = Number.isInteger(p[1]) && p[1] >= 1930 && p[1] <= 2030 ? p[1] : 0;

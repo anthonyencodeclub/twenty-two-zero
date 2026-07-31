@@ -10,7 +10,7 @@ import { CLUB_SEASONS } from '../src/clubs.mjs';
 import { LORE } from '../src/lore.mjs';
 
 const KIT = {
-  "Arsenal":                 ["#EF0107","#FFFFFF","ARS","Arsenal"],
+  "Arsenal":                 ["#EF0107","#FFFFFF","ARS","Arsenal","sleeves"],
   "Chelsea":                 ["#034694","#FFFFFF","CHE","Chelsea"],
   "Manchester City":         ["#6CABDD","#1C2C5B","MCI","Man City"],
   "Manchester United":       ["#DA291C","#FBE122","MUN","Man United"],
@@ -19,16 +19,16 @@ const KIT = {
   "Birmingham City":         ["#0000C8","#FFFFFF","BIR","Birmingham"],
   "Bristol Academy":         ["#E21C38","#FFFFFF","BRI","Bristol Acad"],
   "Bristol City":            ["#E21C38","#FFFFFF","BRC","Bristol City"],
-  "Doncaster Rovers Belles": ["#E4002B","#FFFFFF","DON","Doncaster"],
+  "Doncaster Rovers Belles": ["#E4002B","#FFFFFF","DON","Doncaster","hoops"],
   "Lincoln Ladies":          ["#DA291C","#FFFFFF","LIN","Lincoln"],
   "Notts County":            ["#1A1A1A","#FFFFFF","NOT","Notts County"],
   "Sunderland":              ["#EB172B","#FFFFFF","SUN","Sunderland"],
-  "Reading":                 ["#004494","#FFFFFF","REA","Reading"],
+  "Reading":                 ["#004494","#FFFFFF","REA","Reading","hoops"],
   "Yeovil Town":             ["#00874E","#FFFFFF","YEO","Yeovil"],
-  "Brighton & Hove Albion":  ["#0057B8","#FFFFFF","BHA","Brighton"],
-  "West Ham United":         ["#7A263A","#1BB1E7","WHU","West Ham"],
+  "Brighton & Hove Albion":  ["#0057B8","#FFFFFF","BHA","Brighton","stripes"],
+  "West Ham United":         ["#7A263A","#1BB1E7","WHU","West Ham","sleeves"],
   "Tottenham Hotspur":       ["#132257","#FFFFFF","TOT","Spurs"],
-  "Aston Villa":             ["#95BFE5","#670E36","AVL","Aston Villa"],
+  "Aston Villa":             ["#95BFE5","#670E36","AVL","Aston Villa","sleeves"],
   "Leicester City":          ["#003090","#FDBE11","LEI","Leicester"],
   "Crystal Palace":          ["#1B458F","#C4122E","CRY","Crystal Palace"],
   "London City Lionesses":   ["#6A2C91","#FFFFFF","LCL","London City"]
@@ -65,6 +65,7 @@ for (const cs of CLUB_SEASONS) {
   const kit = KIT[cs.c];
   if (!kit) { problems.push(`no kit colours for club "${cs.c}"`); continue; }
   const shortName = kit[3] || cs.c;
+  const pat = kit[4] || 'solid';
   const key = cs.c + '|' + cs.s;
   const lore = LORE[key];
   if (!lore) problems.push(`no lore for ${key}`);
@@ -98,7 +99,7 @@ for (const cs of CLUB_SEASONS) {
   const raw = best.reduce((a, b) => a + b, 0) / best.length;
   const str = Math.round((SPREAD_MID + (raw - SPREAD_MID) * SPREAD_K) * 10) / 10;
 
-  out.push({ c: cs.c, sh: shortName, s: String(cs.s), y, k: kit[0], k2: kit[1], ab: kit[2], l: lore || '', str, p: players });
+  out.push({ c: cs.c, sh: shortName, s: String(cs.s), y, k: kit[0], k2: kit[1], ab: kit[2], pat, l: lore || '', str, p: players });
 }
 
 out.sort((a, b) => a.y - b.y || a.c.localeCompare(b.c));
@@ -117,7 +118,7 @@ const clubIds = [...new Set(out.map(c => c.c))];
 const CS = out.map(c => [c.str, c.y, clubIds.indexOf(c.c)]);
 
 const js = v => JSON.stringify(v);
-const clubLine = c => `{c:${js(c.c)},sh:${js(c.sh)},s:${js(c.s)},y:${c.y},k:${js(c.k)},k2:${js(c.k2)},ab:${js(c.ab)},l:${js(c.l)},p:[${c.p.map(p => `[${js(p[0])},${js(p[1])},${p[2]},${js(p[3])},${js(p[4])}]`).join(',')}]}`;
+const clubLine = c => `{c:${js(c.c)},sh:${js(c.sh)},pat:${js(c.pat)},s:${js(c.s)},y:${c.y},k:${js(c.k)},k2:${js(c.k2)},ab:${js(c.ab)},l:${js(c.l)},p:[${c.p.map(p => `[${js(p[0])},${js(p[1])},${p[2]},${js(p[3])},${js(p[4])}]`).join(',')}]}`;
 
 writeFileSync(new URL('../src/data.js', import.meta.url), `/* =========================================================
    DATA — ${out.length} WSL club-seasons, ${out[0].y}–${out[out.length - 1].y}

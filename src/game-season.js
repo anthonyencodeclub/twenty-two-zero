@@ -46,35 +46,76 @@ const C_TITLE=["The title is on the line here.","Win this and the trophy is thei
 /* =========================================================
    ONE MATCH
 ========================================================= */
-const COHESION=1.0;   // rivals are real squads who actually played together
-function simMyMatch(rawOpp,home){
-  const st=strengths(),oppStr=rawOpp+COHESION;
-  const e=(st.att-oppStr+(home?2.2:0))/5, de=(oppStr-st.def+(home?0:2.2))/5;
-  const lf=clamp(1.48+e*0.62,0.14,5), la=clamp(1.40+de*0.62,0.10,4.6);
-  const gf=poisson(R,lf), ga=poisson(R,la);
-  // when to score
+const COHESION=2.2;   // rivals are real squads who actually played together
+/* base tactics, switchable between matches and again at half-time */
+const TACTICS={
+  attack:{n:"All-out attack",att:2.3,def:-2.0},
+  balanced:{n:"Balanced",att:0,def:0},
+  park:{n:"Park the bus",att:-2.0,def:2.3}
+};
+const TAC_ORDER=["balanced","attack","park"];
+function paintTactic(){const b=$("btn-tactic");if(b)b.textContent="Tactic: "+TACTICS[S.tactic].n;}
+
+/* rotation: a 22-game season is long — most weeks one or two starters make way
+   for the best bench player on their line. Runs on the seeded RNG, so a shared
+   challenge sees the same rotations. */
+function matchLineup(){
+  const lineup=S.slots.map(sl=>({id:sl.id,cat:sl.cat,player:sl.player}));
+  const swaps=R()<0.5?1:R()<0.35?2:0;
+  let rested=0;
+  for(let k=0;k<swaps;k++){
+    const cands=lineup.filter(l=>l.cat!=="GK");
+    const out=cands[rnd(cands.length)];
+    const sub=S.bench.filter(b=>b.player&&b.cat===out.cat&&!lineup.some(l=>l.player===b.player))
+      .sort((a,b)=>b.player.rating-a.player.rating)[0];
+    if(!sub)continue;
+    out.player=sub.player;rested++;            // takes the same shirt for the day
+  }
+  lineup.forEach(l=>{if(l.player)S.apps[l.player.name]=(S.apps[l.player.name]||0)+1;});
+  return{lineup,rested};
+}
+function lineupStrengths(lineup){
+  const F=FORMATIONS[S.form];
+  let att=0,mid=0,def=0,gk=70,na=0,nm=0,nd=0;
+  lineup.forEach(l=>{
+    if(!l.player)return;
+    const e=effRating(l.player,l.id);
+    if(l.cat==="FWD"){att+=e;na++;}
+    else if(l.cat==="MID"){mid+=e;nm++;}
+    else if(l.cat==="DEF"){def+=e;nd++;}
+    else gk=e;
+  });
+  att=na?att/na:70;mid=nm?mid/nm:70;def=nd?def/nd:70;
+  const boost=chemBoost(),lead=capLead();
+  const bp=S.bench.filter(b=>b.player);
+  const benchAvg=bp.length?bp.reduce((a,b)=>a+b.player.rating,0)/bp.length:70;
+  const depth=clamp((benchAvg-74)/6,0,1.6);    // a real bench keeps legs fresh
+  return{att:att*0.62+mid*0.38+F.mod.att+boost+depth+(lead-5)*0.22,
+         def:def*0.60+gk*0.22+mid*0.18+F.mod.def+boost+depth+(lead-5)*0.22};
+}
+function simHalf(lf,la,fromMin,toMin,lineup){
+  const gf=poisson(R,lf),ga=poisson(R,la);
   const mins=[];
-  for(let i=0;i<gf;i++)mins.push({me:true,m:1+rnd(93)});
-  for(let i=0;i<ga;i++)mins.push({me:false,m:1+rnd(93)});
+  for(let i=0;i<gf;i++)mins.push({me:true,m:fromMin+rnd(toMin-fromMin)});
+  for(let i=0;i<ga;i++)mins.push({me:false,m:fromMin+rnd(toMin-fromMin)});
   mins.sort((a,b)=>a.m-b.m);
-  // who scores — weighted by attacking threat
-  const out=S.slots.filter(s=>s.player);
-  const weight=s=>{
-    const e2=effRating(s.player,s.id);
-    const w=s.cat==="FWD"?10:s.cat==="MID"?4:s.cat==="DEF"?1:0.05;
+  const out=lineup.filter(l=>l.player);
+  const weight=l=>{
+    const e2=effRating(l.player,l.id);
+    const w=l.cat==="FWD"?10:l.cat==="MID"?4:l.cat==="DEF"?1:0.05;
     return w*Math.pow(e2/80,3);
   };
   const pick=()=>{
-    const tot=out.reduce((a,s)=>a+weight(s),0);
+    const tot=out.reduce((a,l)=>a+weight(l),0);
     let r=R()*tot;
-    for(const s of out){r-=weight(s);if(r<=0)return s.player;}
+    for(const l of out){r-=weight(l);if(r<=0)return l.player;}
     return out[0].player;
   };
   const events=[];
   for(const g of mins){
     if(g.me){
       const sc=pick();let as=null;
-      if(R()<0.7){for(let t=0;t<6;t++){const c=pick();if(c!==sc){as=c;break;}}}
+      if(R()<0.7){for(let t=0;t<6;t++){const c2=pick();if(c2!==sc){as=c2;break;}}}
       S.goals[sc.name]=(S.goals[sc.name]||0)+1;
       if(as)S.assists[as.name]=(S.assists[as.name]||0)+1;
       events.push({m:g.m,cls:"goal",t:`⚽ <b>${esc(sc.name)}</b> ${pickFrom(C_GOAL)}${as?` <span class="dim">(${esc(shortName(as.name))})</span>`:""}`});
@@ -83,17 +124,36 @@ function simMyMatch(rawOpp,home){
       events.push({m:g.m,cls:"conc",t:`⚽ Their number ${1+rnd(11)} ${pickFrom(C_CONC)}`});
     }
   }
-  // colour: saves, misses, notes
-  const filler=2+rnd(3);
+  const filler=1+rnd(2);
   for(let i=0;i<filler;i++){
-    const m=1+rnd(93),r=R();
+    const m=fromMin+rnd(toMin-fromMin),r=R();
     const t=r<0.34?pickFrom(C_SAVE):r<0.7?`<b>${esc(shortName(pick().name))}</b> ${pickFrom(C_MISS)}`:pickFrom(C_NOTE);
     events.push({m,cls:"",t});
   }
   events.sort((a,b)=>a.m-b.m);
   return{gf,ga,events};
 }
-
+function prepMatch(rawOpp,home,lineup){
+  const st=lineupStrengths(lineup),oppStr=rawOpp+COHESION;
+  const tac=TACTICS[S.tactic]||TACTICS.balanced;
+  const e=(st.att+tac.att-oppStr+(home?2.2:0))/5, de=(oppStr-(st.def+tac.def)+(home?0:2.2))/5;
+  return{lf:clamp(1.48+e*0.62,0.14,5)/2, la:clamp(1.40+de*0.62,0.10,4.6)/2};
+}
+function secondHalfRates(base,tactic,trailing){
+  const tac=TACTICS[tactic]||TACTICS.balanced;
+  let lf=base.lf*(1+tac.att*0.055), la=base.la*(1-tac.def*0.055);
+  if(trailing){const lead=capLead();lf*=1.05+(lead-5)*0.012;}   // the captain drags them forward
+  return{lf:clamp(lf,0.07,2.6),la:clamp(la,0.05,2.4)};
+}
+function simMyMatch(rawOpp,home){
+  // non-interactive path (Instant speed + headless tests): both halves, base tactic
+  const{lineup}=matchLineup();
+  const base=prepMatch(rawOpp,home,lineup);
+  const h1=simHalf(base.lf,base.la,1,46,lineup);
+  const r2=secondHalfRates(base,S.tactic,h1.gf<h1.ga);
+  const h2=simHalf(r2.lf,r2.la,46,94,lineup);
+  return{gf:h1.gf+h2.gf,ga:h1.ga+h2.ga,events:h1.events.concat(h2.events)};
+}
 /* =========================================================
    SEASON FLOW
 ========================================================= */
@@ -109,11 +169,12 @@ function startSeason(){
   S.season.ai=simRivalLeague(S.seed,S.season.rivals);
   S.season.md=0;S.season.matches=[];S.season.done=false;
   show("season");
+  paintTactic();
   paintMatchday();
 }
 function myName(){
-  const n=store.get().playerName;
-  return n?n+"'s XI":"Your XI";
+  const st=store.get();
+  return st.teamName||(st.playerName?st.playerName+"'s XI":"Your XI");
 }
 function rowName(r){
   if(r.you)return myName();
@@ -121,17 +182,21 @@ function rowName(r){
   return (c.sh||c.c)+' <span class="yr">'+c.s+"</span>";
 }
 
-function paintMatchday(){
-  const md=S.season.md;
-  if(md>=MATCHDAYS)return finishSeason();
+function paintFixture(md){
   const{opp,home}=myFixture(md),c=CLUBS[S.season.rivals[opp-1]];
   $("md-label").textContent=`Matchday ${md+1} of ${MATCHDAYS}`;
   $("mdbar").firstElementChild.style.width=(md/MATCHDAYS*100)+"%";
   $("fx-ha").textContent=home?"Home":"Away";
-  $("fx-home").innerHTML=home?`${esc(myName())}`:`${esc(c.c)}<span class="yr">${esc(c.s)}</span>`;
-  $("fx-away").innerHTML=home?`${esc(c.c)}<span class="yr">${esc(c.s)}</span>`:`${esc(myName())}`;
+  $("fx-home").innerHTML=home?`${esc(myName())}`:`${esc(c.c)} <span class="yr">${esc(c.s)}</span>`;
+  $("fx-away").innerHTML=home?`${esc(c.c)} <span class="yr">${esc(c.s)}</span>`:`${esc(myName())}`;
   $("fx-score").textContent="– –";
   $("clock").textContent="";
+  return{opp,home,c};
+}
+function paintMatchday(){
+  const md=S.season.md;
+  if(md>=MATCHDAYS)return finishSeason();
+  const{c}=paintFixture(md);
   $("feed").innerHTML=md===0&&c.l?`<div class="opplore">${esc(c.l)}</div>`:"";
   $("btn-next").textContent=md===0?"Kick off ⚽":"Play matchday "+(md+1)+" →";
   $("btn-next").disabled=false;
@@ -147,28 +212,39 @@ function paintPos(){
 }
 const ord=n=>n+(n%10===1&&n!==11?"st":n%10===2&&n!==12?"nd":n%10===3&&n!==13?"rd":"th");
 
+function htChoice(){
+  // the half-time team talk: resolves with the chosen tactic
+  return new Promise(res=>{
+    const feed=$("feed");
+    const d=document.createElement("div");
+    d.className="ev big";
+    d.innerHTML=`<b>Half-time.</b> What's the message?<div class="row" style="margin-top:8px">`+
+      TAC_ORDER.map(t=>`<button class="btn ghost sm" data-t="${t}" style="margin:0">${TACTICS[t].n}</button>`).join("")+`</div>`;
+    feed.appendChild(d);feed.scrollTop=feed.scrollHeight;
+    d.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+      S.tactic=b.dataset.t;paintTactic();
+      d.innerHTML=`<b>Half-time:</b> ${TACTICS[S.tactic].n}`;
+      res();
+    });
+  });
+}
 async function playMatchday(){
   if(S.season.playing)return;
   S.season.playing=true;
   $("btn-next").disabled=true;
-  const md=S.season.md,{opp,home}=myFixture(md);
-  const c=CLUBS[S.season.rivals[opp-1]];
-  const r=simMyMatch(CS[S.season.rivals[opp-1]][0],home);
+  const md=S.season.md;
+  const{opp,home}=paintFixture(md);            // repaint EVERY matchday — was only painted once
   const ms=SPEEDS[S.speed].ms;
   const feed=$("feed");feed.innerHTML="";
-  let gf=0,ga=0;
-  const setScore=()=>$("fx-score").textContent=home?`${gf} – ${ga}`:`${ga} – ${gf}`;
-  setScore();
-  // title-race tension in the run-in
   if(md>=MATCHDAYS-3){
     const{pos}=paintPos();
     if(pos<=2)feed.innerHTML=`<div class="opplore">${pickFrom(C_TITLE)}</div>`;
   }
-  for(const ev of r.events){
-    if(ms){
-      $("clock").textContent=`${ev.m}'`;
-      await wait(ms);
-    }
+  let gf=0,ga=0;
+  const setScore=()=>$("fx-score").textContent=home?`${gf} – ${ga}`:`${ga} – ${gf}`;
+  setScore();
+  const showEv=async ev=>{
+    if(ms){$("clock").textContent=`${ev.m}'`;await wait(ms);}
     if(ev.cls==="goal")gf++;
     if(ev.cls==="conc")ga++;
     setScore();
@@ -177,13 +253,30 @@ async function playMatchday(){
     d.innerHTML=`<span class="min">${ev.m}'</span>${ev.t}`;
     feed.appendChild(d);
     feed.scrollTop=feed.scrollHeight;
+  };
+  let r;
+  if(ms){                                       // watchable match: halves + team talk
+    const{lineup,rested}=matchLineup();
+    if(rested)await showEv({m:0,cls:"",t:`Rotation: ${rested} change${rested>1?"s":""} to keep legs fresh.`});
+    const base=prepMatch(CS[S.season.rivals[opp-1]][0],home,lineup);
+    const h1=simHalf(base.lf,base.la,1,46,lineup);
+    for(const ev of h1.events)await showEv(ev);
+    $("clock").textContent="Half-time";
+    await htChoice();
+    const r2=secondHalfRates(base,S.tactic,h1.gf<h1.ga);
+    const h2=simHalf(r2.lf,r2.la,46,94,lineup);
+    for(const ev of h2.events)await showEv(ev);
+    r={gf:h1.gf+h2.gf,ga:h1.ga+h2.ga};
+  }else{                                        // instant: no stops
+    r=simMyMatch(CS[S.season.rivals[opp-1]][0],home);
   }
   gf=r.gf;ga=r.ga;setScore();
   if(ms)$("clock").textContent="Full time";
+  const oc=CLUBS[S.season.rivals[opp-1]];
   const verdict=gf>ga?"Win":gf===ga?"Draw":"Defeat";
   const d=document.createElement("div");
   d.className="ev "+(gf>ga?"goal":gf===ga?"":"conc");
-  d.innerHTML=`<b>Full time — ${verdict}</b> vs ${esc(c.c)} ${esc(c.s)}`;
+  d.innerHTML=`<b>Full time — ${verdict}</b> vs ${esc(oc.c)} ${esc(oc.s)}`;
   feed.appendChild(d);
 
   S.season.matches.push({gf,ga});
@@ -301,11 +394,13 @@ function finishSeason(){
   awHTML.push(awRow("Clean sheets",aw.cs+" of "+MATCHDAYS));
   $("r-awards").innerHTML=awHTML.join("");
 
-  $("r-xi").innerHTML=S.slots.filter(s=>s.player).map(s=>{
-    const p=s.player,gl=S.goals[p.name]||0;
+  const prow=(p,role,cap)=>{
+    const gl=S.goals[p.name]||0,ap=S.apps[p.name]||0;
     return `<div class="prow2" style="cursor:default">${shirt(p,20)}
-      <div class="nm"><b>${esc(p.name)}</b><span>${roleOf(s.id)} · ${esc(p.team)} ${esc(p.season)}${S.captain===s.id?" · captain":""}</span></div>
-      <div class="rt">${gl?"⚽"+gl:""}</div></div>`;}).join("");
+      <div class="nm"><b>${esc(p.name)}${cap?" ©":""}</b><span>${role} · ${esc(p.team)} ${esc(p.season)} · ${ap} apps</span></div>
+      <div class="rt">${gl?"⚽"+gl:""}</div></div>`;};
+  $("r-xi").innerHTML=S.slots.filter(s=>s.player).map(s=>prow(s.player,roleOf(s.id),S.captain===s.id)).join("")
+    +'<h3>Bench</h3>'+S.bench.filter(b=>b.player).map(b=>prow(b.player,b.cat+" sub",false)).join("");
 
   paintChallengeResult(r);
   awardBadges(r,aw);
@@ -372,12 +467,15 @@ function recordRun(r,aw){
 /* =========================================================
    SUBMIT
 ========================================================= */
+function saveStatus(html){const el=$("r-save");if(el)el.innerHTML=html;}
 async function autoSubmit(r){
   if(S.submitted)return;S.submitted=true;
   const st=store.get();
-  if(!st.playerName)return;
+  if(!st.playerName){saveStatus('<span class="dim">No profile — season not saved.</span>');return;}
+  if(!S.token){saveStatus('<span style="color:var(--loss)">Offline when the season started — couldn\'t save.</span>');return;}
+  saveStatus('<span class="dim">Saving to the world leaderboard…</span>');
   const body={
-    name:st.playerName,country:st.playerCountry,
+    name:st.playerName,country:st.playerCountry,tn:(st.teamName||"").slice(0,24),
     matches:S.season.matches,seed:S.seed,
     draft:S.draft,diff:S.diff,pool:S.poolMode,form:S.form,dyn:S.dyn,daily:S.daily,
     xi:S.slots.filter(s=>s.player).map(s=>[s.player.name,s.player.year,s.player.ab]),
@@ -388,11 +486,18 @@ async function autoSubmit(r){
     const j=await apiPost("/api/score",body);
     if(j&&j.ok){
       if(body.email){const s2=store.get();s2.emailSent=1;store.set(s2);}
-      if(j.rank)toast(`Saved — #${j.rank} all-time 🌍`);
-      else toast("Saved to the leaderboard ✓");
+      saveStatus(`<span style="color:var(--mint)">Saved ✓${j.rank?` — #${j.rank} all-time`:""}${j.rankDaily?` · #${j.rankDaily} today`:""}</span>`);
       if(j.pts&&Math.abs(j.pts-r.pts)>1)console.warn("score mismatch",j.pts,r.pts);
-    }else if(j&&j.err)console.warn("submit rejected:",j.err);
-  }catch(e){}
+    }else{
+      saveStatus(`<span style="color:var(--loss)">Couldn't save${j&&j.err?" ("+esc(j.err)+")":""}.</span>
+        <button class="pill grey" id="r-retry" style="border:0;margin-left:8px">Retry</button>`);
+      $("r-retry").onclick=()=>{S.submitted=false;autoSubmit(r);};
+    }
+  }catch(e){
+    saveStatus(`<span style="color:var(--loss)">Network error — not saved.</span>
+      <button class="pill grey" id="r-retry" style="border:0;margin-left:8px">Retry</button>`);
+    $("r-retry").onclick=()=>{S.submitted=false;autoSubmit(r);};
+  }
 }
 
 /* =========================================================
@@ -547,37 +652,86 @@ function confetti(){
 }
 
 /* =========================================================
+   CAPTAIN
+========================================================= */
+function openCaptainSheet(){
+  const rows=S.slots.filter(sl=>sl.player).map(sl=>{
+    const p=sl.player,me=S.captain===sl.id;
+    return `<div class="prow2" data-slot="${sl.id}">${shirt(p,20)}
+      <div class="nm"><b>${esc(p.name)}${me?' <span style="color:var(--pink-hi)">©</span>':""}</b>
+      <span>${roleOf(sl.id)} · ${leadWord(leadOf(p))}</span></div>
+      <div class="rt">${me?"©":""}</div></div>`;
+  }).join("");
+  openSheet(`<div class="sheet-head"><div><h2 style="margin:0">Choose your captain</h2>
+      <div class="xs dim">Great captains lift the side, rally comebacks and settle nerves.</div></div>
+      <button class="pill grey" onclick="closeSheet()">Done</button></div>
+    <div class="plist">${rows}</div>`);
+  $("sheet").querySelectorAll(".prow2").forEach(el=>{
+    el.onclick=()=>{S.captain=el.dataset.slot;renderPitch();openCaptainSheet();};
+  });
+}
+
+/* =========================================================
    PLAYER PICKER
 ========================================================= */
 function openSheet(html){$("sheet").innerHTML=html;$("modal-bg").classList.add("on");}
 function closeSheet(){$("modal-bg").classList.remove("on");}
-function openPicker(slotId){
+function openSquad(){
   if(S.landedSquad==null){toast("Draw a squad first");return;}
   const si=S.landedSquad,c=CLUBS[si];
-  const need=needList();
-  const needTxt=Object.entries(need).map(([k,v])=>`<b>${v}</b> ${k}`).join(" · ");
+  const xi=Object.entries(needList()).map(([k,v])=>`<b>${v}</b> ${k}`).join(" · ");
+  const bn=Object.entries(needBench()).map(([k,v])=>`<b>${v}</b> ${k}`).join(" · ");
+  const need=(xi?("XI: "+xi):"XI ✓")+(bn?(' &nbsp;·&nbsp; Bench: '+bn):" · Bench ✓");
   const rows=c.p.map((p,pi)=>{
     const key=si+":"+pi,taken=S.picked.has(key);
     const cap=S.draft==="cap"&&p[2]>S.budget-CAP_FLOOR*(picksLeft()-1);
-    const eff=slotId?Math.max(40,p[2]-rolePenalty(p[3]||p[1],slotId)):p[2];
-    const pen=slotId?rolePenalty(p[3]||p[1],slotId):0;
     return `<div class="prow2${taken||cap?" off":""}" data-pi="${pi}">
       ${shirt({k:c.k,k2:c.k2},20)}
       <div class="nm"><b>${esc(p[0])}</b><span>${p[3]||p[1]}${p[4]?" · "+esc(p[4]):""}${taken?" · already picked":cap?" · over budget":""}</span></div>
-      <div class="rt ${tierOf(eff)}">${hidden()?"?":eff}${pen?`<span class="oop"> -${pen}</span>`:""}</div></div>`;
+      <div class="rt ${tierOf(p[2])}">${hidden()?"?":p[2]}</div></div>`;
   }).join("");
   openSheet(`<div class="sheet-head">
       <div><h2 style="margin:0">${esc(c.c)} ${esc(c.s)}</h2>
-      <div class="xs dim">Choosing for <b style="color:var(--pink-hi)">${roleOf(slotId)}</b></div></div>
+      <div class="xs dim">Pick a player, then choose her position</div></div>
       <button class="pill grey" onclick="closeSheet()">Close</button></div>
-    <div class="needlist">Still to fill: ${needTxt}</div>
+    ${c.l?`<p class="xs dim" style="font-style:italic;margin:0 0 10px">${esc(c.l)}</p>`:""}
+    <div class="needlist">Still to fill: ${need}</div>
     <div class="plist">${rows}</div>`);
   $("sheet").querySelectorAll(".prow2:not(.off)").forEach(el=>{
-    el.onclick=()=>{
-      const pi=+el.dataset.pi;
-      draft(si,pi,si+":"+pi,slotId);
+    el.onclick=()=>openPlacement(+el.dataset.pi);
+  });
+}
+function openPlacement(pi){
+  const si=S.landedSquad,c=CLUBS[si],p=c.p[pi],sp=p[3]||p[1];
+  const open=S.slots.filter(x=>!x.player);
+  const best=Math.max(...open.map(x=>Math.max(40,p[2]-rolePenalty(sp,x.id))));
+  const F=FORMATIONS[S.form];
+  const rowsHTML=F.rows.map(row=>`<div class="slotrow">${row.map(id=>{
+    const sl=S.slots.find(x=>x.id===id);
+    if(sl.player)return `<button class="slotbtn taken" disabled>${roleOf(id)}<br><span class="xs">${esc(shortName(sl.player.name))}</span></button>`;
+    const pen=rolePenalty(sp,id),eff=Math.max(40,p[2]-pen);
+    return `<button class="slotbtn${pen===0&&eff===best?" best":pen>=8?" bad":""}" data-slot="${id}">
+      ${roleOf(id)}<br><b class="${tierOf(eff)}">${hidden()?"?":eff}</b>${pen?`<span class="oop"> −${pen}</span>`:""}</button>`;
+  }).join("")}</div>`).join("");
+  const line=LINE_OF[sp];
+  const bslots=S.bench.filter(b=>b.cat===line);
+  const benchHTML=bslots.length?`<h3 style="margin:12px 0 6px">Bench</h3><div class="slotrow">${
+    bslots.map(b=>b.player
+      ?`<button class="slotbtn taken" disabled>${b.cat}<br><span class="xs">${esc(shortName(b.player.name))}</span></button>`
+      :`<button class="slotbtn" data-slot="${b.id}">${b.cat} sub<br><b>${hidden()?"?":p[2]}</b></button>`).join("")}</div>`:"";
+  openSheet(`<div class="sheet-head">
+      <div><h2 style="margin:0">${esc(p[0])}</h2>
+      <div class="xs dim">${sp}${p[4]?" · "+esc(p[4]):""} · ${esc(c.c)} ${esc(c.s)} · rated ${hidden()?"?":p[2]}</div></div>
+      <button class="pill grey" id="pl-back">← Squad</button></div>
+    <p class="xs dim" style="margin:4px 0 10px">Choose her shirt — out of position costs rating.</p>
+    ${rowsHTML}${benchHTML}`);
+  $("pl-back").onclick=openSquad;
+  $("sheet").querySelectorAll(".slotbtn[data-slot]").forEach(b=>{
+    b.onclick=()=>{
+      draft(si,pi,si+":"+pi,b.dataset.slot);
       S.landedSquad=null;
       $("btn-spin").disabled=picksLeft()===0;
+      $("btn-respin").disabled=true;
       renderPitch();
     };
   });
@@ -606,7 +760,7 @@ function doSpin(isRespin){
     $("btn-spin").disabled=true;
     $("btn-respin").disabled=S.respins<=0;
     renderPitch();
-    toast("Tap a shirt on the pitch to place a player");
+    openSquad();                                  // straight into the squad
   });
 }
 function doRespin(){
@@ -822,6 +976,7 @@ function init(){
     if(name.length<2){toast("Pick a manager name");return;}
     const st=store.get();
     st.playerName=name.slice(0,20);
+    st.teamName=$("in-team").value.trim().slice(0,24);
     st.playerCountry=$("in-country").value.trim().toUpperCase().slice(0,2);
     st.playerEmail=$("in-email").value.trim();
     st.optin=$("in-optin").checked&&!!st.playerEmail;
@@ -843,6 +998,11 @@ function init(){
   $("btn-speed").onclick=()=>{
     S.speed=(S.speed+1)%SPEEDS.length;
     $("btn-speed").textContent="Speed: "+SPEEDS[S.speed].n;
+  };
+  $("btn-tactic").onclick=()=>{
+    const i=TAC_ORDER.indexOf(S.tactic);
+    S.tactic=TAC_ORDER[(i+1)%TAC_ORDER.length];
+    paintTactic();
   };
   $("btn-squad").onclick=()=>openSheet(`<div class="sheet-head"><h2 style="margin:0">Your XI</h2>
     <button class="pill grey" onclick="closeSheet()">Close</button></div>
